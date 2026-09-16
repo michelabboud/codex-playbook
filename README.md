@@ -16,7 +16,7 @@ These are not abstract best practices; they are the terms of the collaboration.
 
 ## See the whole system
 
-**[Open the visual rule map →](https://nice-michel.github.io/codex-playbook/)**
+**[Open the visual rule map →](https://michelabboud.github.io/codex-playbook/)**
 
 The map presents all 42 rules, the two normal approval gates, the close-out
 chain, and the Codex-native split between global instructions and skills. It is
