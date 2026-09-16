@@ -4,7 +4,7 @@
 
 **Source reviewed:** `michelabboud/claude-code-playbook` at `d7b8148`
 
-**Target:** `nice-michel/codex-playbook` v0.1.0
+**Target:** `michelabboud/codex-playbook` v0.1.0
 
 This repository is a deliberate Codex edition, not a line-for-line migration.
 It preserves Michel's motto, first-person voice, production standard, evidence

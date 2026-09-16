@@ -1,8 +1,13 @@
 # Progress
 
-**Current release:** 0.1.0
+**Current release:** 0.1.1
 
-**Last updated:** 2026-09-16
+**Last updated:** 2026-09-17
+
+The canonical repository is now `michelabboud/codex-playbook`.
+`nice-michel/codex-playbook` is its fork for branches and pull requests, while
+the former standalone repository is preserved at
+`nice-michel/codex-playbook-archive`.
 
 The first public release contains the governing rules, architecture, Codex
 skills, guarded installer and restore flow, adaptation report, public repository

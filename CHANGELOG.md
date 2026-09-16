@@ -2,6 +2,15 @@
 
 All notable changes are recorded here. Dates are absolute.
 
+## 0.1.1 — 2026-09-17
+
+### Changed
+
+- Established `michelabboud/codex-playbook` as the canonical upstream and
+  `nice-michel/codex-playbook` as its contribution fork.
+- Updated clone, installation, visual-site, and provenance links to the
+  canonical repository.
+
 ## 0.1.0 — 2026-09-16
 
 ### Added
