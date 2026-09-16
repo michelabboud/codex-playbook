@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A visual map of Codex Playbook: 42 rules for production-grade work with Codex.">
+  <meta name="theme-color" content="#173f9f">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23173f9f'/%3E%3Cpath d='M18 19h28v8H27v10h19v8H18z' fill='%23fffdf7'/%3E%3C/svg%3E">
+  <title>Codex Playbook — 42 rules for work that matters</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper:#f3efe4; --ink:#111318; --muted:#5b5b57; --cobalt:#173f9f;
+      --brass:#b87821; --line:rgba(17,19,24,.18); --white:#fffdf7;
+      --max:1180px; --sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      --mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+    }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--ink); background:var(--paper); font-family:var(--sans); line-height:1.5; }
+    a { color:inherit; }
+    button,input { font:inherit; }
+    button { color:inherit; }
+    .skip { position:fixed; left:1rem; top:-5rem; z-index:30; padding:.8rem 1rem; background:var(--white); border:2px solid var(--ink); }
+    .skip:focus { top:1rem; }
+    .topbar { min-height:64px; padding:0 max(1.25rem,calc((100vw - var(--max))/2)); display:flex; align-items:center; justify-content:space-between; gap:1rem; color:var(--white); background:var(--ink); position:relative; z-index:10; }
+    .wordmark { font:700 .82rem/1 var(--mono); letter-spacing:.12em; text-transform:uppercase; text-decoration:none; }
+    .toplinks { display:flex; gap:1.2rem; align-items:center; }
+    .toplinks a { font-size:.9rem; text-underline-offset:.25rem; }
+    .toplinks .install { color:var(--ink); background:var(--white); border-radius:999px; padding:.55rem .85rem; text-decoration:none; font-weight:700; }
+    .hero { min-height:calc(100svh - 64px); display:grid; isolation:isolate; position:relative; overflow:hidden; background:#d9d2c3 url("assets/codex-playbook-hero.png") center/cover no-repeat; }
+    .hero::after { content:""; position:absolute; inset:0; z-index:-1; background:linear-gradient(90deg,rgba(243,239,228,.98) 0%,rgba(243,239,228,.88) 30%,rgba(243,239,228,.16) 58%,rgba(17,19,24,.08) 100%); }
+    .hero-inner { width:min(var(--max),calc(100% - 2.5rem)); margin:0 auto; padding:clamp(4rem,10vh,8rem) 0 3rem; display:flex; flex-direction:column; justify-content:space-between; }
+    .hero-copy { max-width:610px; }
+    .eyebrow,.kicker { color:var(--cobalt); font:700 .78rem/1.3 var(--mono); letter-spacing:.12em; text-transform:uppercase; }
+    h1 { margin:0; max-width:10ch; font-size:clamp(3.7rem,8.8vw,8.2rem); line-height:.86; letter-spacing:-.065em; }
+    .hero-copy>p:not(.eyebrow) { max-width:37rem; margin:2rem 0 0; font-size:clamp(1.05rem,1.7vw,1.35rem); }
+    .actions { display:flex; flex-wrap:wrap; gap:.75rem; margin-top:2rem; }
+    .action { display:inline-flex; align-items:center; min-height:48px; padding:.75rem 1rem; border:2px solid var(--ink); text-decoration:none; font-weight:800; transition:transform .18s ease,box-shadow .18s ease; }
+    .action.primary { color:var(--white); background:var(--cobalt); border-color:var(--cobalt); }
+    .action:hover,.action:focus-visible { transform:translateY(-2px); box-shadow:4px 4px 0 var(--brass); }
+    .hero-note { max-width:32rem; margin:2rem 0 0; padding-top:1rem; border-top:1px solid var(--line); font:600 .88rem/1.5 var(--mono); }
+    .section { padding:clamp(4rem,8vw,8rem) max(1.25rem,calc((100vw - var(--max))/2)); border-top:1px solid var(--line); }
+    .section-head { display:grid; grid-template-columns:minmax(180px,.7fr) 1.8fr; gap:clamp(2rem,6vw,7rem); align-items:start; margin-bottom:clamp(3rem,6vw,6rem); }
+    h2 { margin:0; font-size:clamp(2.5rem,6vw,5.6rem); line-height:.95; letter-spacing:-.055em; }
+    .section-head p { margin:1.4rem 0 0; max-width:55rem; color:var(--muted); font-size:1.1rem; }
+    .gates { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); border-block:2px solid var(--ink); }
+    .gate { padding:clamp(2rem,4vw,4rem); }
+    .gate+.gate { border-left:1px solid var(--line); }
+    .gate .number { color:var(--brass); font:700 3.8rem/1 var(--mono); }
+    .gate h3 { margin:1.5rem 0 .7rem; font-size:1.6rem; }
+    .gate p { margin:0; color:var(--muted); }
+    .rules-wrap { display:grid; grid-template-columns:280px 1fr; gap:clamp(2rem,6vw,6rem); align-items:start; }
+    .rule-nav { position:sticky; top:1.5rem; }
+    .rule-nav label { display:block; margin-bottom:.55rem; font:700 .75rem/1 var(--mono); text-transform:uppercase; letter-spacing:.1em; }
+    .rule-nav input { width:100%; min-height:46px; padding:.7rem .8rem; color:var(--ink); background:var(--white); border:1px solid var(--ink); border-radius:0; }
+    .section-buttons { display:grid; margin-top:1rem; border-top:1px solid var(--line); }
+    .section-buttons button { padding:.85rem 0; text-align:left; background:transparent; border:0; border-bottom:1px solid var(--line); cursor:pointer; }
+    .section-buttons button[aria-pressed="true"] { color:var(--cobalt); font-weight:800; padding-left:.7rem; }
+    .section-buttons button[aria-pressed="true"]::before { content:"→ "; }
+    .rules-header { display:flex; justify-content:space-between; gap:1rem; align-items:baseline; border-bottom:2px solid var(--ink); padding-bottom:1rem; }
+    .rules-header h3 { margin:0; font-size:clamp(1.8rem,4vw,3.4rem); letter-spacing:-.04em; }
+    .rules-header span { font:700 .8rem/1 var(--mono); color:var(--muted); }
+    .rule-list { margin:0; padding:0; list-style:none; }
+    .rule { display:grid; grid-template-columns:64px 1fr; gap:1.2rem; padding:1.35rem 0; border-bottom:1px solid var(--line); animation:rise .35s ease both; }
+    .rule-id { color:var(--cobalt); font:800 1rem/1.5 var(--mono); }
+    .rule strong { display:block; margin-bottom:.2rem; }
+    .rule p { margin:0; color:var(--muted); }
+    .empty { padding:2rem 0; color:var(--muted); }
+    .native { color:var(--white); background:var(--cobalt); }
+    .native .kicker { color:#bcd0ff; }
+    .native .section-head p,.flow-step p { color:#dce5ff; }
+    .flow { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:rgba(255,255,255,.28); border:1px solid rgba(255,255,255,.28); }
+    .flow-step { min-height:260px; padding:2rem; background:var(--cobalt); }
+    .flow-step .mono { color:#bcd0ff; font:700 .75rem/1.4 var(--mono); }
+    .flow-step h3 { margin:4rem 0 .7rem; font-size:1.5rem; }
+    .flow-step p { margin:0; }
+    .closing { text-align:center; color:var(--white); background:var(--ink); }
+    .closing h2 { max-width:12ch; margin:0 auto; }
+    .closing p { max-width:42rem; margin:1.5rem auto 2rem; color:#c9c7c0; }
+    .closing .action { border-color:var(--white); }
+    footer { padding:1.3rem max(1.25rem,calc((100vw - var(--max))/2)); display:flex; justify-content:space-between; gap:1rem; color:#c9c7c0; background:var(--ink); border-top:1px solid rgba(255,255,255,.18); font:600 .76rem/1.4 var(--mono); }
+    @keyframes rise { from { opacity:0; transform:translateY(10px); } }
+    .hero-copy>* { animation:rise .6s ease both; }
+    .hero-copy>*:nth-child(2) { animation-delay:.08s; }
+    .hero-copy>*:nth-child(3) { animation-delay:.16s; }
+    .hero-copy>*:nth-child(4) { animation-delay:.24s; }
+    .hero-copy>*:nth-child(5) { animation-delay:.32s; }
+    @media (max-width:820px) {
+      .toplinks a:not(.install) { display:none; }
+      .hero { min-height:820px; background-position:64% center; }
+      .hero::after { background:linear-gradient(180deg,rgba(243,239,228,.98) 0%,rgba(243,239,228,.9) 45%,rgba(243,239,228,.12) 78%); }
+      .hero-inner { padding-top:3.5rem; }
+      h1 { max-width:8ch; }
+      .section-head,.rules-wrap { grid-template-columns:1fr; }
+      .gates,.flow { grid-template-columns:1fr; }
+      .gate+.gate { border-left:0; border-top:1px solid var(--line); }
+      .rule-nav { position:static; }
+      .section-buttons { grid-template-columns:repeat(2,1fr); gap:0 1rem; }
+      .flow-step { min-height:auto; }
+      .flow-step h3 { margin-top:2rem; }
+      footer { flex-direction:column; }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      html { scroll-behavior:auto; }
+      *,*::before,*::after { animation:none!important; transition:none!important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar">
+    <a class="wordmark" href="#top">Codex Playbook / 0.1.0</a>
+    <nav class="toplinks" aria-label="Primary">
+      <a href="#authority">Authority</a><a href="#rules">Rules</a><a href="#native">Codex-native</a>
+      <a class="install" href="https://github.com/nice-michel/codex-playbook/blob/main/INSTALL.md">Install</a>
+    </nav>
+  </header>
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="hero-inner"><div class="hero-copy">
+        <p class="eyebrow">42 rules · 2 gates · one working agreement</p>
+        <h1 id="hero-title">Work that holds up.</h1>
+        <p>A production-grade rulebook for Codex: finish the work, prove the claims, preserve the user's authority.</p>
+        <div class="actions"><a class="action primary" href="https://github.com/nice-michel/codex-playbook">View repository</a><a class="action" href="#rules">Explore all rules</a></div>
+        <p class="hero-note">A mountain of work delivered. One decision escalated. The ratio is the point.</p>
+      </div></div>
+    </section>
+    <section class="section" id="authority">
+      <div class="section-head"><div class="kicker">Authority</div><div><h2>Decide by default.</h2><p>Routine work proceeds inside the agreed scope. Two moments normally return to the owner because they change direction or are hard to undo.</p></div></div>
+      <div class="gates">
+        <article class="gate"><div class="number">01</div><h3>A new plan or architecture</h3><p>Bring a concrete design. Once approved, that decision authorizes the implementation and its normal close-out chain.</p></article>
+        <article class="gate"><div class="number">02</div><h3>A destructive action</h3><p>Validate the exact target first. If deletion is uncertain, quarantine it and keep moving instead of turning doubt into loss.</p></article>
+      </div>
+    </section>
+    <section class="section" id="rules">
+      <div class="section-head"><div class="kicker">The rulebook</div><div><h2>Every rule earns its context.</h2><p>Search the complete map or move by subject. The installed wording remains in <code>AGENTS.md</code>; this view is built for orientation.</p></div></div>
+      <div class="rules-wrap">
+        <aside class="rule-nav" aria-label="Rule sections"><label for="rule-search">Find a rule</label><input id="rule-search" type="search" placeholder="verification, secrets, Git…" autocomplete="off"><div class="section-buttons" id="section-buttons"></div></aside>
+        <div aria-live="polite"><div class="rules-header"><h3 id="rules-title">Critical rules</h3><span id="rules-count">4 rules</span></div><ol class="rule-list" id="rule-list"></ol></div>
+      </div>
+    </section>
+    <section class="section native" id="native">
+      <div class="section-head"><div class="kicker">Codex-native</div><div><h2>Reliable where it loads.</h2><p>The doctrine stays visible in every session. Detailed procedures arrive only when the work needs them.</p></div></div>
+      <div class="flow">
+        <article class="flow-step"><div class="mono">01 / GLOBAL</div><h3>~/.codex/AGENTS.md</h3><p>The owner’s standing agreement: quality, authority, workflow, and safety.</p></article>
+        <article class="flow-step"><div class="mono">02 / PROJECT</div><h3>repo/AGENTS.md</h3><p>Local commands and conventions layer closer to the code and override broader guidance.</p></article>
+        <article class="flow-step"><div class="mono">03 / PROCEDURE</div><h3>Codex skills</h3><p>Dependency review, quarantine, and release detail load through progressive disclosure.</p></article>
+      </div>
+    </section>
+    <section class="section closing"><h2>Install the working agreement.</h2><p>Read it, challenge it, and make it yours. A rulebook only works when the person named “I” actually agrees with it.</p><a class="action primary" href="https://github.com/nice-michel/codex-playbook/blob/main/INSTALL.md">Open installation guide</a></section>
+  </main>
+  <footer><span>github.com/nice-michel/codex-playbook</span><span>MIT · Shared as a resource, not a mandate.</span></footer>
+  <script>
+    const sections=[
+      {key:"critical",title:"Critical rules",rules:[
+      ["C1","Never suggest stopping","The owner decides when work stops."],
+      ["C2","Never quietly reduce scope","Build the approved specification and record genuine concerns."],
+      ["C3","Choose the production-grade reading","Proceed through routine ambiguity; ask only when the deliverable would materially differ."],
+      ["C4","The owner sets scope","Within it, the agent makes implementation decisions."]]},
+      {key:"code",title:"Code standards",rules:[
+      ["1","No fakes, stubs, or placeholders","Nothing may look complete when it is not."],
+      ["2","Vertical slices must be real","Finish code, tests, and documentation end to end."],
+      ["3","Production grade only","Handle errors, validate boundaries, log meaningfully, and fail gracefully."],
+      ["4","No magic values","Use named constants and real configuration where operators need control."],
+      ["5","Match existing patterns","Respect the repository and keep unrelated diffs out."],
+      ["6","Dependencies must earn their place","Vet current versions, security, health, adoption, and alternatives."],
+      ["7","Vendored code keeps provenance","Preserve licenses and exact upstream source information."]]},
+      {key:"verification",title:"Testing & verification",rules:[
+      ["8","Test what can fail","Cover happy paths and failure paths without ceremonial tests."],
+      ["9","Evidence before completion","Run tests, builds, and lint before claiming success."],
+      ["10","Measure performance claims","Benchmarks and profiles replace adjectives."]]},
+      {key:"docs",title:"Documentation",rules:[
+      ["11","Write for a new contributor","Capture reasoning, decisions, and gotchas."],
+      ["12","No undocumented decisions","Record choices with real trade-offs in an ADR."],
+      ["13","ADRs are permanent records","Index them, preserve them, and supersede instead of rewriting."],
+      ["14","Keep affected docs current","Update progress, changelog, usage, and architecture with the work."]]},
+      {key:"structure",title:"Repository structure",rules:[
+      ["15","Every repository starts complete","README, progress, changelog, architecture, license, and version are foundational."],
+      ["16","LICENSE stays extensionless","Use the exact filename ecosystem tooling recognizes."],
+      ["17","VERSION is the source of truth","One bare semantic version drives tags and releases."],
+      ["18","Documentation has a home","Use real docs subfolders instead of scattering records in the root."]]},
+      {key:"workflow",title:"Workflow & Git",rules:[
+      ["19","Every task closes completely","Verify, document, version, commit, tag, and push."],
+      ["20","Close out in five parts","Outcome, evidence, assumptions, concerns, and release confirmation."],
+      ["21","Every phase becomes a release","Merge, audit, document, tag, push, and publish release notes."],
+      ["22","Published history never moves","Do not amend, force-push, or retarget released checkpoints."]]},
+      {key:"collaboration",title:"Collaboration & autonomy",rules:[
+      ["23","The plan is the normal gate","Once approved, it authorizes its full implementation and close-out."],
+      ["24","Decide by default","Interrupt only for decisions that materially change direction or risk."],
+      ["25","Implementation calls belong to the agent","Use the motto, repository conventions, and judgment."],
+      ["26","Educate before asking","Explain the problem, recommendation, trade-offs, and impact."],
+      ["27","Subagents cost tokens","Announce large fan-outs and use them where decomposition pays."],
+      ["28","Delegate only clean seams","Keep sequential and shared-file work together."],
+      ["29","Match model strength to risk","Planning and hard engineering start on the strongest available model."],
+      ["30","Escalate instead of guessing","A stuck subagent reports evidence and moves one tier upward."],
+      ["31","Concurrency follows machine load","Measure capacity before a fan-out and leave practical headroom."],
+      ["32","Fix local defects immediately","Record them and avoid unrelated feature work."],
+      ["33","Stay focused","Do not silently defer or reduce the approved scope."],
+      ["34","Compact only after completion","Context cleanup follows verified delivery, never interrupts it."],
+      ["35","Write a real handoff","Record exact state, evidence, next steps, gotchas, and running processes."]]},
+      {key:"safety",title:"Environment & safety",rules:[
+      ["36","Claim ports deliberately","Check the machine and registry before assigning one."],
+      ["37","Docker names show ownership","Use project prefixes and never touch unrelated resources."],
+      ["38","Prefer embedded storage","Native datastores require the owner's explicit direction."],
+      ["39","Logs are not disposable","Never delete them; compress only inactive logs."],
+      ["40","Secrets never enter transcripts","Use environment or secret stores and inspect without revealing values."],
+      ["41","Nothing runs silently","Stop long-lived processes or report them with teardown commands."],
+      ["42","Destructive actions require approval","Validate exact targets and never turn uncertainty into loss."]]}
+    ];
+    const buttons=document.querySelector("#section-buttons"),list=document.querySelector("#rule-list"),title=document.querySelector("#rules-title"),count=document.querySelector("#rules-count"),search=document.querySelector("#rule-search");
+    let active=sections[0].key;
+    function renderButtons(){buttons.innerHTML=sections.map(s=>`<button type="button" data-section="${s.key}" aria-pressed="${s.key===active}">${s.title}</button>`).join("");}
+    function render(){const query=search.value.trim().toLowerCase(),section=sections.find(s=>s.key===active),visible=query?sections.flatMap(s=>s.rules).filter(r=>r.join(" ").toLowerCase().includes(query)):section.rules;title.textContent=query?"Search results":section.title;count.textContent=`${visible.length} ${visible.length===1?"rule":"rules"}`;list.innerHTML=visible.length?visible.map((r,i)=>`<li class="rule" style="animation-delay:${Math.min(i*25,200)}ms"><span class="rule-id">${r[0]}</span><div><strong>${r[1]}</strong><p>${r[2]}</p></div></li>`).join(""):`<li class="empty">No rule matches that search.</li>`;}
+    buttons.addEventListener("click",event=>{const button=event.target.closest("button[data-section]");if(!button)return;active=button.dataset.section;search.value="";renderButtons();render();});
+    search.addEventListener("input",render);renderButtons();render();
+  </script>
+</body>
+</html>
