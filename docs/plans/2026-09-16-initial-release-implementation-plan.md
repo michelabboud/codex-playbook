@@ -16,7 +16,8 @@ GitHub Pages.
 
 - [x] Create the public GitHub repository and local checkout.
 - [x] Preserve the approved first-person global rules in `AGENTS.md`.
-- [x] Add the three procedural Codex skills and installation guide.
+- [x] Add the three procedural Codex skills, guarded installer, restore command,
+  and isolated lifecycle tests.
 - [x] Add public project documentation, parity report, and contributor files.
 - [x] Build and visually verify the dependency-free rule map.
 - [x] Run repository verification and link checks.

@@ -36,7 +36,10 @@ for required_file in \
   CONTRIBUTING.md \
   SECURITY.md \
   docs/index.html \
-  docs/assets/codex-playbook-hero.png
+  docs/assets/codex-playbook-hero.png \
+  scripts/install.sh \
+  scripts/restore.sh \
+  tests/install_test.sh
 do
   require_file "$required_file"
 done
@@ -82,6 +85,68 @@ if [ "$skill_count" -eq 3 ]; then
 else
   fail "$skill_count skills found; expected 3"
 fi
+
+for shell_file in scripts/install.sh scripts/restore.sh tests/install_test.sh
+do
+  if [ -x "$shell_file" ]; then
+    pass "$shell_file is executable"
+  else
+    fail "$shell_file is not executable"
+  fi
+  if sh -n "$shell_file"; then
+    pass "$shell_file has valid shell syntax"
+  else
+    fail "$shell_file has invalid shell syntax"
+  fi
+done
+
+if ./tests/install_test.sh; then
+  pass "installer lifecycle tests pass"
+else
+  fail "installer lifecycle tests fail"
+fi
+
+if grep -Eq '~/.codex/skills|\$CODEX_HOME/skills' \
+  README.md INSTALL.md ARCHITECTURE.md; then
+  fail "public installation docs reference a deprecated personal skill path"
+else
+  pass "public installation docs use the current personal skill path"
+fi
+
+link_inventory=$(mktemp "${TMPDIR:-/tmp}/codex-playbook-link-inventory.XXXXXX")
+link_failures=$(mktemp "${TMPDIR:-/tmp}/codex-playbook-link-failures.XXXXXX")
+find . -path './.git' -prune -o -type f -name '*.md' -print |
+while IFS= read -r markdown_file
+do
+  grep -Eo '\]\([^)]+\)' "$markdown_file" 2>/dev/null |
+  sed -e 's/^](/ /' -e 's/)$//' |
+  while IFS= read -r link_target
+  do
+    link_target=${link_target# }
+    printf '%s\t%s\n' "$markdown_file" "$link_target"
+  done
+done > "$link_inventory"
+
+tab=$(printf '\t')
+while IFS="$tab" read -r markdown_file link_target
+do
+  case "$link_target" in
+    ''|http://*|https://*|mailto:*|\#*) continue ;;
+  esac
+  link_path=${link_target%%#*}
+  markdown_dir=$(dirname -- "$markdown_file")
+  if [ ! -e "$markdown_dir/$link_path" ]; then
+    printf '%s: %s\n' "$markdown_file" "$link_target" >> "$link_failures"
+  fi
+done < "$link_inventory"
+
+if [ -s "$link_failures" ]; then
+  cat "$link_failures" >&2
+  fail "one or more local Markdown link targets are missing"
+else
+  pass "local Markdown link targets exist"
+fi
+rm "$link_inventory" "$link_failures"
 
 map_rule_count=$(grep -Ec '^      \["([1-9]|[1-3][0-9]|4[0-2])",' docs/index.html || true)
 if [ "$map_rule_count" -eq 42 ]; then

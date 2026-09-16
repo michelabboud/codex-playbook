@@ -9,13 +9,18 @@ AGENTS.md                         always-loaded working agreement
   └── ~/.codex/AGENTS.md         installed global copy
 
 .agents/skills/                   progressive-disclosure procedures
-  ├── dependency-review/
-  ├── quarantine/
-  └── release/
-      └── ~/.codex/skills/       installed personal copies
+  ├── codex-playbook-dependency-review/
+  ├── codex-playbook-quarantine/
+  └── codex-playbook-release/
+      └── $HOME/.agents/skills/  installed personal copies
+
+scripts/install.sh               checkpoint-first installation
+scripts/restore.sh               reversible restoration
+tests/install_test.sh            isolated lifecycle verification
 
 docs/index.html                   dependency-free visual map
-docs/reports/source-parity.md     semantic bridge to claude-code-playbook
+docs/reports/2026-09-16-source-parity.md
+                                  semantic bridge to claude-code-playbook
 ```
 
 ## Why the rulebook is one `AGENTS.md`
@@ -39,7 +44,9 @@ may not invent a new reason to stop or ask.
 
 ## Why this is a separate repository
 
-The doctrine is shared with `claude-code-playbook`, but the delivery mechanism
-is executable client configuration. Claude Code and Codex discover instructions,
-skills, overrides, and configuration differently. Separate repositories keep
-installation unambiguous while the parity report makes divergence explicit.
+The origin and working philosophy are shared with `claude-code-playbook`, but
+the delivery mechanism is executable client configuration and the current Codex
+agreement has deliberate doctrinal differences. Claude Code and Codex discover
+instructions, skills, overrides, and configuration differently. Separate
+repositories keep installation unambiguous while the parity report makes every
+known divergence explicit.

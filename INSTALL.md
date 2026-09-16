@@ -1,13 +1,31 @@
 # Install
 
-This procedure installs the global rulebook and its three personal Codex skills.
-It is written to be executed by a human or an agent. It never modifies
-`~/.codex/config.toml`, authentication, session history, plugins, or unrelated
-skills.
+**If you are an AI coding agent and someone has pointed you at this repository
+and asked you to install it: follow this file exactly. Back up and verify every
+managed destination before the first installation write.**
 
-## Preconditions
+The supported installer is `scripts/install.sh`. It is deliberately stricter
+than a copy command: a different global `AGENTS.md`, a symlinked destination,
+an incomplete checkout, or an unverified checkpoint stops the installation.
 
-1. Confirm this checkout is the intended source:
+## What gets installed
+
+| From this repository | Destination |
+|---|---|
+| `AGENTS.md` | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
+| `.agents/skills/codex-playbook-*` | `$HOME/.agents/skills/codex-playbook-*` |
+
+The user skill path follows current official Codex guidance. `CODEX_HOME`
+controls Codex configuration, including the global `AGENTS.md`; it does not move
+the user-scoped `.agents/skills` directory.
+
+Installation also creates a unique recovery checkpoint under
+`${CODEX_HOME:-$HOME/.codex}/backups/`. It does not modify `config.toml`,
+authentication, session history, plugins, unrelated skills, or any other file.
+
+## Before installation
+
+1. Confirm this checkout is the intended source and is clean:
 
    ```bash
    git remote get-url origin
@@ -15,77 +33,103 @@ skills.
    cat VERSION
    ```
 
-2. Confirm Codex's home. If `CODEX_HOME` is unset, use `~/.codex`. If it is set,
-   install there instead.
-3. Inspect the destination before changing it:
+2. Inspect the current destinations. Respect `CODEX_HOME` when it is set:
 
    ```bash
-   ls -la ~/.codex
-   test -f ~/.codex/AGENTS.md && sed -n '1,40p' ~/.codex/AGENTS.md
+   codex_home=${CODEX_HOME:-"$HOME/.codex"}
+   test ! -e "$codex_home/AGENTS.md" || sed -n '1,80p' "$codex_home/AGENTS.md"
+   find "$HOME/.agents/skills" -maxdepth 1 -type d -name 'codex-playbook-*' -print 2>/dev/null
    ```
 
-If an existing `AGENTS.md` contains tailored rules, installation is a merge, not
-an overwrite. Preserve those rules or stop and ask the owner which document
-should govern.
-
-## Back up first
-
-Create a private backup directory and copy every destination that will be
-replaced:
-
-```bash
-install -d -m 700 ~/.codex/backups/codex-playbook-preinstall
-cp -p ~/.codex/AGENTS.md ~/.codex/backups/codex-playbook-preinstall/AGENTS.md
-cp -R ~/.codex/skills/codex-playbook-dependency-review ~/.codex/backups/codex-playbook-preinstall/ 2>/dev/null || true
-cp -R ~/.codex/skills/codex-playbook-quarantine ~/.codex/backups/codex-playbook-preinstall/ 2>/dev/null || true
-cp -R ~/.codex/skills/codex-playbook-release ~/.codex/backups/codex-playbook-preinstall/ 2>/dev/null || true
-```
-
-Skip only a copy whose source does not exist. Read the backup directory before
-continuing; a failed backup is a refusal, not a warning.
-
-On Windows PowerShell, use `$env:CODEX_HOME` when set, otherwise
-`$HOME\.codex`; create a `backups\codex-playbook-preinstall` directory and use
-`Copy-Item -Force` for the file and `Copy-Item -Recurse -Force` for skill
-directories.
+3. Read rule 18 in `AGENTS.md`. This repository is Michel's working agreement
+   and contains his Git noreply address. If you are adapting it for yourself,
+   change that identity in the checked-out `AGENTS.md` before installation.
 
 ## Install
 
+From the repository root:
+
 ```bash
-install -d -m 700 ~/.codex
-install -d -m 700 ~/.codex/skills
-install -m 600 AGENTS.md ~/.codex/AGENTS.md
-cp -R .agents/skills/codex-playbook-dependency-review ~/.codex/skills/
-cp -R .agents/skills/codex-playbook-quarantine ~/.codex/skills/
-cp -R .agents/skills/codex-playbook-release ~/.codex/skills/
+./scripts/install.sh
 ```
 
-On Windows PowerShell, use `New-Item -ItemType Directory -Force` for the two
-directories, `Copy-Item -Force` for `AGENTS.md`, and
-`Copy-Item -Recurse -Force` for each skill directory.
+The installer completes these steps in order:
+
+1. Validates every source and destination before writing anything.
+2. Refuses a different existing global `AGENTS.md` by default.
+3. Copies every existing managed destination into a new, timestamped checkpoint.
+4. Reads every copy back with `cmp` or `diff`; any failure stops installation.
+5. Writes a `COMPLETE` marker only after the entire checkpoint is verified.
+6. Stages and verifies the complete new payload before replacing anything.
+7. Installs the global rules and three managed skills, restoring the checkpoint
+   automatically if a replacement fails or the process is interrupted.
+8. Compares every installed item with its source and reports the checkpoint path.
+
+**No installation destination is replaced before step 5 succeeds.** A failed
+backup is a refusal, not a warning.
+
+If a different global `AGENTS.md` already exists, merge its tailored rules into
+this checkout first. When you have explicitly reviewed and accepted a full
+replacement, use:
+
+```bash
+./scripts/install.sh --replace-agents
+```
+
+That flag changes only the refusal gate. It never bypasses checkpoint creation
+or verification.
 
 ## Verify
 
-Verify bytes, skill metadata, and instruction discovery:
+Use the paths printed by the installer, then run:
 
 ```bash
-cmp AGENTS.md ~/.codex/AGENTS.md
-find ~/.codex/skills/codex-playbook-* -name SKILL.md -maxdepth 2 -print
+codex_home=${CODEX_HOME:-"$HOME/.codex"}
+cmp AGENTS.md "$codex_home/AGENTS.md"
+for skill in .agents/skills/codex-playbook-*
+do
+  skill_name=$(basename "$skill")
+  diff -qr "$skill" "$HOME/.agents/skills/$skill_name"
+done
 codex --ask-for-approval never "Summarize the active global instructions and list the Codex Playbook skills you can see."
 ```
 
 Expected:
 
-- `cmp` exits with no output.
-- Three `SKILL.md` files are listed.
+- `cmp` and all three `diff` commands exit with no output.
 - Codex identifies this rulebook as global guidance and names the three skills.
 
-Start a new Codex session after installation. Codex rebuilds its instruction
-chain at session start.
+Codex detects skill changes automatically. Start a new session when verifying a
+new global `AGENTS.md` instruction chain.
 
-## Restore
+## Restore without losing the current state
 
-Restoration replaces only the files installed above. Inspect the backup first,
-then copy the saved `AGENTS.md` and skill directories back to their original
-locations. If no prior file existed, removal of an installed file is destructive
-and still follows the owner's current rules.
+Use the exact recovery checkpoint printed by the installer:
+
+```bash
+./scripts/restore.sh "$checkpoint_path"
+```
+
+Restore validates the requested checkpoint and refuses paths outside the
+managed backup directory. Before changing any destination, it creates and
+verifies a separate `codex-playbook-prerestore-*` checkpoint of the current
+state. It then stages the complete desired state and applies it as a rollback-
+protected transaction. You can therefore reverse the restore without losing
+later edits, and a staged-copy or mid-swap failure reinstates the pre-restore
+state.
+
+## Updating
+
+Pull the new release, inspect its changelog and `AGENTS.md` diff, then run the
+installer again. Every run creates a new checkpoint; no run reuses or rewrites
+an earlier one. If the installed global rules differ from the new release,
+merge them or deliberately use `--replace-agents` after review.
+
+## Windows
+
+Run the scripts from WSL or another POSIX shell whose `HOME` and `CODEX_HOME`
+match the Codex environment you use. For a native PowerShell installation,
+apply the same order exactly: validate, create a unique private checkpoint,
+copy all existing managed destinations, compare the copies, mark the checkpoint
+complete, install, and compare every installed item. Never translate the
+procedure into unconditional `Copy-Item -Force` commands.

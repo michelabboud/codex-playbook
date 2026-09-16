@@ -4,44 +4,40 @@
 
 **Version:** 0.1.0
 
-**Scope:** complete public repository before its first commit
+**Reviewed commit:** `9dbb8ecd638c4afbe23132d71738f26fa50ca91a`
 
-## Requirements reviewed
+## Scope
 
-- Public `nice-michel/codex-playbook` repository.
-- Same first-person language, motto, and quality philosophy as the Claude edition.
-- Codex-native `AGENTS.md` discovery and progressive-disclosure skills.
-- Complete public repository documentation and install procedure.
-- A visual map with the same editorial confidence as the source project.
-- Verification, initial tag, GitHub release, and Pages publication.
+The independent review inspected the complete initial repository, its install
+instructions, static site, and release readiness before the first push.
 
-## Automated evidence
+## Verified strengths
 
-`./scripts/verify.sh` reported every check as `PASS`, including:
-
-- all required public repository files are non-empty;
-- `VERSION` is the bare semantic version `0.1.0`;
-- `AGENTS.md` is 13,126 bytes, within Codex's default 32 KiB limit;
-- all 42 numbered rules and all three skill metadata blocks are present;
-- the visual map includes all 42 numbered rules;
-- no placeholder text or whitespace errors remain.
-
-## Browser evidence
-
-- Desktop viewport: 1200 × 1200.
-- Mobile viewport: 390 × 844.
-- Hero, navigation, approval gates, rule browser, Codex architecture, and final
-  installation action remained readable and correctly ordered.
-- Searching for `secrets` returned rule 40 and no unrelated rule.
-- Browser console after the favicon correction: 0 errors, 0 warnings.
-- `prefers-reduced-motion` has an explicit no-animation path.
+- The exact reviewed commit passed its structural verifier, shell and JavaScript
+  syntax checks, skill metadata validation, and 42-rule site mapping.
+- Desktop and mobile browser checks passed; search returned the intended rule;
+  the console contained no errors or warnings.
+- The repository structure, public documentation, original hero, and visual
+  system matched the approved editorial direction.
 
 ## Findings
 
-The first browser pass found one missing favicon request. An inline SVG favicon
-removed the request without adding another asset or network dependency. No open
-functional, accessibility, content, or layout findings remain.
+Publication was blocked because the documented copy commands could overwrite an
+existing global `AGENTS.md`; backups reused one directory and could hide
+failures; `CODEX_HOME` was promised but ignored; and personal skills targeted a
+deprecated location. The review also identified an overstated parity report, a
+disabled private vulnerability channel, insufficient functional installer
+coverage, and two inaccurate architecture paths.
+
+## Resolution requirement
+
+The release may proceed only after safe install, update, and restore behavior is
+covered by isolated tests; current Codex skill locations are used; documentation
+states adaptation differences accurately; private vulnerability reporting is
+enabled; and the corrected tree receives fresh verification.
 
 ## Disposition
 
-Ready for the v0.1.0 release commit, tag, GitHub release, and Pages publication.
+Changes required. This record preserves the first review instead of rewriting
+it as a pass after the fact. Final release-candidate evidence is recorded in a
+separate review file.

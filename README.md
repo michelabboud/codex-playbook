@@ -29,18 +29,19 @@ Give the repository URL to Codex and say:
 > Install this playbook. Follow `INSTALL.md`, preserve my existing Codex
 > configuration, and show the verification evidence.
 
-The manual path is intentionally small:
+The supported path is intentionally small and backup-first:
 
 ```bash
 git clone https://github.com/nice-michel/codex-playbook.git
 cd codex-playbook
-mkdir -p ~/.codex/skills
-cp AGENTS.md ~/.codex/AGENTS.md
-cp -R .agents/skills/codex-playbook-* ~/.codex/skills/
+./scripts/install.sh
 ```
 
-If `~/.codex/AGENTS.md` already exists, do not overwrite it blindly. The full
-backup-first and verification procedure is in [`INSTALL.md`](INSTALL.md).
+The installer creates and verifies a unique recovery checkpoint before its
+first destination write. It refuses to overwrite a different global
+`AGENTS.md` unless you explicitly pass `--replace-agents` after review. The full
+install, update, restore, and Windows guidance is in
+[`INSTALL.md`](INSTALL.md).
 
 ## What gets installed
 
@@ -49,6 +50,9 @@ backup-first and verification procedure is in [`INSTALL.md`](INSTALL.md).
 - `codex-playbook-dependency-review` — current-source dependency vetting.
 - `codex-playbook-quarantine` — a recoverable alternative to uncertain deletion.
 - `codex-playbook-release` — the task checkpoint and phase release chain.
+
+Global rules install under `${CODEX_HOME:-$HOME/.codex}`. Personal skills install
+under `$HOME/.agents/skills`, the current Codex user-skill location.
 
 Codex reads global and repository `AGENTS.md` files in a defined precedence
 chain. It sees skill names and descriptions up front, then loads full skill
@@ -59,9 +63,10 @@ the detailed procedures available without paying for them in every session.
 
 This project is the Codex sibling of
 [`claude-code-playbook`](https://github.com/michelabboud/claude-code-playbook).
-The language, motto, quality bar, and decision philosophy are shared. The
-packaging is deliberately different because the clients discover and apply
-instructions differently.
+The motto, first-person voice, quality bar, and decision philosophy are shared.
+The Codex edition is governed by Michel's current 42-rule agreement rather than
+being a line-for-line copy of the Claude bundle. Client mechanics and deliberate
+doctrinal differences are recorded instead of hidden.
 
 The exact mapping is recorded in
 [`docs/reports/2026-09-16-source-parity.md`](docs/reports/2026-09-16-source-parity.md).
@@ -72,6 +77,9 @@ The exact mapping is recorded in
 AGENTS.md                 installable global rules
 .agents/skills/           Codex-native procedural skills
 INSTALL.md                backup-first installation and verification
+scripts/install.sh        guarded, checkpoint-first installer
+scripts/restore.sh        guarded restoration with a pre-restore checkpoint
+tests/install_test.sh     isolated install, upgrade, and restore tests
 docs/index.html           visual map, served by GitHub Pages
 docs/adr/                 architectural decisions
 docs/guides/              contributor and operating guidance
