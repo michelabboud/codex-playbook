@@ -51,6 +51,13 @@ else
   fail "VERSION is not a bare semantic version"
 fi
 
+if grep -Fq "Current: **v$version**" README.md &&
+   grep -Fq "Codex Playbook / $version" docs/index.html; then
+  pass "public version carriers match VERSION"
+else
+  fail "one or more public version carriers disagree with VERSION"
+fi
+
 agents_bytes=$(wc -c < AGENTS.md | tr -d ' ')
 if [ "$agents_bytes" -le 32768 ]; then
   pass "AGENTS.md is within Codex's default 32 KiB limit ($agents_bytes bytes)"

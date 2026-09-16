@@ -32,7 +32,7 @@ Give the repository URL to Codex and say:
 The supported path is intentionally small and backup-first:
 
 ```bash
-git clone https://github.com/nice-michel/codex-playbook.git
+git clone https://github.com/michelabboud/codex-playbook.git
 cd codex-playbook
 ./scripts/install.sh
 ```
@@ -89,7 +89,7 @@ docs/plans/               approved designs and implementation plans
 
 ## Version
 
-Current: **v0.1.0**. `VERSION` is the source of truth; release detail lives in
+Current: **v0.1.1**. `VERSION` is the source of truth; release detail lives in
 [`CHANGELOG.md`](CHANGELOG.md).
 
 ## License
