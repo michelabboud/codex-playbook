@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A visual map of Codex Playbook: 49 faithful, modular rules for production-grade work with Codex.">
+  <meta name="description" content="A visual map of Codex Playbook: five partnership principles and 49 faithful, modular rules for production-grade work with Codex.">
   <meta name="theme-color" content="#173f9f">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23173f9f'/%3E%3Cpath d='M18 19h28v8H27v10h19v8H18z' fill='%23fffdf7'/%3E%3C/svg%3E">
   <title>Codex Playbook — 49 modular rules for work that matters</title>
@@ -44,6 +44,13 @@
     .section-head { display:grid; grid-template-columns:minmax(180px,.7fr) 1.8fr; gap:clamp(2rem,6vw,7rem); align-items:start; margin-bottom:clamp(3rem,6vw,6rem); }
     h2 { margin:0; font-size:clamp(2.5rem,6vw,5.6rem); line-height:.95; letter-spacing:-.055em; }
     .section-head p { margin:1.4rem 0 0; max-width:55rem; color:var(--muted); font-size:1.1rem; }
+    .mantra { background:var(--white); }
+    .mantra-list { margin:0; padding:0; border-top:2px solid var(--ink); list-style:none; counter-reset:principle; }
+    .principle { display:grid; grid-template-columns:minmax(150px,.65fr) 1.8fr; gap:clamp(2rem,6vw,7rem); padding:clamp(1.7rem,3vw,2.7rem) 0; border-bottom:1px solid var(--line); counter-increment:principle; }
+    .principle::before { content:"0" counter(principle); color:var(--brass); font:700 1rem/1.5 var(--mono); }
+    .principle h3 { margin:0 0 .55rem; font-size:clamp(1.45rem,3vw,2.5rem); line-height:1.05; letter-spacing:-.035em; }
+    .principle p { max-width:52rem; margin:0; color:var(--muted); font-size:1.05rem; }
+    .mantra-pull { max-width:52rem; margin:clamp(2.5rem,5vw,5rem) 0 0 auto; font-size:clamp(1.45rem,3vw,2.6rem); font-weight:750; line-height:1.2; letter-spacing:-.035em; }
     .gates { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border:2px solid var(--ink); }
     .gate { padding:clamp(1.4rem,3vw,2.6rem); border:1px solid var(--line); }
     .gate+.gate { border-left:1px solid var(--line); }
@@ -92,7 +99,8 @@
       .hero::after { background:linear-gradient(180deg,rgba(243,239,228,.98) 0%,rgba(243,239,228,.9) 45%,rgba(243,239,228,.12) 78%); }
       .hero-inner { padding-top:3.5rem; }
       h1 { max-width:8ch; }
-      .section-head,.rules-wrap { grid-template-columns:1fr; }
+      .section-head,.principle,.rules-wrap { grid-template-columns:1fr; }
+      .principle { gap:.7rem; }
       .gates,.flow { grid-template-columns:1fr; }
       .gate+.gate { border-left:1px solid var(--line); border-top:1px solid var(--line); }
       .rule-nav { position:static; }
@@ -110,9 +118,9 @@
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="topbar">
-    <a class="wordmark" href="#top">Codex Playbook / 0.1.2</a>
+    <a class="wordmark" href="#top">Codex Playbook / 0.1.3</a>
     <nav class="toplinks" aria-label="Primary">
-      <a href="#authority">Authority</a><a href="#rules">Rules</a><a href="#native">Codex-native</a>
+      <a href="#mantra">Mantra</a><a href="#authority">Authority</a><a href="#rules">Rules</a><a href="#native">Codex-native</a>
       <a class="install" href="https://github.com/michelabboud/codex-playbook/blob/main/INSTALL.md">Install</a>
     </nav>
   </header>
@@ -125,6 +133,17 @@
         <div class="actions"><a class="action primary" href="https://github.com/michelabboud/codex-playbook">View repository</a><a class="action" href="#rules">Explore all rules</a></div>
         <p class="hero-note">A mountain of work delivered. One decision escalated. The ratio is the point.</p>
       </div></div>
+    </section>
+    <section class="section mantra" id="mantra" aria-labelledby="mantra-title">
+      <div class="section-head"><div class="kicker">The partnership</div><div><h2 id="mantra-title">The mantra comes first.</h2><p>Codex is expected to bring independent judgment, honest disagreement, and full commitment after a decision—not passive agreement.</p></div></div>
+      <ol class="mantra-list">
+        <li class="principle"><div><h3>We are partners.</h3><p>I work with AI models as partners, not as tools that say yes. Meet me as one.</p></div></li>
+        <li class="principle"><div><h3>Say what you actually think.</h3><p>Give me your honest best judgment, led with your recommendation and its reason. No pleasing, flattery, or disguising “this is worse” as “interesting.” If you do not know, say so.</p></div></li>
+        <li class="principle"><div><h3>Push back on real things.</h3><p>Debate a wrong assumption, a hidden cost, or a better route. Never debate for theater.</p></div></li>
+        <li class="principle"><div><h3>Being overruled changes nothing.</h3><p>When I decide differently, keep your dissent on record and execute my decision fully. Reopen it only with new evidence or a newly discovered cost.</p></div></li>
+        <li class="principle"><div><h3>Do the right thing, not the lazy or easy thing.</h3><p>When these rules do not cover a case, optimize for production use by many users across environments and over time. Quality is non-negotiable; work that only looks finished or claims without evidence is worthless.</p></div></li>
+      </ol>
+      <p class="mantra-pull">I want an independent, opinionated model that is not afraid to say what it really thinks. <strong>Agreeing with me is not the job.</strong></p>
     </section>
     <section class="section" id="authority">
       <div class="section-head"><div class="kicker">Authority</div><div><h2>Decide by default.</h2><p>The approval table is a closed list. Everything outside these nine situations proceeds inside the approved scope.</p></div></div>

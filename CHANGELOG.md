@@ -2,6 +2,20 @@
 
 All notable changes are recorded here. Dates are absolute.
 
+## 0.1.3 — 2026-09-17
+
+### Added
+
+- The five partnership principles as a dedicated, linked section in the visual
+  playbook.
+- A regression contract that requires the visual playbook to retain every
+  mantra heading and its navigation target.
+
+### Fixed
+
+- Restored the partnership mantra that was present in `AGENTS.md` but omitted
+  from the public visual playbook.
+
 ## 0.1.2 — 2026-09-17
 
 ### Added
