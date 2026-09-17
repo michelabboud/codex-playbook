@@ -14,6 +14,8 @@
 - [x] Backup-first installation and format-compatible restoration verified.
 - [x] Public docs and visual playbook corrected.
 - [x] Independent reviews completed and pull request opened.
+- [x] Follow-up: restored the five partnership principles to the visual
+  playbook and added a regression contract — 2026-09-17.
 
 ## Phase 1 — First public release
 

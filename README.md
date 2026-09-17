@@ -20,10 +20,10 @@ collaboration.
 
 **[Open the visual playbook →](https://michelabboud.github.io/codex-playbook/)**
 
-The dependency-free visual map presents all 49 rules, the complete approval
-matrix, the thirteen rule sections, and the split between the always-loaded
-authority router and sixteen on-demand skills. It uses no framework, build
-step, cookies, or analytics.
+The dependency-free visual map presents the five partnership principles, all
+49 rules, the complete approval matrix, the thirteen rule sections, and the
+split between the always-loaded authority router and sixteen on-demand skills.
+It uses no framework, build step, cookies, or analytics.
 
 ## Why it is modular
 
@@ -116,7 +116,7 @@ docs/plans/               approved designs and implementation plans
 
 ## Version
 
-Current: **v0.1.2**. `VERSION` is the source of truth; release detail lives in
+Current: **v0.1.3**. `VERSION` is the source of truth; release detail lives in
 [`CHANGELOG.md`](CHANGELOG.md).
 
 ## License

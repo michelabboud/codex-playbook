@@ -214,6 +214,45 @@ else
   fail 'visual playbook rule IDs do not match the canonical 49-ID set'
 fi
 
+cat > "$test_root/expected-mantra-headings" <<'EOF'
+We are partners.
+Say what you actually think.
+Push back on real things.
+Being overruled changes nothing.
+Do the right thing, not the lazy or easy thing.
+EOF
+mantra_failures=0
+if ! grep -Fq 'href="#mantra"' docs/index.html ||
+   ! grep -Fq 'id="mantra"' docs/index.html; then
+  mantra_failures=$((mantra_failures + 1))
+fi
+while IFS= read -r mantra_heading
+do
+  if ! grep -Fq "$mantra_heading" docs/index.html; then
+    mantra_failures=$((mantra_failures + 1))
+  fi
+done < "$test_root/expected-mantra-headings"
+cat > "$test_root/expected-mantra-copy" <<'EOF'
+I work with AI models as partners, not as tools that say yes. Meet me as one.
+Give me your honest best judgment, led with your recommendation and its reason. No pleasing, flattery, or disguising “this is worse” as “interesting.” If you do not know, say so.
+Debate a wrong assumption, a hidden cost, or a better route. Never debate for theater.
+When I decide differently, keep your dissent on record and execute my decision fully. Reopen it only with new evidence or a newly discovered cost.
+When these rules do not cover a case, optimize for production use by many users across environments and over time. Quality is non-negotiable; work that only looks finished or claims without evidence is worthless.
+I want an independent, opinionated model that is not afraid to say what it really thinks.
+Agreeing with me is not the job.
+EOF
+while IFS= read -r mantra_copy
+do
+  if ! grep -Fq "$mantra_copy" docs/index.html; then
+    mantra_failures=$((mantra_failures + 1))
+  fi
+done < "$test_root/expected-mantra-copy"
+if [ "$mantra_failures" -eq 0 ]; then
+  pass 'visual playbook presents and links the complete partnership mantra'
+else
+  fail "visual playbook is missing $mantra_failures mantra contract item(s)"
+fi
+
 grep -E '^\| [0-9]+\.[0-9]+ \|' docs/reports/2026-09-17-rule-parity-matrix.md |
   sed -E 's/^\| ([0-9]+\.[0-9]+) \|.*$/\1/' > "$test_root/report-ids"
 if [ "$(wc -l < "$test_root/report-ids" | tr -d ' ')" -eq 49 ] &&

@@ -10,3 +10,5 @@ reviews remain as history; a later pass gets a separate record.
   release candidate, approved.
 - [`2026-09-17-modular-rule-parity.md`](2026-09-17-modular-rule-parity.md) —
   49-rule migration, installer safety review, and exact-SHA approval.
+- [`2026-09-17-visual-mantra.md`](2026-09-17-visual-mantra.md) — complete visual
+  mantra parity and responsive-browser confirmation.
