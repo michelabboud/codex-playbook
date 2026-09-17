@@ -1,0 +1,16 @@
+codex-playbook-code
+codex-playbook-collaboration
+codex-playbook-destructive
+codex-playbook-documentation
+codex-playbook-environment
+codex-playbook-platform-linux
+codex-playbook-platform-macos
+codex-playbook-platform-windows
+codex-playbook-quarantine
+codex-playbook-repository
+codex-playbook-reviews
+codex-playbook-self-update
+codex-playbook-subagents
+codex-playbook-testing
+codex-playbook-workflow
+codex-playbook-writing

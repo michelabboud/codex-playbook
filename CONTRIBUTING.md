@@ -12,12 +12,19 @@ behavior.
 - Keep authority in `AGENTS.md`; skills may add procedure, never new approval
   gates.
 - Cite current official Codex documentation for client behavior.
+- Update the owning skill, `config/rule-manifest.tsv`, the current parity
+  matrix, and the visual dataset together. Rule 11.1 is the only declared
+  multi-file rule implementation.
+- Update `config/managed-skills.txt` when a skill is added, renamed, or retired;
+  the installer, restore command, and lifecycle tests consume that inventory.
 
 ## Required checks
 
 Run:
 
 ```bash
+./tests/rulebook_test.sh
+./tests/install_test.sh
 ./scripts/verify.sh
 ```
 

@@ -8,3 +8,5 @@ reviews remain as history; a later pass gets a separate record.
   changes required.
 - [`2026-09-16-release-candidate.md`](2026-09-16-release-candidate.md) — corrected
   release candidate, approved.
+- [`2026-09-17-modular-rule-parity.md`](2026-09-17-modular-rule-parity.md) —
+  49-rule migration, installer safety review, and exact-SHA approval.

@@ -30,16 +30,26 @@ for required_file in \
   PROGRESS.md \
   CHANGELOG.md \
   ARCHITECTURE.md \
+  BACKLOG.md \
+  HANDOFF.md \
   LICENSE \
+  PLAN.md \
   VERSION \
+  .env.example \
   INSTALL.md \
   CONTRIBUTING.md \
   SECURITY.md \
+  config/managed-skills.txt \
+  config/retired-skills.txt \
+  config/rule-manifest.tsv \
   docs/index.html \
   docs/assets/codex-playbook-hero.png \
+  docs/runbooks/github-pages.md \
+  docs/reports/2026-09-17-rule-parity-matrix.md \
   scripts/install.sh \
   scripts/restore.sh \
-  tests/install_test.sh
+  tests/install_test.sh \
+  tests/rulebook_test.sh
 do
   require_file "$required_file"
 done
@@ -52,48 +62,22 @@ else
 fi
 
 if grep -Fq "Current: **v$version**" README.md &&
+   grep -Fq "rulebook is version $version" AGENTS.md &&
+   grep -Fq "**Current version:** $version" PROGRESS.md &&
+   grep -Fq "## $version —" CHANGELOG.md &&
    grep -Fq "Codex Playbook / $version" docs/index.html; then
   pass "public version carriers match VERSION"
 else
   fail "one or more public version carriers disagree with VERSION"
 fi
 
-agents_bytes=$(wc -c < AGENTS.md | tr -d ' ')
-if [ "$agents_bytes" -le 32768 ]; then
-  pass "AGENTS.md is within Codex's default 32 KiB limit ($agents_bytes bytes)"
+if ./tests/rulebook_test.sh; then
+  pass "modular rulebook contract passes"
 else
-  fail "AGENTS.md exceeds Codex's default 32 KiB limit ($agents_bytes bytes)"
+  fail "modular rulebook contract fails"
 fi
 
-rule_count=$(grep -Ec '^[0-9]+\. \*\*' AGENTS.md || true)
-if [ "$rule_count" -eq 42 ]; then
-  pass "AGENTS.md contains all 42 numbered rules"
-else
-  fail "AGENTS.md contains $rule_count numbered rules; expected 42"
-fi
-
-skill_count=0
-for skill_file in .agents/skills/codex-playbook-*/SKILL.md
-do
-  if [ ! -f "$skill_file" ]; then
-    continue
-  fi
-  skill_count=$((skill_count + 1))
-  if grep -Eq '^name: codex-playbook-[a-z-]+$' "$skill_file" &&
-     grep -Eq '^description: .+' "$skill_file"; then
-    pass "$skill_file has required metadata"
-  else
-    fail "$skill_file is missing valid name or description metadata"
-  fi
-done
-
-if [ "$skill_count" -eq 3 ]; then
-  pass "three Codex Playbook skills are present"
-else
-  fail "$skill_count skills found; expected 3"
-fi
-
-for shell_file in scripts/install.sh scripts/restore.sh tests/install_test.sh
+for shell_file in scripts/install.sh scripts/restore.sh tests/install_test.sh tests/rulebook_test.sh
 do
   if [ -x "$shell_file" ]; then
     pass "$shell_file is executable"
@@ -154,13 +138,6 @@ else
   pass "local Markdown link targets exist"
 fi
 rm "$link_inventory" "$link_failures"
-
-map_rule_count=$(grep -Ec '^      \["([1-9]|[1-3][0-9]|4[0-2])",' docs/index.html || true)
-if [ "$map_rule_count" -eq 42 ]; then
-  pass "visual map contains all 42 numbered rules"
-else
-  fail "visual map contains $map_rule_count numbered rules; expected 42"
-fi
 
 if grep -RInE 'TBD|FIXME|lorem ipsum' \
   --exclude-dir=.git \
