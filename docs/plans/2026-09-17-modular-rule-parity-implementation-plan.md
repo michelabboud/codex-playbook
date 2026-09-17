@@ -89,13 +89,13 @@ Git, GitHub CLI.
 - Modify: `VERSION`
 - Modify: all public version carriers
 
-- [ ] Mark the approved plan complete and record the exact verified state.
+- [x] Mark the approved plan complete and record the exact verified state.
 - [x] Allocate the next unused checkpoint version from local and remote state.
 - [x] Run shell syntax checks, lifecycle tests, full verification, link checks,
       placeholder checks, whitespace checks, and the applicable dependency audit.
 - [x] Run independent specification and code-quality reviews; fix and re-review
       every confirmed finding.
-- [ ] Commit with the configured identity and create `checkpoint/<VERSION>`.
-- [ ] Push the feature branch and checkpoint tag to `nice-michel`.
-- [ ] Open a pull request against `michelabboud/codex-playbook:main` containing
+- [x] Commit with the configured identity and create `checkpoint/<VERSION>`.
+- [x] Push the feature branch and checkpoint tag to `nice-michel`.
+- [x] Open a pull request against `michelabboud/codex-playbook:main` containing
       the five-part close-out report and verification evidence.

@@ -14,9 +14,10 @@ Phase 2 rebuilds the first public version as a faithful Codex adaptation of all
 skills on demand, while manifests keep rule ownership, installation, restoration,
 documentation, and the visual playbook synchronized.
 
-**Verification in progress:** the focused suites currently cover 43 rulebook
-checks and 269 isolated installer and restore lifecycle assertions. The visual
-playbook has been inspected at 1200 px desktop and 390 px mobile widths; exact
-rule-ID search, keyboard activation, reduced-motion behavior, and a clean browser
-console were exercised. Two independent reviews report no remaining findings;
-the pull-request record is the remaining close-out step.
+**Completed:** the focused suites cover 43 rulebook checks and 269 isolated
+installer and restore lifecycle assertions. The visual playbook was inspected
+at 1200 px desktop and 390 px mobile widths; exact rule-ID search, keyboard
+activation, reduced-motion behavior, and a clean browser console were exercised.
+Two independent exact-SHA reviews report no remaining findings. Pull request
+[`#2`](https://github.com/michelabboud/codex-playbook/pull/2) carries the verified
+change from the `nice-michel` contribution fork to the canonical repository.
