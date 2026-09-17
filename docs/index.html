@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A visual map of Codex Playbook: 42 rules for production-grade work with Codex.">
+  <meta name="description" content="A visual map of Codex Playbook: 49 faithful, modular rules for production-grade work with Codex.">
   <meta name="theme-color" content="#173f9f">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23173f9f'/%3E%3Cpath d='M18 19h28v8H27v10h19v8H18z' fill='%23fffdf7'/%3E%3C/svg%3E">
-  <title>Codex Playbook — 42 rules for work that matters</title>
+  <title>Codex Playbook — 49 modular rules for work that matters</title>
   <style>
     :root {
       color-scheme: light;
@@ -44,10 +44,10 @@
     .section-head { display:grid; grid-template-columns:minmax(180px,.7fr) 1.8fr; gap:clamp(2rem,6vw,7rem); align-items:start; margin-bottom:clamp(3rem,6vw,6rem); }
     h2 { margin:0; font-size:clamp(2.5rem,6vw,5.6rem); line-height:.95; letter-spacing:-.055em; }
     .section-head p { margin:1.4rem 0 0; max-width:55rem; color:var(--muted); font-size:1.1rem; }
-    .gates { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); border-block:2px solid var(--ink); }
-    .gate { padding:clamp(2rem,4vw,4rem); }
+    .gates { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border:2px solid var(--ink); }
+    .gate { padding:clamp(1.4rem,3vw,2.6rem); border:1px solid var(--line); }
     .gate+.gate { border-left:1px solid var(--line); }
-    .gate .number { color:var(--brass); font:700 3.8rem/1 var(--mono); }
+    .gate .number { color:var(--brass); font:700 2.4rem/1 var(--mono); }
     .gate h3 { margin:1.5rem 0 .7rem; font-size:1.6rem; }
     .gate p { margin:0; color:var(--muted); }
     .rules-wrap { display:grid; grid-template-columns:280px 1fr; gap:clamp(2rem,6vw,6rem); align-items:start; }
@@ -94,7 +94,7 @@
       h1 { max-width:8ch; }
       .section-head,.rules-wrap { grid-template-columns:1fr; }
       .gates,.flow { grid-template-columns:1fr; }
-      .gate+.gate { border-left:0; border-top:1px solid var(--line); }
+      .gate+.gate { border-left:1px solid var(--line); border-top:1px solid var(--line); }
       .rule-nav { position:static; }
       .section-buttons { grid-template-columns:repeat(2,1fr); gap:0 1rem; }
       .flow-step { min-height:auto; }
@@ -110,7 +110,7 @@
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="topbar">
-    <a class="wordmark" href="#top">Codex Playbook / 0.1.1</a>
+    <a class="wordmark" href="#top">Codex Playbook / 0.1.2</a>
     <nav class="toplinks" aria-label="Primary">
       <a href="#authority">Authority</a><a href="#rules">Rules</a><a href="#native">Codex-native</a>
       <a class="install" href="https://github.com/michelabboud/codex-playbook/blob/main/INSTALL.md">Install</a>
@@ -119,7 +119,7 @@
   <main id="main">
     <section class="hero" id="top" aria-labelledby="hero-title">
       <div class="hero-inner"><div class="hero-copy">
-        <p class="eyebrow">42 rules · 2 gates · one working agreement</p>
+        <p class="eyebrow">49 rules · 16 skills · one working agreement</p>
         <h1 id="hero-title">Work that holds up.</h1>
         <p>A production-grade rulebook for Codex: finish the work, prove the claims, preserve the user's authority.</p>
         <div class="actions"><a class="action primary" href="https://github.com/michelabboud/codex-playbook">View repository</a><a class="action" href="#rules">Explore all rules</a></div>
@@ -127,14 +127,21 @@
       </div></div>
     </section>
     <section class="section" id="authority">
-      <div class="section-head"><div class="kicker">Authority</div><div><h2>Decide by default.</h2><p>Routine work proceeds inside the agreed scope. Two moments normally return to the owner because they change direction or are hard to undo.</p></div></div>
+      <div class="section-head"><div class="kicker">Authority</div><div><h2>Decide by default.</h2><p>The approval table is a closed list. Everything outside these nine situations proceeds inside the approved scope.</p></div></div>
       <div class="gates">
-        <article class="gate"><div class="number">01</div><h3>A new plan or architecture</h3><p>Bring a concrete design. Once approved, that decision authorizes the implementation and its normal close-out chain.</p></article>
-        <article class="gate"><div class="number">02</div><h3>A destructive action</h3><p>Validate the exact target first. If deletion is uncertain, quarantine it and keep moving instead of turning doubt into loss.</p></article>
+        <article class="gate"><div class="number">01</div><h3>Read-only work</h3><p>Proceed inside the request. A review reports findings; it does not silently become implementation.</p></article>
+        <article class="gate"><div class="number">02</div><h3>Ordinary implementation</h3><p>Proceed through the full close-out chain once the task or plan is approved.</p></article>
+        <article class="gate"><div class="number">03</div><h3>Architecture and plans</h3><p>Bring a concrete design once. The approved design authorizes its implied work.</p></article>
+        <article class="gate"><div class="number">04</div><h3>Source checkpoints</h3><p>Routine commits, checkpoint tags, source pushes, and approved releases proceed after checks.</p></article>
+        <article class="gate"><div class="number">05</div><h3>First external publication</h3><p>Ask once before a registry publish, live deploy, or off-machine release asset.</p></article>
+        <article class="gate"><div class="number">06</div><h3>Sensitive configuration</h3><p>Ask for native services and system, security, destructive, or production-performance changes.</p></article>
+        <article class="gate"><div class="number">07</div><h3>Protected data</h3><p>Ask before deleting or replacing credentials, state, logs, backups, databases, or user-created files.</p></article>
+        <article class="gate"><div class="number">08</div><h3>Proven disposable output</h3><p>Proceed only after proving generated output or this run's fixture is idle and recoverable.</p></article>
+        <article class="gate"><div class="number">09</div><h3>Uncertainty</h3><p>Inspect read-only. If ownership or recovery remains unclear, leave it or quarantine it.</p></article>
       </div>
     </section>
     <section class="section" id="rules">
-      <div class="section-head"><div class="kicker">The rulebook</div><div><h2>Every rule earns its context.</h2><p>Search the complete map or move by subject. The installed wording remains in <code>AGENTS.md</code>; this view is built for orientation.</p></div></div>
+      <div class="section-head"><div class="kicker">The rulebook</div><div><h2>Every rule earns its context.</h2><p>Search the complete map or move by subject. Authority remains in <code>AGENTS.md</code>; full subject rules live in sixteen skills and load only when triggered.</p></div></div>
       <div class="rules-wrap">
         <aside class="rule-nav" aria-label="Rule sections"><label for="rule-search">Find a rule</label><input id="rule-search" type="search" placeholder="verification, secrets, Git…" autocomplete="off"><div class="section-buttons" id="section-buttons"></div></aside>
         <div aria-live="polite"><div class="rules-header"><h3 id="rules-title">Critical rules</h3><span id="rules-count">4 rules</span></div><ol class="rule-list" id="rule-list"></ol></div>
@@ -143,9 +150,9 @@
     <section class="section native" id="native">
       <div class="section-head"><div class="kicker">Codex-native</div><div><h2>Reliable where it loads.</h2><p>The doctrine stays visible in every session. Detailed procedures arrive only when the work needs them.</p></div></div>
       <div class="flow">
-        <article class="flow-step"><div class="mono">01 / GLOBAL</div><h3>~/.codex/AGENTS.md</h3><p>The owner’s standing agreement: quality, authority, workflow, and safety.</p></article>
+        <article class="flow-step"><div class="mono">01 / AUTHORITY</div><h3>~/.codex/AGENTS.md</h3><p>An 8 KB router keeps partnership, classification, approval, and trigger rules always available.</p></article>
         <article class="flow-step"><div class="mono">02 / PROJECT</div><h3>repo/AGENTS.md</h3><p>Local commands and conventions layer closer to the code and override broader guidance.</p></article>
-        <article class="flow-step"><div class="mono">03 / PROCEDURE</div><h3>Codex skills</h3><p>Dependency review, quarantine, and release detail load through progressive disclosure.</p></article>
+        <article class="flow-step"><div class="mono">03 / SUBJECTS</div><h3>16 Codex skills</h3><p>The complete 49-rule corpus arrives by trigger through progressive disclosure, including one matching platform skill.</p></article>
       </div>
     </section>
     <section class="section closing"><h2>Install the working agreement.</h2><p>Read it, challenge it, and make it yours. A rulebook only works when the person named “I” actually agrees with it.</p><a class="action primary" href="https://github.com/michelabboud/codex-playbook/blob/main/INSTALL.md">Open installation guide</a></section>
@@ -153,65 +160,334 @@
   <footer><span>github.com/michelabboud/codex-playbook</span><span>MIT · Shared as a resource, not a mandate.</span></footer>
   <script>
     const sections=[
-      {key:"critical",title:"Critical rules",rules:[
-      ["C1","Never suggest stopping","The owner decides when work stops."],
-      ["C2","Never quietly reduce scope","Build the approved specification and record genuine concerns."],
-      ["C3","Choose the production-grade reading","Proceed through routine ambiguity; ask only when the deliverable would materially differ."],
-      ["C4","The owner sets scope","Within it, the agent makes implementation decisions."]]},
-      {key:"code",title:"Code standards",rules:[
-      ["1","No fakes, stubs, or placeholders","Nothing may look complete when it is not."],
-      ["2","Vertical slices must be real","Finish code, tests, and documentation end to end."],
-      ["3","Production grade only","Handle errors, validate boundaries, log meaningfully, and fail gracefully."],
-      ["4","No magic values","Use named constants and real configuration where operators need control."],
-      ["5","Match existing patterns","Respect the repository and keep unrelated diffs out."],
-      ["6","Dependencies must earn their place","Vet current versions, security, health, adoption, and alternatives."],
-      ["7","Vendored code keeps provenance","Preserve licenses and exact upstream source information."]]},
-      {key:"verification",title:"Testing & verification",rules:[
-      ["8","Test what can fail","Cover happy paths and failure paths without ceremonial tests."],
-      ["9","Evidence before completion","Run tests, builds, and lint before claiming success."],
-      ["10","Measure performance claims","Benchmarks and profiles replace adjectives."]]},
-      {key:"docs",title:"Documentation",rules:[
-      ["11","Write for a new contributor","Capture reasoning, decisions, and gotchas."],
-      ["12","No undocumented decisions","Record choices with real trade-offs in an ADR."],
-      ["13","ADRs are permanent records","Index them, preserve them, and supersede instead of rewriting."],
-      ["14","Keep affected docs current","Update progress, changelog, usage, and architecture with the work."]]},
-      {key:"structure",title:"Repository structure",rules:[
-      ["15","Every repository starts complete","README, progress, changelog, architecture, license, and version are foundational."],
-      ["16","LICENSE stays extensionless","Use the exact filename ecosystem tooling recognizes."],
-      ["17","VERSION is the source of truth","One bare semantic version drives tags and releases."],
-      ["18","Documentation has a home","Use real docs subfolders instead of scattering records in the root."]]},
-      {key:"workflow",title:"Workflow & Git",rules:[
-      ["19","Every task closes completely","Verify, document, version, commit, tag, and push."],
-      ["20","Close out in five parts","Outcome, evidence, assumptions, concerns, and release confirmation."],
-      ["21","Every phase becomes a release","Merge, audit, document, tag, push, and publish release notes."],
-      ["22","Published history never moves","Do not amend, force-push, or retarget released checkpoints."]]},
-      {key:"collaboration",title:"Collaboration & autonomy",rules:[
-      ["23","The plan is the normal gate","Once approved, it authorizes its full implementation and close-out."],
-      ["24","Decide by default","Interrupt only for decisions that materially change direction or risk."],
-      ["25","Implementation calls belong to the agent","Use the motto, repository conventions, and judgment."],
-      ["26","Educate before asking","Explain the problem, recommendation, trade-offs, and impact."],
-      ["27","Subagents cost tokens","Announce large fan-outs and use them where decomposition pays."],
-      ["28","Delegate only clean seams","Keep sequential and shared-file work together."],
-      ["29","Match model strength to risk","Planning and hard engineering start on the strongest available model."],
-      ["30","Escalate instead of guessing","A stuck subagent reports evidence and moves one tier upward."],
-      ["31","Concurrency follows machine load","Measure capacity before a fan-out and leave practical headroom."],
-      ["32","Fix local defects immediately","Record them and avoid unrelated feature work."],
-      ["33","Stay focused","Do not silently defer or reduce the approved scope."],
-      ["34","Compact only after completion","Context cleanup follows verified delivery, never interrupts it."],
-      ["35","Write a real handoff","Record exact state, evidence, next steps, gotchas, and running processes."]]},
-      {key:"safety",title:"Environment & safety",rules:[
-      ["36","Claim ports deliberately","Check the machine and registry before assigning one."],
-      ["37","Docker names show ownership","Use project prefixes and never touch unrelated resources."],
-      ["38","Prefer embedded storage","Native datastores require the owner's explicit direction."],
-      ["39","Logs are not disposable","Never delete them; compress only inactive logs."],
-      ["40","Secrets never enter transcripts","Use environment or secret stores and inspect without revealing values."],
-      ["41","Nothing runs silently","Stop long-lived processes or report them with teardown commands."],
-      ["42","Destructive actions require approval","Validate exact targets and never turn uncertainty into loss."]]}
+      {
+        "key": "authority",
+        "title": "0 · Authority",
+        "rules": [
+          [
+            "0.1",
+            "The owner decides when work stops",
+            "Never suggest stopping, taking a break, or continuing later."
+          ],
+          [
+            "0.2",
+            "Never quietly reduce scope",
+            "Build the full approved specification and record genuine concerns."
+          ],
+          [
+            "0.3",
+            "Choose the production-grade reading",
+            "Proceed through routine ambiguity; ask only when deliverables would materially differ."
+          ],
+          [
+            "0.4",
+            "The owner sets scope",
+            "Within it, the agent makes implementation decisions."
+          ]
+        ]
+      },
+      {
+        "key": "code",
+        "title": "1 · Code",
+        "rules": [
+          [
+            "1.1",
+            "No fakes, stubs, or placeholders",
+            "Build real vertical slices; unfinished work is explicit and disclosed."
+          ],
+          [
+            "1.2",
+            "Production grade only",
+            "Handle errors, validate boundaries, log meaningfully, and fail gracefully."
+          ],
+          [
+            "1.3",
+            "No magic values",
+            "Name constants and add configuration only where an operator needs control."
+          ],
+          [
+            "1.4",
+            "Match existing patterns",
+            "Respect repository conventions and keep unrelated diffs out."
+          ],
+          [
+            "1.5",
+            "Dependencies must earn their place",
+            "Vet current versions, security, health, adoption, licensing, and alternatives."
+          ],
+          [
+            "1.6",
+            "Vendored code keeps provenance",
+            "Preserve licenses and exact upstream source information."
+          ]
+        ]
+      },
+      {
+        "key": "testing",
+        "title": "2 · Testing",
+        "rules": [
+          [
+            "2.1",
+            "Test what can fail",
+            "Cover happy and failure paths; a bug gets a regression that fails first."
+          ],
+          [
+            "2.2",
+            "Evidence before completion",
+            "Run required checks, quote decisive output, and prove claims about pre-existing failures."
+          ],
+          [
+            "2.3",
+            "Measure performance claims",
+            "Benchmarks and profiles replace unmeasured adjectives."
+          ]
+        ]
+      },
+      {
+        "key": "reviews",
+        "title": "3 · Reviews",
+        "rules": [
+          [
+            "3.1",
+            "Reviews climb the delivery ladder",
+            "Task, batch, milestone, and release reviews grow stronger with risk and scope."
+          ],
+          [
+            "3.2",
+            "Dependencies and risk bound batches",
+            "Review before downstream work becomes expensive; sensitive paths get task-grain depth."
+          ],
+          [
+            "3.3",
+            "Pipeline, but stop the line",
+            "Pin findings to commits, recheck them at tip, and stop on blockers."
+          ],
+          [
+            "3.4",
+            "The release gets the best review",
+            "Run independent deep passes with the plan and prior reviews before any release tag."
+          ]
+        ]
+      },
+      {
+        "key": "documentation",
+        "title": "4 · Documentation",
+        "rules": [
+          [
+            "4.1",
+            "Write for a new contributor",
+            "Capture reasoning, decisions, and gotchas instead of narrating obvious code."
+          ],
+          [
+            "4.2",
+            "No undocumented decisions",
+            "Write qualifying ADRs at decision time and supersede rather than rewrite history."
+          ],
+          [
+            "4.3",
+            "Keep every affected record current",
+            "Update changelog, progress, plan, backlog, usage, and architecture."
+          ]
+        ]
+      },
+      {
+        "key": "repository",
+        "title": "5 · Repository",
+        "rules": [
+          [
+            "5.1",
+            "Every repository starts complete",
+            "Carry the required project, plan, handoff, backlog, environment, license, and version records."
+          ],
+          [
+            "5.2",
+            "Conditional records are real requirements",
+            "Public, deployed, and jargon-heavy projects add their matching documents."
+          ],
+          [
+            "5.3",
+            "Documentation has a home",
+            "Use the full docs taxonomy and sortable dated filenames."
+          ]
+        ]
+      },
+      {
+        "key": "workflow",
+        "title": "6 · Workflow",
+        "rules": [
+          [
+            "6.1",
+            "Every task closes completely",
+            "Verify, document, version, commit, checkpoint-tag, push, and use pull requests for shared repositories."
+          ],
+          [
+            "6.2",
+            "Close out in five parts",
+            "Outcome, evidence, assumptions, concerns, and checkpoint confirmation."
+          ],
+          [
+            "6.3",
+            "Every phase becomes a release",
+            "True-merge, audit, verify the exact candidate, tag, push, and publish browsable notes."
+          ],
+          [
+            "6.4",
+            "Published history never moves",
+            "Do not amend, force-push, or retarget published checkpoints."
+          ]
+        ]
+      },
+      {
+        "key": "collaboration",
+        "title": "7 · Collaboration",
+        "rules": [
+          [
+            "7.1",
+            "The plan is the normal gate",
+            "One approved design authorizes its full implied implementation and close-out."
+          ],
+          [
+            "7.2",
+            "Decide by default",
+            "Avoid stalls, batch real questions, and make ordinary implementation calls."
+          ],
+          [
+            "7.3",
+            "Educate before asking",
+            "Explain the problem, recommendation, trade-offs, and impact before the question."
+          ],
+          [
+            "7.4",
+            "Fix now or defer loudly",
+            "Repair understood local defects; persist and escalate risky or unclear ones."
+          ],
+          [
+            "7.5",
+            "Stay focused",
+            "Do not silently defer or reduce the approved scope."
+          ],
+          [
+            "7.6",
+            "Clean context only after delivery",
+            "Context hygiene follows verified completion, never interrupts it."
+          ],
+          [
+            "7.7",
+            "Write a real handoff",
+            "Record exact state, evidence, next steps, gotchas, and running processes."
+          ]
+        ]
+      },
+      {
+        "key": "subagents",
+        "title": "8 · Subagents",
+        "rules": [
+          [
+            "8.1",
+            "Delegate clean seams and escalate early",
+            "Use capability tiers, measured concurrency, planner/coordinator separation, and evidence-bearing escalation."
+          ]
+        ]
+      },
+      {
+        "key": "environment",
+        "title": "9 · Environment",
+        "rules": [
+          [
+            "9.1",
+            "Claim ports deliberately",
+            "Check the machine and shared registry before assigning one."
+          ],
+          [
+            "9.2",
+            "Docker names are not permission",
+            "Use prefixes, verify task ownership, preserve logs, and never touch unrelated data."
+          ],
+          [
+            "9.3",
+            "Prefer embedded storage",
+            "Native datastores require the owner’s explicit direction."
+          ],
+          [
+            "9.4",
+            "Logs are not disposable",
+            "Never delete logs or compress one that is active."
+          ],
+          [
+            "9.5",
+            "Secrets never enter transcripts",
+            "Use environment or secret stores and inspect by presence before length or hash."
+          ],
+          [
+            "9.6",
+            "Nothing runs silently",
+            "Stop long-lived processes or report them with exact teardown commands."
+          ]
+        ]
+      },
+      {
+        "key": "destructive",
+        "title": "10 · Destructive",
+        "rules": [
+          [
+            "10.1",
+            "Destructive effects require approval",
+            "The effect controls the gate, not the spelling of the command."
+          ],
+          [
+            "10.2",
+            "Validate first; destroy alone",
+            "Inspect and confirm in one step, then run one literal authorized target separately."
+          ],
+          [
+            "10.3",
+            "Quarantine uncertainty",
+            "Preserve bytes, provenance, restore instructions, notification, and a permanent manifest."
+          ]
+        ]
+      },
+      {
+        "key": "platform",
+        "title": "11 · Platform",
+        "rules": [
+          [
+            "11.1",
+            "Use the execution platform’s commands",
+            "Select Linux or WSL, macOS, or native Windows; never assume one operating system."
+          ]
+        ]
+      },
+      {
+        "key": "writing",
+        "title": "12 · Writing",
+        "rules": [
+          [
+            "12.1",
+            "Lead and end with action",
+            "Make the answer immediately usable and keep one clear next action when work remains."
+          ],
+          [
+            "12.2",
+            "Restate multi-step state",
+            "Carry current position and next step in every turn or the client task UI."
+          ],
+          [
+            "12.3",
+            "Explain like a human",
+            "Use plain words, expand acronyms, and put meaning before labels."
+          ],
+          [
+            "12.4",
+            "Run the pre-send check",
+            "Remove empty announcements, vague closers, sidebars, fake certainty, and idioms."
+          ]
+        ]
+      }
     ];
     const buttons=document.querySelector("#section-buttons"),list=document.querySelector("#rule-list"),title=document.querySelector("#rules-title"),count=document.querySelector("#rules-count"),search=document.querySelector("#rule-search");
     let active=sections[0].key;
     function renderButtons(){buttons.innerHTML=sections.map(s=>`<button type="button" data-section="${s.key}" aria-pressed="${s.key===active}">${s.title}</button>`).join("");}
-    function render(){const query=search.value.trim().toLowerCase(),section=sections.find(s=>s.key===active),visible=query?sections.flatMap(s=>s.rules).filter(r=>r.join(" ").toLowerCase().includes(query)):section.rules;title.textContent=query?"Search results":section.title;count.textContent=`${visible.length} ${visible.length===1?"rule":"rules"}`;list.innerHTML=visible.length?visible.map((r,i)=>`<li class="rule" style="animation-delay:${Math.min(i*25,200)}ms"><span class="rule-id">${r[0]}</span><div><strong>${r[1]}</strong><p>${r[2]}</p></div></li>`).join(""):`<li class="empty">No rule matches that search.</li>`;}
+    function render(){const query=search.value.trim().toLowerCase(),section=sections.find(s=>s.key===active),allRules=sections.flatMap(s=>s.rules),exactId=/^\d+\.\d+$/.test(query),visible=query?allRules.filter(r=>exactId?r[0]===query:r.join(" ").toLowerCase().includes(query)):section.rules;title.textContent=query?"Search results":section.title;count.textContent=`${visible.length} ${visible.length===1?"rule":"rules"}`;list.innerHTML=visible.length?visible.map((r,i)=>`<li class="rule" style="animation-delay:${Math.min(i*25,200)}ms"><span class="rule-id">${r[0]}</span><div><strong>${r[1]}</strong><p>${r[2]}</p></div></li>`).join(""):`<li class="empty">No rule matches that search.</li>`;}
     buttons.addEventListener("click",event=>{const button=event.target.closest("button[data-section]");if(!button)return;active=button.dataset.section;search.value="";renderButtons();render();});
     search.addEventListener("input",render);renderButtons();render();
   </script>

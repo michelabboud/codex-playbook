@@ -1,5 +1,9 @@
 # Codex Playbook Initial Release Implementation Plan
 
+> **Historical v0.1.0 plan — superseded by the approved modular parity plan
+> dated 2026-09-17.** Completed checkboxes below describe the first release,
+> not the current product contract.
+
 > **For agentic workers:** execute each checked task in order and keep the
 > release evidence in `docs/reviews/2026-09-16-initial-release.md`.
 

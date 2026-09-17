@@ -6,17 +6,84 @@ usage() {
   cat <<'EOF'
 Usage: ./scripts/install.sh [--replace-agents]
 
-Install Codex Playbook global rules and personal skills.
+Install the Codex Playbook global authority router and personal skills.
 
 By default, installation refuses to replace a different global AGENTS.md.
-Pass --replace-agents only after reviewing or merging the existing rules. A
-verified, unique recovery checkpoint is always created before installation.
+Pass --replace-agents only after reviewing or merging existing rules. A unique,
+verified recovery checkpoint is always completed before any destination changes.
 EOF
 }
 
 die() {
   printf 'ERROR: %s\n' "$1" >&2
   exit 1
+}
+
+validate_inventory() {
+  inventory_path=$1
+  inventory_label=$2
+
+  [ -f "$inventory_path" ] && [ ! -L "$inventory_path" ] ||
+    die "$inventory_label inventory is missing or unsafe."
+  [ -s "$inventory_path" ] ||
+    die "$inventory_label inventory is empty."
+
+  invalid_inventory_lines=$(grep -Env '^codex-playbook-[a-z]+(-[a-z]+)*$' "$inventory_path" || true)
+  [ -z "$invalid_inventory_lines" ] ||
+    die "$inventory_label inventory contains an invalid skill name."
+
+  inventory_duplicates=$(LC_ALL=C sort "$inventory_path" | uniq -d)
+  [ -z "$inventory_duplicates" ] ||
+    die "$inventory_label inventory contains duplicate skill names."
+
+  sorted_inventory=$(LC_ALL=C sort "$inventory_path")
+  current_inventory=$(cat "$inventory_path")
+  [ "$sorted_inventory" = "$current_inventory" ] ||
+    die "$inventory_label inventory must be sorted."
+}
+
+canonical_path_for_check() {
+  normalized_path=$(
+    printf '%s\n' "$1" | awk -F/ '
+      {
+        depth = 0
+        for (position = 1; position <= NF; position++) {
+          if ($position == "" || $position == ".") continue
+          if ($position == "..") {
+            if (depth > 0) depth--
+            continue
+          }
+          parts[++depth] = $position
+        }
+        if (depth == 0) {
+          print "/"
+          next
+        }
+        result = ""
+        for (position = 1; position <= depth; position++) result = result "/" parts[position]
+        print result
+      }
+    '
+  )
+  existing_path=$normalized_path
+  missing_suffix=''
+  while [ ! -d "$existing_path" ]
+  do
+    [ ! -e "$existing_path" ] || {
+      printf 'ERROR: path component is not a directory: %s\n' "$existing_path" >&2
+      return 1
+    }
+    path_component=${existing_path##*/}
+    missing_suffix="/$path_component$missing_suffix"
+    existing_path=${existing_path%/*}
+    [ -n "$existing_path" ] || existing_path=/
+  done
+  physical_path=$(CDPATH= cd -- "$existing_path" && pwd -P)
+  if [ "$physical_path" = / ]; then
+    printf '/%s\n' "${missing_suffix#/}"
+  else
+    printf '%s%s\n' "$physical_path" "$missing_suffix"
+  fi
 }
 
 replace_agents=0
@@ -35,7 +102,8 @@ codex_home=${CODEX_HOME:-"$HOME/.codex"}
 skills_root="$HOME/.agents/skills"
 agents_source="$repo_root/AGENTS.md"
 agents_target="$codex_home/AGENTS.md"
-skill_names='codex-playbook-dependency-review codex-playbook-quarantine codex-playbook-release'
+active_inventory="$repo_root/config/managed-skills.txt"
+retired_inventory="$repo_root/config/retired-skills.txt"
 agents_stage=''
 staging_root=''
 previous_root=''
@@ -94,11 +162,37 @@ case "$codex_home" in
   /*) ;;
   *) die 'CODEX_HOME must be an absolute path.' ;;
 esac
+case "$codex_home/" in
+  */./*|*/../*) die 'CODEX_HOME must not contain . or .. path components.' ;;
+esac
 
 case "$skills_root" in
   /*) ;;
   *) die 'HOME must be an absolute path.' ;;
 esac
+
+validate_inventory "$active_inventory" 'Active skill'
+validate_inventory "$retired_inventory" 'Retired skill'
+
+active_skill_names=$(cat "$active_inventory")
+retired_skill_names=$(cat "$retired_inventory")
+managed_skill_names=$(
+  {
+    cat "$active_inventory"
+    cat "$retired_inventory"
+  } | LC_ALL=C sort -u
+)
+
+canonical_codex_home=$(canonical_path_for_check "$codex_home")
+for skill_name in $managed_skill_names
+do
+  canonical_skill_target=$(canonical_path_for_check "$skills_root/$skill_name")
+  case "$canonical_codex_home" in
+    "$canonical_skill_target"|"$canonical_skill_target"/*)
+      die "CODEX_HOME overlaps the managed skill directory $skills_root/$skill_name."
+      ;;
+  esac
+done
 
 [ -f "$agents_source" ] && [ ! -L "$agents_source" ] ||
   die 'The source AGENTS.md is missing or is not a regular file.'
@@ -106,7 +200,7 @@ esac
 [ -x "$repo_root/scripts/restore.sh" ] ||
   die 'The restore script is missing or is not executable.'
 
-for skill_name in $skill_names
+for skill_name in $active_skill_names
 do
   skill_source="$repo_root/.agents/skills/$skill_name"
   [ -d "$skill_source" ] && [ ! -L "$skill_source" ] ||
@@ -115,20 +209,26 @@ do
     die "The source skill $skill_name has no regular SKILL.md."
 done
 
+override_target="$codex_home/AGENTS.override.md"
+if [ -L "$override_target" ] || { [ -e "$override_target" ] && [ ! -f "$override_target" ]; }; then
+  die 'Refusing installation because the global AGENTS.override.md is unsafe.'
+fi
+if [ -s "$override_target" ]; then
+  die 'A non-empty global AGENTS.override.md would shadow the installed AGENTS.md. Merge or remove the override first.'
+fi
+
 if [ -L "$agents_target" ]; then
   die 'Refusing to replace a symlinked global AGENTS.md.'
 fi
-
 if [ -e "$agents_target" ] && [ ! -f "$agents_target" ]; then
   die 'Refusing to replace a global AGENTS.md that is not a regular file.'
 fi
-
 if [ -f "$agents_target" ] && ! cmp -s "$agents_source" "$agents_target" &&
    [ "$replace_agents" -ne 1 ]; then
   die 'A different global AGENTS.md already exists. Merge it first or rerun with --replace-agents after reviewing the replacement.'
 fi
 
-for skill_name in $skill_names
+for skill_name in $managed_skill_names
 do
   skill_target="$skills_root/$skill_name"
   if [ -L "$skill_target" ]; then
@@ -148,7 +248,11 @@ chmod 700 "$backup_root"
 timestamp=$(date -u '+%Y%m%dT%H%M%SZ')
 backup_dir=$(mktemp -d "$backup_root/codex-playbook-preinstall-$timestamp-XXXXXX")
 manifest="$backup_dir/manifest"
-printf 'format=1\n' > "$manifest"
+printf 'format=2\n' > "$manifest"
+for skill_name in $managed_skill_names
+do
+  printf 'managed_skill=%s\n' "$skill_name" >> "$manifest"
+done
 
 if [ -f "$agents_target" ]; then
   if ! cp -p "$agents_target" "$backup_dir/AGENTS.md"; then
@@ -161,12 +265,12 @@ else
   printf 'agents=absent\n' >> "$manifest"
 fi
 
-for skill_name in $skill_names
+for skill_name in $managed_skill_names
 do
   skill_target="$skills_root/$skill_name"
   manifest_key=$(printf '%s' "$skill_name" | tr '-' '_')
   if [ -d "$skill_target" ]; then
-    if ! cp -R "$skill_target" "$backup_dir/$skill_name"; then
+    if ! cp -pR "$skill_target" "$backup_dir/$skill_name"; then
       die "$skill_name checkpoint creation failed before installation. Incomplete checkpoint: $backup_dir"
     fi
     diff -qr "$skill_target" "$backup_dir/$skill_name" >/dev/null ||
@@ -188,9 +292,9 @@ cmp -s "$agents_source" "$agents_stage" ||
 
 mkdir -p "$skills_root"
 staging_root=$(mktemp -d "$skills_root/.codex-playbook-install-XXXXXX")
-for skill_name in $skill_names
+for skill_name in $active_skill_names
 do
-  cp -R "$repo_root/.agents/skills/$skill_name" "$staging_root/$skill_name"
+  cp -pR "$repo_root/.agents/skills/$skill_name" "$staging_root/$skill_name"
   diff -qr "$repo_root/.agents/skills/$skill_name" "$staging_root/$skill_name" >/dev/null ||
     die "The staged $skill_name skill could not be verified. Recovery checkpoint: $backup_dir"
 done
@@ -204,23 +308,23 @@ if ! mv -f "$agents_stage" "$agents_target"; then
   recover_installation_and_die 'AGENTS.md installation failed.'
 fi
 
-for skill_name in $skill_names
+for skill_name in $managed_skill_names
 do
   skill_target="$skills_root/$skill_name"
-  previous_target="$previous_root/$skill_name"
-  if [ -d "$skill_target" ]; then
-    if ! mv "$skill_target" "$previous_target"; then
-      recover_installation_and_die "Could not prepare $skill_name for replacement."
-    fi
+  if [ -d "$skill_target" ] &&
+     ! mv "$skill_target" "$previous_root/$skill_name"; then
+    recover_installation_and_die "Could not preserve $skill_name for replacement."
   fi
+done
+
+for skill_name in $active_skill_names
+do
+  skill_target="$skills_root/$skill_name"
   if ! mv "$staging_root/$skill_name" "$skill_target"; then
-    if [ -d "$previous_target" ] && ! mv "$previous_target" "$skill_target"; then
-      printf 'WARNING: immediate %s rollback failed; using the verified checkpoint.\n' \
-        "$skill_name" >&2
-    fi
     recover_installation_and_die "Could not install $skill_name."
   fi
 done
+
 if ! rmdir "$staging_root"; then
   printf 'WARNING: the empty skill staging directory remains at %s\n' \
     "$staging_root" >&2
@@ -228,11 +332,17 @@ fi
 
 cmp -s "$agents_source" "$agents_target" ||
   recover_installation_and_die 'Installed AGENTS.md verification failed.'
-for skill_name in $skill_names
+for skill_name in $active_skill_names
 do
   diff -qr "$repo_root/.agents/skills/$skill_name" "$skills_root/$skill_name" >/dev/null ||
     recover_installation_and_die "Installed $skill_name verification failed."
 done
+for skill_name in $retired_skill_names
+do
+  [ ! -e "$skills_root/$skill_name" ] ||
+    recover_installation_and_die "Retired skill $skill_name is still active."
+done
+
 installation_started=0
 if ! rm -R "$previous_root"; then
   printf 'WARNING: installation is verified, but redundant pre-replacement copies remain at %s\n' \
@@ -243,4 +353,5 @@ version=$(tr -d '\r\n' < "$repo_root/VERSION")
 printf 'Installed Codex Playbook %s.\n' "$version"
 printf 'Global rules: %s\n' "$agents_target"
 printf 'Personal skills: %s\n' "$skills_root"
+printf 'Managed skills: %s\n' "$(wc -l < "$active_inventory" | tr -d ' ')"
 printf 'Recovery checkpoint: %s\n' "$backup_dir"

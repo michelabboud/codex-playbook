@@ -1,5 +1,9 @@
 # Codex Playbook Initial Release Design
 
+> **Historical v0.1.0 plan — superseded by the approved modular parity design
+> dated 2026-09-17.** This file records what the first release intentionally
+> built; it is not the current architecture.
+
 ## Goal
 
 Create a polished public Codex edition of the existing Claude Code rulebook,

@@ -1,5 +1,11 @@
 # Source adaptation — Claude Code to Codex
 
+> **Historical v0.1.0 record — superseded 2026-09-17.** This report accurately
+> records the first release's deliberate 42-rule design, but that design was not
+> the requested conversion. The current one-to-one migration is documented in
+> [`2026-09-17-rule-parity-matrix.md`](2026-09-17-rule-parity-matrix.md) and ADR
+> 0002. The historical analysis below remains unchanged as release evidence.
+
 **Date:** 2026-09-16
 
 **Source reviewed:** `michelabboud/claude-code-playbook` at `d7b8148`

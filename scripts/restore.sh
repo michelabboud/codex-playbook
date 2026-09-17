@@ -11,13 +11,101 @@ die() {
   exit 1
 }
 
+validate_skill_name() {
+  printf '%s\n' "$1" | grep -Eq '^codex-playbook-[a-z]+(-[a-z]+)*$' ||
+    die "The checkpoint contains an invalid managed skill name: $1"
+}
+
+canonical_path_for_check() {
+  normalized_path=$(
+    printf '%s\n' "$1" | awk -F/ '
+      {
+        depth = 0
+        for (position = 1; position <= NF; position++) {
+          if ($position == "" || $position == ".") continue
+          if ($position == "..") {
+            if (depth > 0) depth--
+            continue
+          }
+          parts[++depth] = $position
+        }
+        if (depth == 0) {
+          print "/"
+          next
+        }
+        result = ""
+        for (position = 1; position <= depth; position++) result = result "/" parts[position]
+        print result
+      }
+    '
+  )
+  existing_path=$normalized_path
+  missing_suffix=''
+  while [ ! -d "$existing_path" ]
+  do
+    [ ! -e "$existing_path" ] || {
+      printf 'ERROR: path component is not a directory: %s\n' "$existing_path" >&2
+      return 1
+    }
+    path_component=${existing_path##*/}
+    missing_suffix="/$path_component$missing_suffix"
+    existing_path=${existing_path%/*}
+    [ -n "$existing_path" ] || existing_path=/
+  done
+  physical_path=$(CDPATH= cd -- "$existing_path" && pwd -P)
+  if [ "$physical_path" = / ]; then
+    printf '/%s\n' "${missing_suffix#/}"
+  else
+    printf '%s%s\n' "$physical_path" "$missing_suffix"
+  fi
+}
+
+manifest_state_from() {
+  state_manifest=$1
+  key=$2
+  matches=$(grep -Ec "^$key=" "$state_manifest" || true)
+  [ "$matches" -eq 1 ] || die "The checkpoint manifest has an invalid $key entry."
+  state_value=$(sed -n "s/^$key=//p" "$state_manifest")
+  case "$state_value" in
+    present|absent) printf '%s\n' "$state_value" ;;
+    *) die "The checkpoint manifest has an invalid $key entry." ;;
+  esac
+}
+
+list_contains() {
+  list_value=$1
+  sought_value=$2
+  for listed_value in $list_value
+  do
+    [ "$listed_value" != "$sought_value" ] || return 0
+  done
+  return 1
+}
+
+checkpoint_skill_state() {
+  requested_skill=$1
+  if list_contains "$checkpoint_skill_names" "$requested_skill"; then
+    requested_key=$(printf '%s' "$requested_skill" | tr '-' '_')
+    manifest_state_from "$checkpoint/manifest" "skill_$requested_key"
+  else
+    printf 'absent\n'
+  fi
+}
+
+prerestore_state() {
+  manifest_state_from "$prerestore_manifest" "$1"
+}
+
 [ "$#" -eq 1 ] || { usage >&2; exit 64; }
 [ -n "${HOME:-}" ] || die 'HOME is not set.'
 
 checkpoint_input=$1
+repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 codex_home=${CODEX_HOME:-"$HOME/.codex"}
 skills_root="$HOME/.agents/skills"
-skill_names='codex-playbook-dependency-review codex-playbook-quarantine codex-playbook-release'
+active_inventory="$repo_root/config/managed-skills.txt"
+retired_inventory="$repo_root/config/retired-skills.txt"
+legacy_skill_names='codex-playbook-dependency-review codex-playbook-quarantine codex-playbook-release'
 agents_stage_root=''
 skills_stage_root=''
 agents_previous_root=''
@@ -43,6 +131,25 @@ case "$codex_home" in
   /*) ;;
   *) die 'CODEX_HOME must be an absolute path.' ;;
 esac
+case "$codex_home/" in
+  */./*|*/../*) die 'CODEX_HOME must not contain . or .. path components.' ;;
+esac
+
+[ -f "$active_inventory" ] && [ ! -L "$active_inventory" ] ||
+  die 'The active skill inventory is missing or unsafe.'
+[ -f "$retired_inventory" ] && [ ! -L "$retired_inventory" ] ||
+  die 'The retired skill inventory is missing or unsafe.'
+
+current_managed_skill_names=$(
+  {
+    cat "$active_inventory"
+    cat "$retired_inventory"
+  } | LC_ALL=C sort -u
+)
+for skill_name in $current_managed_skill_names
+do
+  validate_skill_name "$skill_name"
+done
 
 [ -d "$checkpoint_input" ] && [ ! -L "$checkpoint_input" ] ||
   die 'The checkpoint must be a real directory, not a symlink.'
@@ -62,55 +169,103 @@ esac
   die 'The checkpoint manifest is missing or unsafe.'
 [ -f "$checkpoint/COMPLETE" ] && [ ! -L "$checkpoint/COMPLETE" ] ||
   die 'The checkpoint is incomplete and cannot be restored.'
-grep -Fxq 'format=1' "$checkpoint/manifest" ||
-  die 'The checkpoint format is unsupported.'
+complete_marker_size=$(wc -c < "$checkpoint/COMPLETE" | tr -d ' ')
+[ "$complete_marker_size" -eq 9 ] && grep -Fxq 'complete' "$checkpoint/COMPLETE" ||
+  die 'The checkpoint completion marker is invalid.'
 
-manifest_state_from() {
-  state_manifest=$1
-  key=$2
-  matches=$(grep -Ec "^${key}=(present|absent)$" "$state_manifest" || true)
-  [ "$matches" -eq 1 ] || die "The checkpoint manifest has an invalid $key entry."
-  sed -n "s/^${key}=//p" "$state_manifest"
-}
+format_matches=$(grep -Ec '^format=(1|2)$' "$checkpoint/manifest" || true)
+[ "$format_matches" -eq 1 ] ||
+  die 'The checkpoint format entry is missing or ambiguous.'
+checkpoint_format=$(sed -n 's/^format=//p' "$checkpoint/manifest")
 
-manifest_state() {
-  manifest_state_from "$checkpoint/manifest" "$1"
-}
+case "$checkpoint_format" in
+  1)
+    checkpoint_skill_names=$legacy_skill_names
+    ;;
+  2)
+    checkpoint_skill_names=$(sed -n 's/^managed_skill=//p' "$checkpoint/manifest")
+    [ -n "$checkpoint_skill_names" ] ||
+      die 'The format-2 checkpoint has no managed skill inventory.'
+    duplicate_checkpoint_skills=$(printf '%s\n' "$checkpoint_skill_names" | LC_ALL=C sort | uniq -d)
+    [ -z "$duplicate_checkpoint_skills" ] ||
+      die 'The format-2 checkpoint repeats a managed skill.'
+    ;;
+  *)
+    die 'The checkpoint format is unsupported.'
+    ;;
+esac
 
-prerestore_state() {
-  manifest_state_from "$prerestore_manifest" "$1"
-}
+for skill_name in $checkpoint_skill_names
+do
+  validate_skill_name "$skill_name"
+done
 
-agents_state=$(manifest_state agents)
+transition_skill_names=$(
+  {
+    printf '%s\n' "$current_managed_skill_names"
+    printf '%s\n' "$checkpoint_skill_names"
+  } | tr ' ' '\n' | sed '/^$/d' | LC_ALL=C sort -u
+)
+
+canonical_codex_home=$(canonical_path_for_check "$codex_home")
+for skill_name in $transition_skill_names
+do
+  canonical_skill_target=$(canonical_path_for_check "$skills_root/$skill_name")
+  case "$canonical_codex_home" in
+    "$canonical_skill_target"|"$canonical_skill_target"/*)
+      die "CODEX_HOME overlaps the managed skill directory $skills_root/$skill_name."
+      ;;
+  esac
+done
+
+agents_state=$(manifest_state_from "$checkpoint/manifest" agents)
 if [ "$agents_state" = present ]; then
   [ -f "$checkpoint/AGENTS.md" ] && [ ! -L "$checkpoint/AGENTS.md" ] ||
     die 'The checkpointed AGENTS.md is missing or unsafe.'
 fi
 
-for skill_name in $skill_names
+for skill_name in $checkpoint_skill_names
 do
-  manifest_key=$(printf '%s' "$skill_name" | tr '-' '_')
-  skill_state=$(manifest_state "skill_$manifest_key")
+  skill_state=$(checkpoint_skill_state "$skill_name")
   if [ "$skill_state" = present ]; then
     [ -d "$checkpoint/$skill_name" ] && [ ! -L "$checkpoint/$skill_name" ] ||
       die "The checkpointed $skill_name skill is missing or unsafe."
-    [ -f "$checkpoint/$skill_name/SKILL.md" ] ||
-      die "The checkpointed $skill_name skill has no SKILL.md."
+    [ -f "$checkpoint/$skill_name/SKILL.md" ] &&
+      [ ! -L "$checkpoint/$skill_name/SKILL.md" ] ||
+      die "The checkpointed $skill_name skill has no safe SKILL.md."
   fi
 done
-
-umask 077
-mkdir -p "$codex_home"
-backup_root="$codex_home/backups"
-timestamp=$(date -u '+%Y%m%dT%H%M%SZ')
-prerestore=$(mktemp -d "$backup_root/codex-playbook-prerestore-$timestamp-XXXXXX")
-prerestore_manifest="$prerestore/manifest"
-printf 'format=1\n' > "$prerestore_manifest"
 
 agents_target="$codex_home/AGENTS.md"
 if [ -L "$agents_target" ]; then
   die 'Refusing to replace a symlinked global AGENTS.md.'
 fi
+if [ -e "$agents_target" ] && [ ! -f "$agents_target" ]; then
+  die 'Refusing to replace a global AGENTS.md that is not a regular file.'
+fi
+for skill_name in $transition_skill_names
+do
+  skill_target="$skills_root/$skill_name"
+  if [ -L "$skill_target" ]; then
+    die "Refusing to replace the symlinked skill directory $skill_target."
+  fi
+  if [ -e "$skill_target" ] && [ ! -d "$skill_target" ]; then
+    die "Refusing to replace $skill_target because it is not a directory."
+  fi
+done
+
+umask 077
+mkdir -p "$codex_home" "$skills_root"
+backup_root="$codex_home/backups"
+timestamp=$(date -u '+%Y%m%dT%H%M%SZ')
+prerestore=$(mktemp -d "$backup_root/codex-playbook-prerestore-$timestamp-XXXXXX")
+prerestore_manifest="$prerestore/manifest"
+printf 'format=2\n' > "$prerestore_manifest"
+for skill_name in $transition_skill_names
+do
+  printf 'managed_skill=%s\n' "$skill_name" >> "$prerestore_manifest"
+done
+
 if [ -f "$agents_target" ]; then
   if ! cp -p "$agents_target" "$prerestore/AGENTS.md"; then
     die "The pre-restore AGENTS.md checkpoint failed before restoration. Incomplete checkpoint: $prerestore"
@@ -118,28 +273,21 @@ if [ -f "$agents_target" ]; then
   cmp -s "$agents_target" "$prerestore/AGENTS.md" ||
     die "The pre-restore AGENTS.md checkpoint could not be verified at $prerestore."
   printf 'agents=present\n' >> "$prerestore_manifest"
-elif [ -e "$agents_target" ]; then
-  die 'Refusing to replace a global AGENTS.md that is not a regular file.'
 else
   printf 'agents=absent\n' >> "$prerestore_manifest"
 fi
 
-for skill_name in $skill_names
+for skill_name in $transition_skill_names
 do
   skill_target="$skills_root/$skill_name"
   manifest_key=$(printf '%s' "$skill_name" | tr '-' '_')
-  if [ -L "$skill_target" ]; then
-    die "Refusing to replace the symlinked skill directory $skill_target."
-  fi
   if [ -d "$skill_target" ]; then
-    if ! cp -R "$skill_target" "$prerestore/$skill_name"; then
+    if ! cp -pR "$skill_target" "$prerestore/$skill_name"; then
       die "The pre-restore $skill_name checkpoint failed before restoration. Incomplete checkpoint: $prerestore"
     fi
     diff -qr "$skill_target" "$prerestore/$skill_name" >/dev/null ||
       die "The pre-restore $skill_name checkpoint could not be verified at $prerestore."
     printf 'skill_%s=present\n' "$manifest_key" >> "$prerestore_manifest"
-  elif [ -e "$skill_target" ]; then
-    die "Refusing to replace $skill_target because it is not a directory."
   else
     printf 'skill_%s=absent\n' "$manifest_key" >> "$prerestore_manifest"
   fi
@@ -149,22 +297,19 @@ chmod 600 "$prerestore_manifest"
 printf 'complete\n' > "$prerestore/COMPLETE"
 chmod 600 "$prerestore/COMPLETE"
 
-mkdir -p "$skills_root"
-
 agents_stage_root=$(mktemp -d "$codex_home/.codex-playbook-restore-stage.XXXXXX")
 skills_stage_root=$(mktemp -d "$skills_root/.codex-playbook-restore-stage.XXXXXX")
 if [ "$agents_state" = present ]; then
-  install -m 600 "$checkpoint/AGENTS.md" "$agents_stage_root/AGENTS.md"
+  cp -p "$checkpoint/AGENTS.md" "$agents_stage_root/AGENTS.md"
   cmp -s "$checkpoint/AGENTS.md" "$agents_stage_root/AGENTS.md" ||
     die "AGENTS.md restore staging verification failed. Pre-restore checkpoint: $prerestore"
 fi
 
-for skill_name in $skill_names
+for skill_name in $transition_skill_names
 do
-  manifest_key=$(printf '%s' "$skill_name" | tr '-' '_')
-  skill_state=$(manifest_state "skill_$manifest_key")
+  skill_state=$(checkpoint_skill_state "$skill_name")
   if [ "$skill_state" = present ]; then
-    if ! cp -R "$checkpoint/$skill_name" "$skills_stage_root/$skill_name"; then
+    if ! cp -pR "$checkpoint/$skill_name" "$skills_stage_root/$skill_name"; then
       die "$skill_name restore staging failed before any destination changed. Pre-restore checkpoint: $prerestore"
     fi
     diff -qr "$checkpoint/$skill_name" "$skills_stage_root/$skill_name" >/dev/null ||
@@ -194,7 +339,7 @@ rollback_restore() {
     fi
   fi
 
-  for rollback_skill_name in $skill_names
+  for rollback_skill_name in $transition_skill_names
   do
     case " $skills_touched " in
       *" $rollback_skill_name "*) ;;
@@ -232,6 +377,7 @@ rollback_and_die() {
 }
 
 handle_signal() {
+  trap - HUP INT TERM
   if [ "$transaction_started" -eq 1 ]; then
     if rollback_restore; then
       printf 'ERROR: restoration interrupted; the pre-restore state was reinstated. Pre-restore checkpoint: %s\n' \
@@ -257,11 +403,10 @@ if [ "$agents_state" = present ] &&
   rollback_and_die 'Could not activate the checkpointed AGENTS.md.'
 fi
 
-for skill_name in $skill_names
+for skill_name in $transition_skill_names
 do
   skill_target="$skills_root/$skill_name"
-  manifest_key=$(printf '%s' "$skill_name" | tr '-' '_')
-  skill_state=$(manifest_state "skill_$manifest_key")
+  skill_state=$(checkpoint_skill_state "$skill_name")
   skills_touched="$skills_touched $skill_name"
   if [ -d "$skill_target" ] &&
      ! mv "$skill_target" "$skills_previous_root/$skill_name"; then
@@ -281,11 +426,10 @@ else
     rollback_and_die 'AGENTS.md removal verification failed.'
 fi
 
-for skill_name in $skill_names
+for skill_name in $transition_skill_names
 do
   skill_target="$skills_root/$skill_name"
-  manifest_key=$(printf '%s' "$skill_name" | tr '-' '_')
-  skill_state=$(manifest_state "skill_$manifest_key")
+  skill_state=$(checkpoint_skill_state "$skill_name")
   if [ "$skill_state" = present ]; then
     diff -qr "$checkpoint/$skill_name" "$skill_target" >/dev/null ||
       rollback_and_die "Restored $skill_name verification failed."
