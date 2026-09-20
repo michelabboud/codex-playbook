@@ -1,0 +1,51 @@
+# Shared conformance vectors for the Dead-words line. Identical, byte for byte, in claude-code-playbook and codex-playbook.
+# Format: <expectation><TAB><the line, to end of line>. @F1@ and @F2@ are replaced by each edition with two file names legal there; both files exist.
+# ok N    = the line parses; N fixed-string searches are made (items x files). Exit 0 or 1, never 2.
+# error   = the line is a Dead-words line that does not parse. Exit 2.
+# ignore  = the line is not a Dead-words line at all: zero searches, exit 0.
+# Fail closed: the bare marker anywhere but the start of a line is an error, so an entry can never be skipped silently. Prose names the marker inside a code span.
+# A line inside a fenced code block is ignored too; that needs more than one line, so each edition tests it separately.
+ok 1	**Dead words:** `plain words` (in `@F1@`)
+ok 1	  **Dead words:** `indented two spaces` (in `@F1@`)
+ok 1		**Dead words:** `indented with a tab` (in `@F1@`)
+ok 1	**Dead words:**	`tab after the marker` (in `@F1@`)
+ok 1	**Dead words:** `a trailing period is allowed` (in `@F1@`).
+ok 1	**Dead words:** `trailing spaces are allowed` (in `@F1@`)   
+ok 1	**Dead words:** `a carriage return at the end is allowed` (in `@F1@`)
+ok 2	**Dead words:** `first item` (in `@F1@`) · `second item` (in `@F2@`)
+ok 2	**Dead words:** `one item, two files` (in `@F1@` and `@F2@`)
+ok 2	**Dead words:** `one item, two files, comma` (in `@F1@`, `@F2@`)
+ok 3	**Dead words:** `two items` (in `@F1@` and `@F2@`) · `three searches` (in `@F1@`)
+ok 1	**Dead words:** `### 11 · Your platform` (in `@F1@`)
+ok 2	**Dead words:** `a · inside` (in `@F1@`) · `and · again` (in `@F2@`)
+ok 1	**Dead words:** `words with (in brackets) inside` (in `@F1@`)
+ok 1	**Dead words:** `| **Top** | **Claude Fable** | Astra 6 |` (in `@F1@`)
+ok 1	**Dead words:** `Fast → Standard → Strong → Top` (in `@F1@`)
+ok 1	**Dead words:** `-e starts with a dash` (in `@F1@`)
+ok 1	**Dead words:** `regex .* [a-z] \ $HOME ^ | + ? {2}` (in `@F1@`)
+ok 1	**Dead words:** `<YOUR GIT EMAIL` (in `@F1@`)
+ok 1	**Dead words:** `it's "quoted" & <tagged>` (in `@F1@`)
+error	**Dead words:**
+error	**Dead words:** 
+error	**Dead words:** `` (in `@F1@`)
+error	**Dead words:** `no file named`
+error	**Dead words:** `no file named`.
+error	**Dead words:** `empty parentheses` (in )
+error	**Dead words:** `empty file span` (in ``)
+error	**Dead words:** `unterminated (in `@F1@`)
+error	**Dead words:** `unterminated file` (in `@F1@)
+error	**Dead words:** `unclosed parenthesis` (in `@F1@`
+error	**Dead words:** `trailing prose` (in `@F1@`) and more
+error	**Dead words:** `two periods` (in `@F1@`)..
+error	**Dead words:** `missing separator` (in `@F1@`) `second` (in `@F2@`)
+error	**Dead words:** `dangling separator` (in `@F1@`) ·
+error	**Dead words:** `separator without spaces` (in `@F1@`)·`second` (in `@F2@`)
+error	**Dead words:** · `leading separator` (in `@F1@`)
+error	**Dead words:** not a code span (in `@F1@`)
+error	**Dead words:** `words` in `@F1@`
+error	**Dead words:** `words` (`@F1@`)
+error	**Dead words:** `bare word between files` (in `@F1@` or `@F2@`)
+ignore	Prose that mentions `**Dead words:**` inside a code span is not an entry.
+error	Prose that mentions **Dead words:** bare in the middle of a line is refused, never skipped.
+error	- **Override — rule 9.1.** **Dead words:** `marker not at the start of the line` (in `@F1@`)
+ignore	**Dead words** `no colon, so not the marker` (in `@F1@`)
