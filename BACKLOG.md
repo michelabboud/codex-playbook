@@ -3,6 +3,11 @@
 New work belongs here only when it is valuable, out-of-scope for the current
 approved phase, and described concretely enough to become a future plan.
 
+- **2026-09-20 · test hardening · open** — the rule 3.5 wording contract in
+  `tests/rulebook_test.sh` greps the whole reviews skill; apply its required-phrase
+  checks to the extracted rule 3.5, as the worked-case comparison already does, and
+  keep the whole-file sweep for forbidden wording (source: Sol's fifth review,
+  informational; not changed after a passing review).
 - **2026-09-20 · measurement · open** — the ceiling (three unruled batches per
   line, the open one included) in rule 3.5 rests on one friendly programme in
   the source's evidence, a behaviour-preserving refactor. Record how often a

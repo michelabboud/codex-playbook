@@ -82,11 +82,12 @@ All notable changes are recorded here. Dates are absolute.
 
 ### Process
 
-- Reviewed five times by the other model family before anything was published, each time as a
+- Reviewed six times by the other model family before anything was published, each time as a
   separate process against pinned commits with a cold-read note first: the plan (eleven
   findings), the first candidate (eight, **failed**), its repair (ten, **failed**), and the
-  second repair (six, **failed** on rule 3.5 alone), and the restated rule (six, **failed** on
-  rule 3.5 alone). Forty of forty-one findings were confirmed, and the one dismissal was
+  second repair (six, **failed** on rule 3.5 alone), the restated rule (six, **failed** on
+  rule 3.5 alone), and the completed rule (two, **passed**). Forty-two of forty-three findings
+  were confirmed, and the one dismissal was
   overturned by the next review. The source rule was corrected first each time. No candidate
   was pushed. Records under `docs/reviews/2026-09-20-*`.
 

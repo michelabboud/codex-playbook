@@ -8,8 +8,8 @@ original matrix. The matrix now covers 50 numbered rules; rule 3.5 is new.
 
 **Source:** `michelabboud/claude-code-playbook` at `5db68e3` for every row that
 did not move, and source 0.1.15 — `claude-code-playbook` commit
-`0daf8b50d6a623dfd2c03f0570aa0a065c7b9179`, tagged `checkpoint/0.1.15` when that
-repository is published, which happens before this one — for rows 3.1, 3.3, 3.4,
+`0daf8b50d6a623dfd2c03f0570aa0a065c7b9179` (the rule text), published under tag
+`checkpoint/0.1.15`, which adds only that version's close-out — for rows 3.1, 3.3, 3.4,
 3.5 and 8.1.
 
 **Target architecture:** lean global authority router plus sixteen

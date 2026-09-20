@@ -9,7 +9,7 @@ The canonical repository is now `michelabboud/codex-playbook`.
 the former standalone repository is preserved at
 `nice-michel/codex-playbook-archive`.
 
-**0.1.4 (2026-09-20, in review):** the non-blocking review pipeline is ported
+**0.1.4 (2026-09-20, published after its review passed):** the non-blocking review pipeline is ported
 from source 0.1.15, making rule 3.5 the fiftieth rule. The first candidate of
 this change was given a deep review before publication and **failed it** — eight
 findings, all confirmed, six blocking — so the source was corrected again and

@@ -2,14 +2,14 @@
 
 ## Task — Non-blocking review pipeline (parity with source 0.1.13 → 0.1.15)
 
-**Status:** Running — approved 2026-09-20 (the owner's "go"; ceiling reading (a), two closed batches plus the one being built). Revision 1 was
+**Status:** Complete — 2026-09-20, published as `checkpoint/0.1.4` — approved 2026-09-20 (the owner's "go"; ceiling reading (a), two closed batches plus the one being built). Revision 1 was
 reviewed by Astra the same day (*proceed with changes*; eleven findings, all confirmed).
 The first candidate then **failed** its deep review (Sol; eight findings, all confirmed, six blocking)
 and was never published; the ceiling became an admission rule and the source was corrected again to 0.1.15.
 One logical task, not a phase: it closes once, as 0.1.4.
 
 **Plan:** `docs/plans/2026-09-20-non-blocking-review-pipeline-port-plan.md`
-**Review:** `docs/reviews/2026-09-20-astra-pipeline-port-plan-opinion.md` · `…-cold-read.md` · `…-validation.md` · `docs/reviews/2026-09-20-sol-0.1.4-deep-review.md` · `…-validation.md` · `docs/reviews/2026-09-20-sol-0.1.4-re-review.md` · `…-validation.md` · `docs/reviews/2026-09-20-sol-0.1.4-third-review.md` · `…-validation.md` · `docs/reviews/2026-09-20-sol-0.1.4-fourth-review.md` · `…-validation.md`
+**Review:** `docs/reviews/2026-09-20-astra-pipeline-port-plan-opinion.md` · `…-cold-read.md` · `…-validation.md` · `docs/reviews/2026-09-20-sol-0.1.4-deep-review.md` · `…-validation.md` · `docs/reviews/2026-09-20-sol-0.1.4-re-review.md` · `…-validation.md` · `docs/reviews/2026-09-20-sol-0.1.4-third-review.md` · `…-validation.md` · `docs/reviews/2026-09-20-sol-0.1.4-fourth-review.md` · `…-validation.md` · `docs/reviews/2026-09-20-sol-0.1.4-fifth-review.md` · `…-validation.md`
 
 - [x] Owner's go, including the ceiling decision (plan §0) — 2026-09-20.
 - [x] Source corrected first (`claude-code-playbook` 0.1.14, `checkpoint/0.1.14`) — 2026-09-20.
@@ -25,8 +25,8 @@ One logical task, not a phase: it closes once, as 0.1.4.
 
 Publication order: the source is pushed and tagged `checkpoint/0.1.15` first; the parity matrix cites it.
 
-- [ ] Deep review run the way the new rule says; findings ruled.
-- [ ] 0.1.4 verified, tagged `checkpoint/0.1.4`, pushed.
+- [x] Deep review run the way the new rule says; findings ruled — the sixth review of the day passed (Sol; two findings, one minor in the source, one informational here); `docs/reviews/2026-09-20-sol-0.1.4-fifth-review-validation.md` — 2026-09-20.
+- [x] 0.1.4 verified, tagged `checkpoint/0.1.4`, pushed — after the source's `checkpoint/0.1.15` — 2026-09-20.
 
 ## Phase 2 — Faithful modular rule migration
 
