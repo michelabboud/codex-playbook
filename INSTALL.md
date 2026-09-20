@@ -19,6 +19,12 @@ replaced.
 | Every nested file listed in `config/managed-resources.txt` | inside its skill's destination directory |
 | Recovery checkpoint | `${CODEX_HOME:-$HOME/.codex}/backups/codex-playbook-preinstall-*` |
 
+One path in that directory is **not** a destination:
+`${CODEX_HOME:-$HOME/.codex}/playbook-local.md`, the local layer, belongs to
+you. Neither `scripts/install.sh` nor `scripts/restore.sh` creates, writes over,
+moves, copies, or deletes it. Installation reads it once, during source
+preflight, and touches it nowhere else.
+
 `CODEX_HOME` controls Codex configuration and the global `AGENTS.md`. It does
 not relocate user-scoped `$HOME/.agents/skills`. It must be an absolute,
 normalized path with no `.` or `..` components, and it must not equal or sit
@@ -63,7 +69,9 @@ and retire them without losing their previous contents.
    ```
 
 3. Review Michel's Git identity in the workflow skill. If this is becoming your
-   own playbook, adapt the checked-out identity before installation.
+   own playbook, do not edit it into the installed skill — the next update
+   replaces that file whole. Write it as a **Fill** in your local layer, which
+   the installer never touches. See "Make it yours: the local layer" below.
 
 A non-empty global `AGENTS.override.md` takes precedence over `AGENTS.md` in
 Codex's discovery chain. The installer refuses that shadowed state rather than
@@ -80,8 +88,14 @@ From the repository root:
 The installer executes this order:
 
 1. Validate both inventories, all sixteen source skills, `AGENTS.md`,
-   `VERSION`, the restore command, the global override state, and every managed
-   destination.
+   `VERSION`, the restore and local-layer-check commands, the global override
+   state, and every managed destination.
+1. Run `scripts/check-local.sh` against the local layer and **the text this run
+   would install** — before `umask`, before any directory is created, before any
+   backup. A stale override, an unparsable `**Dead words:**` line, or a named
+   file that is missing or escapes its root refuses the installation, naming the
+   entry's `file:line` and the words. There is no flag to install past it: the
+   fix is to re-read the rule and rewrite the entry.
 2. Refuse a different existing global `AGENTS.md` by default.
 3. Create a unique, private format-2 checkpoint.
 4. Record the exact sixteen active and two retired managed names plus whether
@@ -108,7 +122,49 @@ checkout first. Only after reviewing and accepting wholesale replacement use:
 ```
 
 That flag changes only the differing-`AGENTS.md` refusal. It never bypasses
-validation, backup, verification, staging, rollback, or interruption recovery.
+validation, the local-layer check, backup, verification, staging, rollback, or
+interruption recovery.
+
+**Before you reach for it, ask where the tailoring belongs.** Anything you would
+edit into `AGENTS.md` or into a skill is lost at the next update, because the
+installer replaces `AGENTS.md` whole and swaps each skill folder whole. Put it
+in the local layer instead — see the next section — and then a plain
+`--replace-agents` update keeps it.
+
+## Make it yours: the local layer
+
+Your customizations live in one file the playbook never ships and the scripts
+never touch: `${CODEX_HOME:-$HOME/.codex}/playbook-local.md`. `AGENTS.md`
+gives it its force in the paragraph headed "The local layer": read it at the
+start of a session when it exists, and where an entry there changes a rule, the
+entry wins over the playbook's wording. An absent file means nothing is
+customized.
+
+Start from the template, which is documentation and is never installed by the
+script:
+
+```bash
+codex_home=${CODEX_HOME:-"$HOME/.codex"}
+test ! -e "$codex_home/playbook-local.md" &&
+  cp templates/playbook-local.md "$codex_home/playbook-local.md"
+```
+
+An entry is a **Fill** (a value a rule leaves open), an **Add** (a rule the
+playbook lacks, in your own `L1`, `L2` sections), or an **Override** (a named
+rule changed, quoting after `**Dead words:**` the playbook's exact words that no
+longer apply, each with the file they are in). `templates/playbook-local.md`
+carries the full grammar of that line and a worked example of each kind.
+
+Check it at any time against a checkout, without installing anything:
+
+```bash
+./scripts/check-local.sh "${CODEX_HOME:-$HOME/.codex}/playbook-local.md" \
+  . .agents/skills
+```
+
+Exit 0 is fresh, 1 is stale with every finding reported as `file:line`, and 2 is
+a usage error, an unparsable line, or a named file that is missing or escapes
+its root.
 
 ## Verify the installed copy
 
@@ -159,14 +215,63 @@ Use `codex-playbook-self-update` or perform the same process manually:
 
 1. Compare the installed version to the public `VERSION`.
 2. Read every intervening `CHANGELOG.md` entry.
-3. Review local tailoring and the new `AGENTS.md`/skill changes.
-4. Obtain approval before wholesale replacement.
-5. Run `./scripts/install.sh --replace-agents`.
-6. Start a fresh Codex session and verify the installed copy.
-7. Keep the printed checkpoint path with the close-out evidence.
+3. **Run the local-layer check against the new checkout before installing
+   anything** — the command in the previous section. It is the same check the
+   installer runs, and running it first turns a refused install into a
+   two-minute edit:
+
+   ```bash
+   ./scripts/check-local.sh "${CODEX_HOME:-$HOME/.codex}/playbook-local.md" \
+     . .agents/skills
+   ```
+
+   Exit 1 names each stale entry as `file:line` with the words that are gone.
+   Re-read that rule in the new text and rewrite the entry; do not delete the
+   quoted words to silence it.
+4. **Cross-check the changelog against your Overrides.** The check catches a
+   *rewritten* sentence, not a *changed meaning* elsewhere in the same rule. For
+   every rule an intervening entry says was touched, and that you override,
+   re-read the new rule in full.
+5. Review anything still tailored inside `AGENTS.md` or a skill, and migrate it
+   — see the next section.
+6. Obtain approval before wholesale replacement.
+7. Run `./scripts/install.sh --replace-agents`.
+8. Start a fresh Codex session and verify the installed copy.
+9. Keep the printed checkpoint path with the close-out evidence.
 
 Every run creates a new checkpoint. No update reuses, rewrites, or deletes an
 older checkpoint.
+
+## Migrating tailoring that lives inside a managed file
+
+An installation tailored before the local layer existed carries its changes
+inside `AGENTS.md` or inside a skill, where the next update overwrites them.
+Migrate once, before that update:
+
+1. Find the differences. Compare each installed file with the checkout of the
+   version that installation records — the `This rulebook is version` line in
+   the installed `AGENTS.md` says which one:
+
+   ```bash
+   codex_home=${CODEX_HOME:-"$HOME/.codex"}
+   diff -u AGENTS.md "$codex_home/AGENTS.md" || true
+   while IFS= read -r skill_name
+   do
+     diff -ur ".agents/skills/$skill_name" \
+       "$HOME/.agents/skills/$skill_name" || true
+   done < config/managed-skills.txt
+   ```
+
+2. Turn each difference into an entry in `playbook-local.md`. Most are a
+   **Fill** — a path, an address, a name bound to what you actually have — or an
+   **Add**. Only a difference that contradicts a rule is an **Override**, and it
+   quotes the playbook's words after `**Dead words:**`.
+3. A difference that would be a better rule for everyone is not a local entry:
+   send it upstream, and leave it out of the file.
+4. Run the check. Exit 0 means every Override still bites on the text you wrote
+   it against.
+5. Install with `--replace-agents`. The managed files go back to the published
+   text; your entries stay in a file the installer never opened.
 
 ## Windows
 
