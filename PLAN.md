@@ -1,5 +1,19 @@
 # Plan
 
+## Phase 3 — Non-blocking review pipeline (parity with source 0.1.13)
+
+**Status:** Draft — written 2026-09-20, awaiting the owner's go. Advisory review
+requested from Astra the same day.
+
+**Plan:** `docs/plans/2026-09-20-non-blocking-review-pipeline-port-plan.md`
+
+- [ ] Owner's go.
+- [ ] Contract locked with failing tests (50 canonical IDs, single-owner roster).
+- [ ] Rules 3.1, 3.3, 3.5 and the roster reference written.
+- [ ] Manifest, parity matrix, visual playbook and public docs synchronized.
+- [ ] Deep review run the way the new rule says; findings ruled.
+- [ ] 0.1.4 verified, tagged `checkpoint/0.1.4`, pushed.
+
 ## Phase 2 — Faithful modular rule migration
 
 **Status:** Complete — 2026-09-17
