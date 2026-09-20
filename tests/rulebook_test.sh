@@ -325,6 +325,10 @@ cat > "$test_root/expected-case-numbers" <<'EOF'
 14
 15
 16
+17
+18
+19
+20
 EOF
 
 grep -E '^[[:space:]]*\|' "$rule_35" |
@@ -348,23 +352,28 @@ elif ! cmp -s "$worked_cases_fixture" "$test_root/actual-worked-cases"; then
   worked_case_failures=$((worked_case_failures + 1))
 fi
 if [ "$worked_case_failures" -eq 0 ]; then
-  pass 'rule 3.5 carries the sixteen worked cases, in order, row for row against the canonical table'
+  pass 'rule 3.5 carries the twenty worked cases, in order, row for row against the canonical table'
 else
   fail "$worked_case_failures rule 3.5 worked-case contract check(s) failed"
 fi
 
 if grep -Fq 'a line carries at most three unruled batches, the open one included' "$reviews_file" &&
-   grep -Fq 'Nothing lands on a line outside a batch' "$reviews_file" &&
-   grep -Fq 'a new batch starts only while at most two closed batches are unruled' "$reviews_file" &&
    grep -Fq 'One batch is open per line at a time' "$reviews_file" &&
+   grep -Fq "Every landing belongs to the line's open batch" "$reviews_file" &&
+   grep -Fq 'ad-hoc batch' "$reviews_file" &&
+   grep -Fq 'Only closed work merges between lines' "$reviews_file" &&
+   grep -Fq 'What this rule does not name is resolved toward review' "$reviews_file" &&
    grep -Fq 'the only work the line accepts is what rules a batch' "$reviews_file" &&
    grep -Fq 'the row wins' "$reviews_file" &&
    ! grep -Fq 'never blocks the next task' "$reviews_file" &&
    ! grep -Fq 'anywhere above it' "$reviews_file" &&
-   ! grep -Fq 'merge adds' "$reviews_file"; then
-  pass 'rule 3.5 states the ceiling as one invariant, closes the line to work outside a batch, gives the table precedence, and keeps no superseded wording'
+   ! grep -Fq 'merge adds' "$reviews_file" &&
+   ! grep -Fq 'a new batch starts only while at most two closed batches are unruled' "$reviews_file" &&
+   ! grep -Fq 'Nothing lands on a line outside a batch' "$reviews_file" &&
+   ! grep -Fq 'ceiling of two' "$reviews_file"; then
+  pass 'rule 3.5 states the ceiling as one invariant, admits every landing to the open batch (ad-hoc where no plan covers it), merges only closed work, resolves the unnamed toward review, gives the table precedence, and keeps no superseded wording'
 else
-  fail 'reviews skill must state the ceiling as one invariant ("a line carries at most three unruled batches, the open one included"), say "Nothing lands on a line outside a batch", keep the admission reading, "One batch is open per line at a time", "the only work the line accepts is what rules a batch" and "the row wins", and must not say "never blocks the next task", "anywhere above it", or "merge adds"'
+  fail "reviews skill must state the ceiling as one invariant (\"a line carries at most three unruled batches, the open one included\"), say \"One batch is open per line at a time\", \"Every landing belongs to the line's open batch\", \"ad-hoc batch\", \"Only closed work merges between lines\", the residual clause \"What this rule does not name is resolved toward review\", \"the only work the line accepts is what rules a batch\" and \"the row wins\", and must not say \"never blocks the next task\", \"anywhere above it\", \"merge adds\", \"a new batch starts only while at most two closed batches are unruled\" (not exact — the fourth review), \"Nothing lands on a line outside a batch\" (contradicted the table — the fourth review), or \"ceiling of two\""
 fi
 
 resource_inventory=config/managed-resources.txt

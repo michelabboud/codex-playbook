@@ -8,15 +8,15 @@ All notable changes are recorded here. Dates are absolute.
 
 - Rule 3.5, the fiftieth rule — how far development may run ahead of review.
   Mechanical review never holds development. Deep review's ceiling is one
-  invariant, enforced at admission: a line carries at most three unruled
-  batches, the open one included; closing a batch never changes the count, only
-  a ruling brings it down, and nothing lands on a line outside a batch — worst
-  case three batch ranges per line. Counted by git ancestry as a set (a merge is
-  a union) against a ledger the coordinator keeps; three waits at any depth;
-  high deep reviews are gates and every lower review, mechanical included, is
-  settled first; the planner owns the stall. The rule carries a normative table
-  of sixteen worked cases, and the table wins over the prose. Direct port of
-  source 0.1.15.
+  invariant: a line carries at most three unruled batches, the open one
+  included; closing a batch never changes the count, only a ruling brings it
+  down, and every landing belongs to the line's open batch, planned or ad-hoc,
+  except a reviewed fix for a recorded finding — worst case three batch ranges
+  per line. Counted by git ancestry as a set (a merge is a union) against a
+  ledger the coordinator keeps; three waits at any depth; high deep reviews are
+  gates and every lower review, mechanical included, is settled first; the
+  planner owns the stall. The rule carries a normative table of twenty worked
+  cases, and the table wins over the prose. Direct port of source 0.1.15.
 - One owner for tier selection:
   `.agents/skills/codex-playbook-subagents/references/roster.md`. Four capability
   tiers — Top, Strong, Standard, Fast — each filled by a model and a reasoning
@@ -68,17 +68,27 @@ All notable changes are recorded here. Dates are absolute.
   of this port, still before publication, passed the installer and the tests and failed rule 3.5
   on two more omitted states — a batch closed early with a task still running, and a branch cut
   from an open batch — and said not to patch again. The owner chose the restatement; the source
-  was corrected first. Rows 7 and 13–16 reworded; still sixteen.
+  was corrected first. Rows 7 and 13–16 reworded.
+- **The restatement was reviewed too, and failed on what it had newly created.** "Nothing lands
+  outside a batch" made an authorized hotfix with no plan unlandable and contradicted the
+  gate-time docs row; fixes attached to a closed batch owed no review; merging a line whose
+  batch was still open let a fourth unruled range in. Now every landing belongs to the line's
+  open batch — the plan's, or an ad-hoc batch the coordinator names, never a new approval —
+  except the fix for a recorded finding, which gets a focused review before its batch is ruled;
+  only closed work merges between lines; a task's own worktree is not a line. And the rule
+  closes itself: what it does not name is resolved toward review. Twenty worked cases. Follows
+  source 0.1.15.
 - The installer also refuses a symbolic link at `.agents` or `.agents/skills` in the source.
 
 ### Process
 
-- Reviewed four times by the other model family before anything was published, each time as a
+- Reviewed five times by the other model family before anything was published, each time as a
   separate process against pinned commits with a cold-read note first: the plan (eleven
   findings), the first candidate (eight, **failed**), its repair (ten, **failed**), and the
-  second repair (six, **failed** on rule 3.5 alone). Thirty-four of thirty-five findings were
-  confirmed, and the one dismissal was overturned by the next review. The source rule was
-  corrected first each time. No candidate was pushed. Records under `docs/reviews/2026-09-20-*`.
+  second repair (six, **failed** on rule 3.5 alone), and the restated rule (six, **failed** on
+  rule 3.5 alone). Forty of forty-one findings were confirmed, and the one dismissal was
+  overturned by the next review. The source rule was corrected first each time. No candidate
+  was pushed. Records under `docs/reviews/2026-09-20-*`.
 
 ## 0.1.3 — 2026-09-17
 

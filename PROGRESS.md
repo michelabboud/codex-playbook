@@ -15,14 +15,18 @@ this change was given a deep review before publication and **failed it** — eig
 findings, all confirmed, six blocking — so the source was corrected again and
 the port follows it: the ceiling is one invariant (a line carries at most three
 unruled batches, the open one included) and rule 3.5 now carries a normative
-table of sixteen worked cases that wins over its own prose. A re-review
+table of twenty worked cases that wins over its own prose. A re-review
 of the repair failed it once more before publication — the admission could be
 granted twice on one count, and the installer preflight had three gaps; both are
 repaired and recorded in
 docs/reviews/2026-09-20-sol-0.1.4-re-review-validation.md. A third review passed
 the installer and the tests and failed rule 3.5 on two more omitted states; the
 owner chose to restate the ceiling rather than patch it again
-(docs/reviews/2026-09-20-sol-0.1.4-third-review-validation.md). Rules 3.1,
+(docs/reviews/2026-09-20-sol-0.1.4-third-review-validation.md). A fourth review
+failed the restatement on what it had newly created — unplanned work had no
+batch, fixes owed no review, an open line could be merged — and the rule now
+resolves anything it does not name toward review
+(docs/reviews/2026-09-20-sol-0.1.4-fourth-review-validation.md). Rules 3.1,
 3.3 and 3.4 moved to the source's wording, rule 8.1's tier selection now has a
 single owner in
 `.agents/skills/codex-playbook-subagents/references/roster.md` with the

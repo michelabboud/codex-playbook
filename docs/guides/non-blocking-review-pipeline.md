@@ -106,7 +106,12 @@ rework on what was built meanwhile. Blockers are rare and a deep review takes
 about as long as one to three tasks, so running ahead wins — until the rework is
 unbounded or the step cannot be undone. Those are the three waits.
 
-### Why the ceiling is two, not one
+### Why the ceiling leaves room for a second review, not one
+
+*Read this section as history of the number. The operative statement is the invariant
+further down — a line carries at most three unruled batches, the open one included: two in
+review plus the one being built is the expected shape, and three closed is also valid.
+"A ceiling of two" below means two batches in review behind the one being built.*
 
 *Corrected in 0.1.14. The first version of this section said the ceiling's cost was that
 "worst-case rework doubles". It does not double; see the last paragraph.*
@@ -120,8 +125,8 @@ development too, which is exactly the stall the pipeline exists to remove. A
 ceiling of two buys one more batch of room.
 
 It costs two things. **The honest worst case is three batch ranges of unreviewed
-code, not two:** the ceiling counts *closed* batches awaiting a ruling, and the
-batch being built stands on top of them. With N and N+1 closed and unruled and
+code, not two:** two batches awaiting a ruling, and the batch being built
+standing on top of them — all three count against the ceiling. With N and N+1 closed and unruled and
 N+2 building, three ranges are exposed. That is why the planner runs smaller
 batches whenever two are outstanding. (The stricter reading — two slots
 *including* the batch being built — caps exposure at two ranges, and is exactly
@@ -171,6 +176,22 @@ state, never the count. Only a ruling brings the count down. And nothing lands o
 a line outside a batch: a change belongs to the open batch or is a fix attached
 to an unruled one, which is why, at three with none open, only fixes land. The
 exposure is what it was: two in review plus the one being built.
+
+*And the restatement was reviewed too.* It failed on what it had newly created.
+"Nothing lands outside a batch" made an authorized hotfix with no plan impossible
+to land, and contradicted the row that lets a docs fix proceed beside a gate; a
+fix attached to a closed batch owed no review of its own; and merging a line
+whose batch was still open let a fourth range in. So **every landing belongs to
+the line's open batch** — the plan's, or an *ad-hoc batch* the coordinator names
+in the ledger for authorized unplanned work, which is bookkeeping and never a new
+approval — **except the fix for a recorded finding**, which gets a focused review
+at the depth of the review that found the defect before its batch is ruled.
+**Only closed work merges between lines**, because an open batch has no pinned
+target; a task's own worktree is not a line — its result simply lands in the
+open batch. The lesson of five reviews is the last clause: **what the rule does
+not name is resolved toward review.** Git branching times batch states times
+fixes times gates has more states than a table will ever list. A rule that must
+list them all cannot converge; a rule that fails safe on the ones it missed can.
 
 ### Why the count follows ancestry
 
@@ -286,7 +307,7 @@ nothing was reworked.
 
 **That is the friendliest case there is.** The tasks were nearly independent and
 "correct" meant "unchanged". It shows the mechanics work; it does not show that a
-ceiling of two is right for feature work with heavy dependencies. That is why
-the reviews skill's closing paragraph asks every close-out to record how often
-the ceiling was reached — the number is a starting point with a measurement
-attached, not a finding.
+ceiling of three unruled batches per line is right for feature work with heavy
+dependencies. That is why the reviews skill's closing paragraph asks every
+close-out to record how often the ceiling was reached — the number is a starting
+point with a measurement attached, not a finding.
