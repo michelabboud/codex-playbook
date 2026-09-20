@@ -2,6 +2,16 @@
 
 All notable changes are recorded here. Dates are absolute.
 
+## 0.1.5 — 2026-09-20
+
+### Fixed
+
+- **The rule 3.5 wording contract checked its required phrases across the whole reviews skill.**
+  It now requires every phrase within the extracted rule 3.5 and separately sweeps the whole
+  skill for forbidden superseded wording. The fifth independent review found the gap, and the
+  same model family fixed it at the owner's word. This changes neither rulebook nor installer
+  behaviour.
+
 ## 0.1.4 — 2026-09-20
 
 ### Added

@@ -1,6 +1,6 @@
 # Progress
 
-**Current version:** 0.1.4
+**Current version:** 0.1.5
 
 **Last updated:** 2026-09-20
 
@@ -8,6 +8,10 @@ The canonical repository is now `michelabboud/codex-playbook`.
 `nice-michel/codex-playbook` is its fork for branches and pull requests, while
 the former standalone repository is preserved at
 `nice-michel/codex-playbook-archive`.
+
+**0.1.5 (2026-09-20):** the rule 3.5 wording contract now requires its positive phrases inside
+rule 3.5 itself while retaining the whole-skill sweep for superseded wording. The rulebook suite
+now runs 52 checks; rulebook and installer behaviour are unchanged.
 
 **0.1.4 (2026-09-20, published after its review passed):** the non-blocking review pipeline is ported
 from source 0.1.15, making rule 3.5 the fiftieth rule. The first candidate of
