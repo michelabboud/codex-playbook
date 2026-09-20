@@ -5,6 +5,8 @@ description: Apply Codex Playbook environment rules 9.1-9.6 before claiming port
 
 # 9 · Environment & operations — rules 9.1–9.6
 
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+
 *Read before claiming a port, touching a container, adding a datastore, handling logs or secrets, or leaving anything running.*
 
 9.1 **Ports:** before assigning a port, verify it's free — on the machine (the matching platform skill gives the command) *and* against the claims registry at **`~/.config/fleet/ports/`** (one file per project). Claim your port by writing or updating the project's file there; also note it in the project README. Never reuse a conflicting port. The `fleet` path is the Codex owner's explicit override of the Claude source's older `agent-rules` path.

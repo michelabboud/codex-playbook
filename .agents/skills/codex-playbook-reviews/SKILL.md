@@ -5,6 +5,8 @@ description: Apply Codex Playbook review rules 3.1-3.5 when a task lands, a batc
 
 # 3 · Code reviews — rules 3.1–3.5
 
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+
 *Read when a task lands, at a batch boundary, before a milestone or release, and before dispatching any reviewer. What a review may NOT do is in the classification table and rule 7.4 (read, report, never fix); this file is what a review MUST do, who does it, and when. The record is the persisted review with its CONFIRMED / REFUTED / UNVERIFIED header. **This skill names roles, never models.***
 
 **The roster — read it before assigning a reviewer.** **This skill owns the assignments** — which review runs on which tier (rule 3.1). **What each tier *is*** — how a Top, Strong, Standard or Fast configuration is selected — the optional second family, the operator's binding and the measurement behind the mechanical-review floor have one owner: `../codex-playbook-subagents/references/roster.md`. Resolve that path from the directory containing this `SKILL.md`, not from the project's working directory, so the roster packaged alongside this skill is the one you read. If it is missing or unreadable, report the missing prerequisite before assigning a reviewer; if your client will not follow a reference into a sibling skill, invoke `codex-playbook-subagents`, which reads its own copy. Never restate the roster here.

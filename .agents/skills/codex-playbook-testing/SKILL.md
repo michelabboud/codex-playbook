@@ -5,6 +5,8 @@ description: Apply Codex Playbook testing rules 2.1-2.3 when writing tests, fixi
 
 # 2 · Testing & verification — rules 2.1–2.3
 
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+
 *Read before writing tests, and again before you claim anything passes.*
 
 2.1 **QA and tests for every bit is crucial and a must** — happy path *and* the failure path, for anything with logic or failure modes. A bug gets a regression test that fails before the fix. Trivial or config-only changes don't need ceremony; use judgment, and tell me what you chose not to test and why. **Two kinds of test are worse than none:** one that mirrors the implementation line for line (it locks in the code, not the behaviour, and it passes when the code is wrong), and one written to have a test — over prose, formatting, or a constant's value. Test what could break.

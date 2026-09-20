@@ -5,6 +5,8 @@ description: Use the macOS implementation of Codex Playbook platform rule 11.1 o
 
 # 11 · macOS — platform commands
 
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+
 11.1 **Use platform-native commands and semantics.** On macOS, use this file for port checks, capacity measurement, hashing, private directories, process inspection, conventional paths, and atomic moves.
 
 *Load this skill only for macOS when another rule requires a platform command.*

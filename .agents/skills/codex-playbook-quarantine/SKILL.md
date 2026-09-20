@@ -5,6 +5,8 @@ description: Apply Codex Playbook quarantine rule 10.3 when deletion or overwrit
 
 # 10.3 · the `codex-playbook-quarantine` skill — the set-aside procedure
 
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+
 10.3 **Quarantine converts an uncertain destructive decision into a recoverable one.** If deletion or overwrite is in doubt, set the item aside with provenance and restoration instructions instead of destroying it.
 
 *The HOW behind rule 10.2's calibration: "in doubt, quarantine, put aside."

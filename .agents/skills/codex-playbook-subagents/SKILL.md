@@ -5,6 +5,8 @@ description: Apply Codex Playbook subagent rule 8.1 before dispatching agents or
 
 # 8 · Subagents & model tiering — rule 8.1
 
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+
 *Read before dispatching any subagent or planning a fan-out.*
 
 8.1 **Subagents & model tiering — prefer delegating, right-size the model, escalate fast.** Reach for subagents whenever work decomposes cleanly: independent pieces that can run in parallel, or large sub-tasks better kept out of the main session's context. This never overrides execution order — work that is sequential by workflow, or that shares code/files, stays sequential; only genuinely independent work runs in parallel. **Don't over-delegate, either:** if briefing and dispatching a subagent would cost more than just doing the task inline, do it inline — spawn overhead and orchestration tokens aren't free.

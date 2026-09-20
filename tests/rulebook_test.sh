@@ -492,6 +492,103 @@ else
   fail 'platform skill triggers must distinguish Linux or WSL, macOS, and native Windows'
 fi
 
+local_layer_pointer='*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*'
+
+agents_local_failures=0
+while IFS= read -r required_sentence
+do
+  sentence_count=$(grep -Fc -e "$required_sentence" AGENTS.md || true)
+  if [ "$sentence_count" -ne 1 ]; then
+    printf 'AGENTS.md states "%s" %s time(s); expected exactly 1\n' \
+      "$required_sentence" "$sentence_count" >&2
+    agents_local_failures=$((agents_local_failures + 1))
+  fi
+done <<'EOF'
+**The local layer:**
+`${CODEX_HOME:-$HOME/.codex}/playbook-local.md`
+Read it at the start of a session when it exists
+the entry wins over the playbook's wording
+A **Fill** supplies a value a rule leaves open
+An **Add** is a rule or note the playbook lacks
+numbers the playbook never uses
+An **Override** changes a named rule
+the override is **stale**: tell me before relying on it
+An absent file means nothing is customized
+never adds authority the approval table does not have, except by adding a row in so many words
+EOF
+while IFS= read -r superseded_sentence
+do
+  superseded_count=$(grep -Fc -e "$superseded_sentence" AGENTS.md || true)
+  if [ "$superseded_count" -ne 0 ]; then
+    printf 'AGENTS.md still states the superseded "%s"\n' "$superseded_sentence" >&2
+    agents_local_failures=$((agents_local_failures + 1))
+  fi
+done <<'EOF'
+Never replace tailored rules without the backup and approval procedure
+EOF
+if grep -Fq -e "$local_layer_pointer" AGENTS.md; then
+  printf 'AGENTS.md carries the per-skill pointer line, which belongs only in a SKILL.md\n' >&2
+  agents_local_failures=$((agents_local_failures + 1))
+fi
+if [ "$agents_local_failures" -eq 0 ]; then
+  pass 'AGENTS.md gives the local layer its force: session-start reading, precedence, the three kinds, the L numbering, staleness, absence, and no new authority'
+else
+  fail "$agents_local_failures AGENTS.md local-layer wording check(s) failed"
+fi
+
+pointer_failures=0
+while IFS= read -r skill_name
+do
+  skill_file=".agents/skills/$skill_name/SKILL.md"
+  if [ ! -f "$skill_file" ]; then
+    printf '%s is missing\n' "$skill_file" >&2
+    pointer_failures=$((pointer_failures + 1))
+    continue
+  fi
+  pointer_count=$(grep -Fc -e "$local_layer_pointer" "$skill_file" || true)
+  if [ "$pointer_count" -ne 1 ]; then
+    printf '%s carries the local-layer pointer %s time(s); expected exactly 1\n' \
+      "$skill_file" "$pointer_count" >&2
+    pointer_failures=$((pointer_failures + 1))
+  fi
+  first_body_line=$(
+    awk '/^# / { heading = 1; next } heading && $0 != "" { print; exit }' "$skill_file"
+  )
+  if [ "$first_body_line" != "$local_layer_pointer" ]; then
+    printf '%s opens its body with "%s" instead of the local-layer pointer\n' \
+      "$skill_file" "$first_body_line" >&2
+    pointer_failures=$((pointer_failures + 1))
+  fi
+done < config/managed-skills.txt
+if [ "$pointer_failures" -eq 0 ]; then
+  pass 'every skill on the managed inventory opens its body with the one local-layer pointer line'
+else
+  fail "$pointer_failures local-layer pointer check(s) failed"
+fi
+
+template_failures=0
+local_template=templates/playbook-local.md
+if [ ! -f "$local_template" ] || [ -L "$local_template" ]; then
+  printf '%s is missing or is not a regular file\n' "$local_template" >&2
+  template_failures=$((template_failures + 1))
+else
+  if grep -Fq 'templates/' config/managed-skills.txt config/retired-skills.txt \
+      config/managed-resources.txt; then
+    printf 'an installer inventory names templates/, which the installer must never install\n' >&2
+    template_failures=$((template_failures + 1))
+  fi
+  if ! ./scripts/check-local.sh "$local_template" . .agents/skills >/dev/null 2>&1; then
+    printf '%s does not pass the staleness check against this checkout\n' "$local_template" >&2
+    ./scripts/check-local.sh "$local_template" . .agents/skills >&2 || true
+    template_failures=$((template_failures + 1))
+  fi
+fi
+if [ "$template_failures" -eq 0 ]; then
+  pass 'the local-layer template exists outside every installer inventory and its own examples are fresh'
+else
+  fail "$template_failures local-layer template check(s) failed"
+fi
+
 if [ "$failures" -ne 0 ]; then
   printf '\n%s rulebook verification check(s) failed.\n' "$failures" >&2
   exit 1

@@ -5,6 +5,8 @@ description: Apply Codex Playbook documentation rules 4.1-4.3 when documenting a
 
 # 4 · Documentation & ADRs — rules 4.1–4.3
 
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+
 *Read when documenting a feature, and before writing an ADR.*
 
 *Maximum documentation of everything that isn't obvious from the code — the why, the decisions, the gotchas — kept current. Stale docs are worse than none.*

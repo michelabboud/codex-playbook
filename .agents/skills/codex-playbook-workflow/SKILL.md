@@ -5,6 +5,8 @@ description: Apply Codex Playbook workflow rules 6.1-6.4 before version allocati
 
 # 6 · Task & phase workflow — rules 6.1–6.4
 
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+
 *Read before the first `VERSION`, commit, or tag operation of a task, and before any phase release. This is mechanics; it adds no gate the approval table doesn't have.*
 
 *Working directly on `main` is the **solo-developer** default — it holds when I am the only human committing to the repo and no agreed plan says otherwise. **With a team — a second human contributor, or a repo others merge into — work goes on a feature branch and lands through a pull request:** the checkpoint chain below runs unchanged on the branch, the PR is the review gate (rules 3.1–3.5), and `main` is only ever reached by a merge. Decide which mode you are in from the repo itself (contributors, branch protection, an existing PR flow, `CONTRIBUTING.md`), say which one you took, and never push straight to a protected or shared `main`. A project AGENTS.md may add its own gate (e.g., a planning phase); honor it. Everything below is a **standing order**: it runs automatically, every time, to completion. These are commands, not requests for permission — never ask whether to do them; asking is a rule violation, not politeness.*

@@ -5,6 +5,8 @@ description: Apply Codex Playbook code rules 1.1-1.6 before writing or changing 
 
 # 1 · Code — rules 1.1–1.6
 
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+
 *Read before writing or changing code. Rule 1.5's vetting is mandatory before any new or major-bumped direct dependency.*
 
 1.1 **NO FAKES, NO STUBS, NO PLACEHOLDERS.** Nothing may look complete that isn't. If you can't finish a piece — blocked, ambiguous, or out of scope — leave an explicit, clearly-marked `TODO` / `unimplemented!()` and tell me. Never paper over a gap.

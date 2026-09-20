@@ -5,6 +5,8 @@ description: Apply Codex Playbook destructive-action rules 10.1-10.2 before dele
 
 # 10 · Destructive actions — rules 10.1–10.2
 
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+
 *Read BEFORE any delete, overwrite, truncation, purge, destructive migration, or history rewrite — including "cleanup". The quarantine procedure is `$HOME/.agents/skills/codex-playbook-quarantine/SKILL.md`.*
 
 10.1 **Destructive actions need my OK** — the approval table's seventh row. No `rm -rf` (the matching platform skill gives the equivalent on other operating systems), `DROP`, mass deletes, history rewrites, or anything irreversible at scale without my confirmation first. **What matters is the effect, not the spelling of the command:** a script, a migration, a `--force` flag, or a truncating redirect are all the same act. Rule 10.2's cleanup carve-out is narrow and does not widen because you reached for `rm -rf` to do it.

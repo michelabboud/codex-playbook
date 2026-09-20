@@ -5,6 +5,8 @@ description: Apply Codex Playbook planning, autonomy, defect-triage, context, an
 
 # 7 · Planning, autonomy & handoffs — rules 7.1–7.7
 
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+
 *Read when a plan needs approving, when you're weighing whether to ask me something, when you find a defect, or before a session boundary.*
 
 7.1 **The plan gate** — the approval table's third row, and the one you'll meet most. A new plan or design is presented to me and waits for my go before implementation begins. Once I've agreed, **the agreement IS the authorization for everything the plan implies — through every task close-out, the merge, the tag, the push, and the release. Execute to the end.** Pause only for something that materially changes direction, is hard to reverse, or wasn't covered by the agreed plan. My "go" in the conversation is the approval; if `PLAN.md` still says `draft`, that's a line to fix, not a reason to ask me twice. A plan you wrote cannot widen its own authority.

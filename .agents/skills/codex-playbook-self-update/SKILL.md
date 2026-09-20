@@ -5,6 +5,8 @@ description: Check and safely update an installed Codex Playbook when the owner 
 
 # Self-update procedure
 
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+
 Use this procedure only when the owner asks for an update check or when the
 installed playbook looks wrong, missing, internally inconsistent, or older than
 the public source. A routine task does not perform a network check merely
@@ -32,17 +34,54 @@ because this skill exists.
    after the installed one and summarize the behavioral difference in plain
    language.
 
+## Check the local layer against the new text
+
+The owner's customizations live in `${CODEX_HOME:-$HOME/.codex}/playbook-local.md`,
+which the playbook never ships and no script creates, writes over, moves, or
+deletes. An absent file means nothing is customized; there is nothing to check
+and nothing to migrate.
+
+When it exists, run the new checkout's own check against it **before proposing
+the replacement**, so the owner learns about a stale entry while it is still a
+one-line edit rather than as a refused install:
+
+```sh
+./scripts/check-local.sh "${CODEX_HOME:-$HOME/.codex}/playbook-local.md" \
+  . .agents/skills
+```
+
+Exit 0 is fresh. Exit 1 names each stale override as `file:line` with the words
+that are gone: report them and let the owner rewrite the entry against the new
+rule. Never delete or edit quoted words to silence the check — that is the
+override losing its meaning silently, which is the failure this check exists to
+prevent. Exit 2 is an unparsable line or a named file that is missing or escapes
+its root; report it the same way.
+
+The installer runs the same check in source preflight and refuses on a non-zero
+result, before any directory is created and before any backup. There is no flag
+that installs past it.
+
+**Then cross-check the changelog.** The check catches a rewritten sentence, not
+a changed meaning elsewhere in the same rule. For every rule an intervening
+changelog entry says was touched, and that the local layer overrides, read the
+new rule in full and say so in the replacement proposal.
+
 ## Replacement gate
 
-An update replaces a global instruction file and managed skills that may have
-been tailored. It is therefore a protected wholesale replacement under the
-approval table. **Stop and ask before replacement**, naming:
+An update replaces the global instruction file and every managed skill whole. It
+is therefore a protected wholesale replacement under the approval table. **Stop
+and ask before replacement**, naming:
 
 - installed and available versions;
 - the important changes;
 - active global file and skill destinations;
-- whether local files differ from their last known installed source; and
-- that the installer will create and verify a unique recovery checkpoint first.
+- the local layer's result: fresh, or each stale entry with its `file:line`,
+  plus every overridden rule an intervening changelog entry touched;
+- whether any managed file still differs from its last known installed source,
+  which means tailoring that belongs in the local layer and will otherwise be
+  lost; and
+- that the installer will create and verify a unique recovery checkpoint first,
+  and will not touch the local layer at all.
 
 Approval to check is not approval to replace. Do not interpret a general build
 request as update approval.
@@ -50,7 +89,8 @@ request as update approval.
 ## Approved update
 
 1. Obtain a clean checkout of the exact public version being installed.
-2. Run the checkout's repository verification before touching the installation.
+2. Run the checkout's repository verification before touching the installation,
+   and its local-layer check if that has not already been run.
 3. Run its backup-first installer with the explicit replacement option:
 
    ```sh
@@ -68,3 +108,15 @@ request as update approval.
 If installation or verification fails, leave the previous installation in
 place or restore the verified checkpoint. Never continue with a partial mix of
 versions.
+
+## Tailoring found inside a managed file
+
+Tailoring written into `AGENTS.md` or into a skill is lost at the next update:
+the installer replaces `AGENTS.md` whole and swaps each skill folder whole, and
+the previous contents survive only inside the recovery checkpoint. When the
+comparison above finds any, do not carry it forward by hand and do not install
+over it silently. Report it, and migrate it into the local layer first — a
+value a rule leaves open becomes a **Fill**, a rule the playbook lacks becomes
+an **Add** under an `L` section, and a rule contradicted becomes an **Override**
+quoting the playbook's exact words after `**Dead words:**`. `INSTALL.md` carries
+the procedure; `templates/playbook-local.md` carries the grammar.
