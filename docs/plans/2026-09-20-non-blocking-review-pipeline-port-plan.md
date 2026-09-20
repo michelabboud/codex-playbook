@@ -6,6 +6,12 @@
   was reviewed by Astra the same day: *proceed with changes*, eleven findings, all confirmed —
   `docs/reviews/2026-09-20-astra-pipeline-port-plan-opinion.md` and `…-validation.md`. §0 below
   is what changed; the body is rewritten to match.
+- **Superseded in part, 2026-09-20 (dated note; the body below is left as approved):** the
+  ceiling wording in §0, §2.3 and wherever this plan says "a ceiling of two unruled batches" was
+  replaced, after four failed reviews of the candidate and at the owner's choice, by one
+  invariant — *a line carries at most three unruled batches, the open one included* — with the
+  same exposure. Operative text: the reviews skill, rule 3.5. Why: ADR 0004 and
+  `docs/reviews/2026-09-20-sol-0.1.4-fourth-review-validation.md`.
 - **Written:** 2026-09-20, by the planning seat (Claude Fable 5.1). Nothing in this repository
   is changed by this plan except this file and its `PLAN.md` row.
 - **Source of truth:** `claude-code-playbook` commit `6926f8c`, tag `checkpoint/0.1.13` —

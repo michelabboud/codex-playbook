@@ -74,6 +74,16 @@ and merging act on. Rejected: rows 17–18 for the two newest states; a short ce
 "ask the coordinator". The installer also refuses a symbolic link at `.agents` or
 `.agents/skills`. Records: `docs/reviews/2026-09-20-sol-0.1.4-third-review-validation.md`.
 
+**Completed after the fourth review, which failed the restatement on what it had newly created.**
+Every landing belongs to the line's open batch — the plan's, or an ad-hoc batch the coordinator
+names in the ledger, never a new approval — except the fix for a recorded finding, which gets a
+focused review before its batch is ruled. Only closed work merges between lines; a task's own
+worktree is not a line. The sentence equating the invariant with "two closed batches" is deleted
+as inexact. **And a residual clause: what the rule does not name is resolved toward review.**
+Rejected: listing states until a review passes — five reviews showed the list does not end, and
+twice the repair created the next two findings. Twenty worked cases. Record:
+`docs/reviews/2026-09-20-sol-0.1.4-fourth-review-validation.md`.
+
 ## Consequences
 
 - One more inventory file, validated by the rulebook tests and consumed by the installer.
