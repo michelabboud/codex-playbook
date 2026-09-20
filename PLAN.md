@@ -12,8 +12,8 @@ One logical task, not a phase: it closes once, as 0.1.4.
 - [x] Owner's go, including the ceiling decision (plan §0) — 2026-09-20.
 - [x] Source corrected first (`claude-code-playbook` 0.1.14, `checkpoint/0.1.14`) — 2026-09-20.
 - [x] ADR 0003 written at decision time — 2026-09-20.
-- [ ] Contract locked with failing tests (50 canonical IDs, single-owner roster, accounting cases).
-- [ ] Rules 3.1, 3.3, 3.5 and the roster reference written; manifest, matrix, page, docs synchronized.
+- [x] Contract locked with failing tests (50 canonical IDs, single-owner roster, accounting wording) — 2026-09-20.
+- [x] Rules 3.1, 3.3, 3.5 and the roster reference written; manifest, matrix, page, docs synchronized — 2026-09-20.
 - [ ] Deep review run the way the new rule says; findings ruled.
 - [ ] 0.1.4 verified, tagged `checkpoint/0.1.4`, pushed.
 

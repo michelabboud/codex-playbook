@@ -2,6 +2,53 @@
 
 All notable changes are recorded here. Dates are absolute.
 
+## 0.1.4 — 2026-09-20
+
+### Added
+
+- Rule 3.5, the fiftieth rule — how far development may run ahead of review:
+  mechanical review never holds development; deep review to a ceiling of two
+  closed, unruled batches under a line's tip plus the one being built (worst case
+  three batch ranges), counted by git ancestry as a set — a merge is a union —
+  against a ledger the coordinator keeps; three waits at any depth; high deep
+  reviews are gates and every lower review, mechanical included, is settled
+  first; the planner owns the stall. Direct port of source 0.1.14.
+- One owner for the roster:
+  `.agents/skills/codex-playbook-subagents/references/roster.md`. Four
+  capability tiers — Top, Strong, Standard, Fast — each a responsibility filled
+  by a model and a reasoning effort; an optional second family by capability; a
+  dated operator binding kept outside the managed packages; no product names.
+  Install, upgrade, rollback and restore tests cover the nested file.
+- A Strong tier: deep review had been assigned to the same tier as
+  implementation and mechanical review.
+- `docs/guides/non-blocking-review-pipeline.md` and ADR 0003.
+
+### Changed
+
+- Rule 3.1: two kinds of review became three — mechanical, deep, high deep —
+  defined by what they close. High deep is a gate.
+- Rule 3.3 gained its mechanics, adapted for Codex where it differs: completion
+  is registered and handled; an isolated snapshot is prepared by whoever holds
+  the permission; a reviewer that cannot write returns its notes through its
+  reply and its permissions are never widened to fit the rule; nothing observed
+  on another client is asserted of Codex threads.
+- The "Deep" tier is renamed "Top", so that "the Deep tier" and "a deep review"
+  no longer name different things. The roster table left the reviews and
+  subagents skills for the single reference.
+- The mechanical-review measurement now carries its provenance: it was taken on
+  two Claude models and validates no Codex configuration; "Standard, never Fast"
+  is a conservative floor pending a Codex measurement.
+- The rule count is fifty in the tests, manifest, parity matrix, page and public
+  docs. ADR 0002's "49" stands as written; ADR 0003 records the move.
+
+### Process
+
+- The port plan was reviewed before implementation by an independent reviewer
+  from another model family — separate process, pinned commit, cold-read note
+  first. Eleven findings, all confirmed; five were defects in the source rule,
+  which was corrected first (source 0.1.14). Records under
+  `docs/reviews/2026-09-20-astra-pipeline-port-plan-*`.
+
 ## 0.1.3 — 2026-09-17
 
 ### Added

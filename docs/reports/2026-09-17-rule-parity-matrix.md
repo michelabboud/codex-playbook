@@ -1,5 +1,9 @@
 # Claude Code to Codex rule parity matrix
 
+**Revised 2026-09-20 for source 0.1.14** — rows 3.1, 3.3, 3.4, 3.5 and 8.1 moved
+to that source; every other row stays at the source version recorded in the
+original matrix. The matrix now covers 50 numbered rules; rule 3.5 is new.
+
 **Date:** 2026-09-17
 
 **Source:** `michelabboud/claude-code-playbook` at `5db68e3`
@@ -27,10 +31,11 @@ rule with three operating-system implementations.
 | 2.1 | `rules/TESTING.md` | `codex-playbook-testing` | Direct: happy/failure paths, regression-first fixes, no ceremonial tests. |
 | 2.2 | `rules/TESTING.md` | `codex-playbook-testing` | Direct: decisive evidence and base-commit proof for attributed failures. |
 | 2.3 | `rules/TESTING.md` | `codex-playbook-testing` | Direct: performance claims require measurements. |
-| 3.1 | `rules/REVIEWS.md` | `codex-playbook-reviews` | Adapted: full review ladder uses capability tiers instead of Claude model names. |
+| 3.1 | `rules/REVIEWS.md` | `codex-playbook-reviews` | Adapted: three kinds of review (mechanical, deep, high deep); capability tiers Top/Strong/Standard/Fast in place of source model names. |
 | 3.2 | `rules/REVIEWS.md` | `codex-playbook-reviews` | Direct: dependency, diff-size, planner, and risk-based batch boundaries. |
-| 3.3 | `rules/REVIEWS.md` | `codex-playbook-reviews` | Direct: pipelining, pinned findings, tip revalidation, stop-the-line blockers. |
-| 3.4 | `rules/REVIEWS.md` | `codex-playbook-reviews` | Adapted: strongest available Codex review with independent passes. |
+| 3.3 | `rules/REVIEWS.md` | `codex-playbook-reviews` | Direct, with Adapted mechanics: completion is registered and handled; the snapshot is prepared by whoever holds the permission; a reviewer that cannot write returns its notes through its reply; no claim about Codex threads from another client's evidence. |
+| 3.4 | `rules/REVIEWS.md` | `codex-playbook-reviews` | Adapted: high deep review on the Top tier with two independent passes. |
+| 3.5 | `rules/REVIEWS.md` | `codex-playbook-reviews` | Direct: how far development may run ahead of review — ceiling, ancestry set, ledger, three waits, gates. |
 | 4.1 | `rules/DOCS.md` | `codex-playbook-documentation` | Direct: write reasoning and gotchas for a new contributor. |
 | 4.2 | `rules/DOCS.md` | `codex-playbook-documentation` | Direct: qualifying ADRs at decision time, permanent and indexed. |
 | 4.3 | `rules/DOCS.md` | `codex-playbook-documentation` | Direct: update changelog, progress, plan, backlog, usage, and architecture. |
@@ -48,7 +53,7 @@ rule with three operating-system implementations.
 | 7.5 | `rules/COLLABORATION.md` | `codex-playbook-collaboration` | Direct: stay focused without silent scope reduction. |
 | 7.6 | `rules/COLLABORATION.md` | `codex-playbook-collaboration` | Adapted: use Codex context cleanup only after full completion. |
 | 7.7 | `rules/COLLABORATION.md` | `codex-playbook-collaboration` | Direct: dated handoff plus root pointer at every unfinished seam. |
-| 8.1 | `rules/SUBAGENTS.md` | `codex-playbook-subagents` | Adapted: capability tiers replace Claude names; escalation, load limits, and planner/coordinator split remain. |
+| 8.1 | `rules/SUBAGENTS.md` and `rules/ROSTER.md` | `codex-playbook-subagents` and its `references/roster.md` | Adapted: capability-based, no product names, operator binding outside the managed packages; escalation, load limits, and planner/coordinator split remain. |
 | 9.1 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Adapted: platform skill supplies commands; owner override uses `~/.config/fleet/ports/`. |
 | 9.2 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Direct: a Docker prefix is naming, never permission. |
 | 9.3 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Direct: native datastores require explicit direction. |

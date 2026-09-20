@@ -13,7 +13,7 @@ ${CODEX_HOME:-$HOME/.codex}/AGENTS.md
 $HOME/.agents/skills/
   codex-playbook-code/              rules 1.1–1.6
   codex-playbook-testing/           rules 2.1–2.3
-  codex-playbook-reviews/           rules 3.1–3.4
+  codex-playbook-reviews/           rules 3.1–3.5
   codex-playbook-documentation/     rules 4.1–4.3
   codex-playbook-repository/        rules 5.1–5.3
   codex-playbook-workflow/          rules 6.1–6.4
@@ -28,6 +28,10 @@ $HOME/.agents/skills/
   codex-playbook-writing/           rules 12.1–12.4
   codex-playbook-self-update/       guarded update procedure
 ```
+
+The tier roster has one owner, the reference file bundled inside the subagents
+skill (`references/roster.md`), and the installer copies whole skill directories,
+so that file installs, upgrades, rolls back and restores with its skill.
 
 Codex discovers the skill names and descriptions in its initial context. The
 full `SKILL.md` body enters context only when explicitly selected or matched by
@@ -48,7 +52,7 @@ Loading them after the action would be too late. `AGENTS.md` therefore retains:
 
 At approximately 8 KB, this leaves substantially more of Codex's combined
 global/project instruction budget available to each repository than the old
-13 KB monolith. The full rule corpus is approximately 84 KB but is never loaded
+13 KB monolith. The full rule corpus is approximately 100 KB but is never loaded
 as a unit.
 
 Skills carry procedure and detail, never new authority. A skill may explain how
@@ -61,7 +65,7 @@ Two files are authoritative:
 - `config/managed-skills.txt` lists the exact sixteen active skill packages.
   Install, restore, tests, and verification read this file rather than
   duplicating shell lists.
-- `config/rule-manifest.tsv` maps the canonical 49 rule IDs to their owners.
+- `config/rule-manifest.tsv` maps the canonical 50 rule IDs to their owners.
   Rule 11.1 is the declared exception with three platform implementations.
 
 `tests/rulebook_test.sh` compares the manifest to the canonical ID set, scans

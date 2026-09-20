@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A visual map of Codex Playbook: five partnership principles and 49 faithful, modular rules for production-grade work with Codex.">
+  <meta name="description" content="A visual map of Codex Playbook: five partnership principles and 50 faithful, modular rules for production-grade work with Codex.">
   <meta name="theme-color" content="#173f9f">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23173f9f'/%3E%3Cpath d='M18 19h28v8H27v10h19v8H18z' fill='%23fffdf7'/%3E%3C/svg%3E">
-  <title>Codex Playbook — 49 modular rules for work that matters</title>
+  <title>Codex Playbook — 50 modular rules for work that matters</title>
   <style>
     :root {
       color-scheme: light;
@@ -118,7 +118,7 @@
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="topbar">
-    <a class="wordmark" href="#top">Codex Playbook / 0.1.3</a>
+    <a class="wordmark" href="#top">Codex Playbook / 0.1.4</a>
     <nav class="toplinks" aria-label="Primary">
       <a href="#mantra">Mantra</a><a href="#authority">Authority</a><a href="#rules">Rules</a><a href="#native">Codex-native</a>
       <a class="install" href="https://github.com/michelabboud/codex-playbook/blob/main/INSTALL.md">Install</a>
@@ -127,7 +127,7 @@
   <main id="main">
     <section class="hero" id="top" aria-labelledby="hero-title">
       <div class="hero-inner"><div class="hero-copy">
-        <p class="eyebrow">49 rules · 16 skills · one working agreement</p>
+        <p class="eyebrow">50 rules · 16 skills · one working agreement</p>
         <h1 id="hero-title">Work that holds up.</h1>
         <p>A production-grade rulebook for Codex: finish the work, prove the claims, preserve the user's authority.</p>
         <div class="actions"><a class="action primary" href="https://github.com/michelabboud/codex-playbook">View repository</a><a class="action" href="#rules">Explore all rules</a></div>
@@ -171,7 +171,7 @@
       <div class="flow">
         <article class="flow-step"><div class="mono">01 / AUTHORITY</div><h3>~/.codex/AGENTS.md</h3><p>An 8 KB router keeps partnership, classification, approval, and trigger rules always available.</p></article>
         <article class="flow-step"><div class="mono">02 / PROJECT</div><h3>repo/AGENTS.md</h3><p>Local commands and conventions layer closer to the code and override broader guidance.</p></article>
-        <article class="flow-step"><div class="mono">03 / SUBJECTS</div><h3>16 Codex skills</h3><p>The complete 49-rule corpus arrives by trigger through progressive disclosure, including one matching platform skill.</p></article>
+        <article class="flow-step"><div class="mono">03 / SUBJECTS</div><h3>16 Codex skills</h3><p>The complete 50-rule corpus arrives by trigger through progressive disclosure, including one matching platform skill.</p></article>
       </div>
     </section>
     <section class="section closing"><h2>Install the working agreement.</h2><p>Read it, challenge it, and make it yours. A rulebook only works when the person named “I” actually agrees with it.</p><a class="action primary" href="https://github.com/michelabboud/codex-playbook/blob/main/INSTALL.md">Open installation guide</a></section>
@@ -268,8 +268,8 @@
         "rules": [
           [
             "3.1",
-            "Reviews climb the delivery ladder",
-            "Task, batch, milestone, and release reviews grow stronger with risk and scope."
+            "Three kinds of review, and a tier that climbs",
+            "Mechanical per task; deep per batch of 3–10 on the Strong tier, pipelined with development; high deep — the Top tier, two independent passes — at milestones and the release gate. Levels collapse on small plans; the tier of the level that closes never drops."
           ],
           [
             "3.2",
@@ -278,13 +278,18 @@
           ],
           [
             "3.3",
-            "Pipeline, but stop the line",
-            "Pin findings to commits, recheck them at tip, and stop on blockers."
+            "Pipelined, never fire-and-forget",
+            "Review batch N while N+1 builds; every finding pins a commit and is re-checked against tip before anyone acts. A blocker stops the line, whichever kind of review found it. A review's input is a commit, never a working tree: the reviewer reads git objects only and builds in an isolated snapshot prepared by whoever holds the permission; a reviewer that cannot write returns its notes through its reply — never widen its permissions to fit the rule; the brief defines what counts as blocking; the coordinator commits the reviewer's output, that one path only, index checked first; an exited reviewer is not an accepted review; blindness controls are controls, not proof."
           ],
           [
             "3.4",
-            "The release gets the best review",
-            "Run independent deep passes with the plan and prior reviews before any release tag."
+            "The release gate gets the best review, regardless of task count",
+            "High deep: the Top tier, two independent passes, fed the plan and every batch review, diving on risk-class files. No v* tag before it passes."
+          ],
+          [
+            "3.5",
+            "How far development may run ahead of review",
+            "Mechanical review never holds development. Deep review: at most two closed, unreviewed batches under a line's tip, plus the one being built — one closed is normal, the second is announced loudly, batch N+3 never starts; the honest worst case is three batch ranges. Counted by git ancestry as a set: a branch off unreviewed work inherits, a merge takes the union, cherry-picks and squashes carry no ancestry. The coordinator keeps the ledger. Three waits hold at any depth: work that is expensive to undo · anything irreversible or outward-facing · a blocker. High deep reviews are gates: every lower review, mechanical included, is settled first; the candidate is frozen; the wait works the queue on a line not merged into it."
           ]
         ]
       },
@@ -404,7 +409,7 @@
           [
             "8.1",
             "Delegate clean seams and escalate early",
-            "Use capability tiers, measured concurrency, planner/coordinator separation, and evidence-bearing escalation."
+            "Use capability tiers, measured concurrency, planner/coordinator separation, and evidence-bearing escalation. Which configuration fills each tier — Top · Strong · Standard · Fast — is the roster reference bundled with the subagents skill; no product names live in the rules."
           ]
         ]
       },

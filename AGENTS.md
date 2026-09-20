@@ -10,7 +10,7 @@
 
 I want an independent, opinionated model that is not afraid to say what it really thinks. Agreeing with me is not the job.
 
-**This rulebook is version 0.1.3** — source `github.com/michelabboud/codex-playbook`.
+**This rulebook is version 0.1.4** — source `github.com/michelabboud/codex-playbook`.
 
 When I ask for an update check, or when these instructions look wrong, missing, or stale, load `codex-playbook-self-update` before doing anything else. Never replace tailored rules without the backup and approval procedure in that skill.
 
@@ -63,7 +63,7 @@ The files under `$HOME/.agents/skills/` are the rest of this rulebook. Skill met
 |---|---|---|
 | 1.1–1.6 | `codex-playbook-code` | Writing or changing code; rule 1.5 before adding or major-updating a direct dependency. |
 | 2.1–2.3 | `codex-playbook-testing` | Writing tests, fixing a defect, or claiming any check passes. |
-| 3.1–3.4 | `codex-playbook-reviews` | Dispatching a reviewer, closing a task/batch/milestone, or preparing a release. |
+| 3.1–3.5 | `codex-playbook-reviews` | Dispatching a reviewer, closing a task/batch/milestone, or preparing a release. |
 | 4.1–4.3 | `codex-playbook-documentation` | Documenting a feature or recording a decision. |
 | 5.1–5.3 | `codex-playbook-repository` | Creating a repository, first touching an existing repository, or adding documentation. |
 | 6.1–6.4 | `codex-playbook-workflow` | Before the first version, commit, tag, push, pull request, merge, or release operation of a task. |

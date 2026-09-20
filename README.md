@@ -8,7 +8,7 @@ around that ratio.*
 **Do the right thing, not the lazy or easy thing.**
 
 Codex Playbook is Michel's Claude Code Playbook, faithfully adapted to Codex.
-It preserves the same 49 rules, partnership model, approval boundaries, review
+It preserves the same 50 rules, partnership model, approval boundaries, review
 ladder, verification standard, workflow, safety procedures, and writing rules.
 The adaptation changes client mechanics—not doctrine.
 
@@ -21,9 +21,29 @@ collaboration.
 **[Open the visual playbook →](https://michelabboud.github.io/codex-playbook/)**
 
 The dependency-free visual map presents the five partnership principles, all
-49 rules, the complete approval matrix, the thirteen rule sections, and the
+50 rules, the complete approval matrix, the thirteen rule sections, and the
 split between the always-loaded authority router and sixteen on-demand skills.
 It uses no framework, build step, cookies, or analytics.
+
+## Review without stalling development
+
+Reviews are slow, and the deep ones are expensive too. A review that development
+sits waiting for is a stall, so the rulebook pipelines them:
+
+| Kind | Closes | While it runs, development… |
+|---|---|---|
+| **Mechanical** | every task | never waits |
+| **Deep** | every batch of 3–10 tasks | keeps going — at most **two closed** unreviewed batches under a line's tip, plus the one being built; counted by git ancestry as a set, against a ledger the coordinator keeps |
+| **High deep** | a milestone or a release | waits — it may revise the plan, every lower review is settled first, and the wait works the queue of minor findings |
+
+What makes that safe is mechanics, not optimism: **a review's input is a commit,
+never a working tree**; the reviewer reads git objects only; the brief defines
+what counts as blocking; a blocker stops the line, whichever kind of review found
+it. The rules are 3.3 and 3.5 in the `codex-playbook-reviews` skill; the reasoning
+and the evidence are in `docs/guides/non-blocking-review-pipeline.md`; the decision
+is ADR 0003. The roster of tiers — Top · Strong · Standard · Fast — names
+capabilities, never products, and has one owner:
+`.agents/skills/codex-playbook-subagents/references/roster.md`.
 
 ## Why it is modular
 
@@ -43,7 +63,7 @@ Codex Playbook uses that progressive-disclosure model:
 - All three platform skills install for portability. The router selects only the
   execution environment's skill: Linux or WSL, macOS, or native Windows.
 
-The global router is about 8 KB instead of loading the roughly 84 KB complete
+The global router is about 8 KB instead of loading the roughly 100 KB complete
 rule corpus into every session.
 
 ## Install
@@ -92,7 +112,7 @@ Every source rule ID remains present. Codex-specific changes are limited to
 instruction discovery, skill loading, model capability names, platform paths,
 and the update source.
 
-- [49-rule parity matrix](docs/reports/2026-09-17-rule-parity-matrix.md)
+- [50-rule parity matrix](docs/reports/2026-09-17-rule-parity-matrix.md)
 - [Architecture decision](docs/adr/0002-progressive-disclosure-rulebook.md)
 - [Historical v0.1.0 adaptation report](docs/reports/2026-09-16-source-parity.md)
 
@@ -102,7 +122,7 @@ and the update source.
 AGENTS.md                 lean global authority and trigger router
 .agents/skills/           sixteen complete on-demand rule sections
 config/managed-skills.txt authoritative installed-skill inventory
-config/rule-manifest.tsv  authoritative 49-rule ownership map
+config/rule-manifest.tsv  authoritative 50-rule ownership map
 INSTALL.md                backup-first install and recovery procedure
 scripts/install.sh        format-2 transactional installer
 scripts/restore.sh        format-1/format-2 transactional restoration
@@ -116,7 +136,7 @@ docs/plans/               approved designs and implementation plans
 
 ## Version
 
-Current: **v0.1.3**. `VERSION` is the source of truth; release detail lives in
+Current: **v0.1.4**. `VERSION` is the source of truth; release detail lives in
 [`CHANGELOG.md`](CHANGELOG.md).
 
 ## License

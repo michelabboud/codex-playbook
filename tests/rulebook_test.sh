@@ -38,6 +38,7 @@ cat > "$test_root/expected-ids" <<'EOF'
 3.2
 3.3
 3.4
+3.5
 4.1
 4.2
 4.3
@@ -147,9 +148,9 @@ fi
 manifest_ids="$test_root/manifest-ids"
 cut -f1 config/rule-manifest.tsv > "$manifest_ids"
 if cmp -s "$test_root/expected-ids" "$manifest_ids"; then
-  pass 'rule manifest contains the canonical 49 IDs in order'
+  pass 'rule manifest contains the canonical 50 IDs in order'
 else
-  fail 'rule manifest does not match the canonical 49-ID set'
+  fail 'rule manifest does not match the canonical 50-ID set'
 fi
 
 occurrences="$test_root/rule-occurrences"
@@ -206,12 +207,12 @@ fi
 
 grep -Eo '"[0-9]+\.[0-9]+",' docs/index.html |
   sed -e 's/^"//' -e 's/",$//' > "$test_root/site-ids"
-if [ "$(wc -l < "$test_root/site-ids" | tr -d ' ')" -eq 49 ] &&
-   [ "$(LC_ALL=C sort -V -u "$test_root/site-ids" | wc -l | tr -d ' ')" -eq 49 ] &&
+if [ "$(wc -l < "$test_root/site-ids" | tr -d ' ')" -eq 50 ] &&
+   [ "$(LC_ALL=C sort -V -u "$test_root/site-ids" | wc -l | tr -d ' ')" -eq 50 ] &&
    cmp -s "$test_root/expected-ids" "$test_root/site-ids"; then
-  pass 'visual playbook contains the exact canonical 49-ID set'
+  pass 'visual playbook contains the exact canonical 50-ID set'
 else
-  fail 'visual playbook rule IDs do not match the canonical 49-ID set'
+  fail 'visual playbook rule IDs do not match the canonical 50-ID set'
 fi
 
 cat > "$test_root/expected-mantra-headings" <<'EOF'
@@ -255,11 +256,58 @@ fi
 
 grep -E '^\| [0-9]+\.[0-9]+ \|' docs/reports/2026-09-17-rule-parity-matrix.md |
   sed -E 's/^\| ([0-9]+\.[0-9]+) \|.*$/\1/' > "$test_root/report-ids"
-if [ "$(wc -l < "$test_root/report-ids" | tr -d ' ')" -eq 49 ] &&
+if [ "$(wc -l < "$test_root/report-ids" | tr -d ' ')" -eq 50 ] &&
    cmp -s "$test_root/expected-ids" "$test_root/report-ids"; then
-  pass 'human-readable parity matrix contains the canonical 49 IDs in order'
+  pass 'human-readable parity matrix contains the canonical 50 IDs in order'
 else
-  fail 'human-readable parity matrix does not match the canonical 49-ID set'
+  fail 'human-readable parity matrix does not match the canonical 50-ID set'
+fi
+
+roster_file=.agents/skills/codex-playbook-subagents/references/roster.md
+reviews_file=.agents/skills/codex-playbook-reviews/SKILL.md
+subagents_file=.agents/skills/codex-playbook-subagents/SKILL.md
+
+if [ -f "$roster_file" ] && [ ! -L "$roster_file" ] &&
+   ! grep -Eq '^[0-9]+\.[0-9]+ \*\*' "$roster_file"; then
+  pass 'roster reference is a regular file and contains no numbered rule heading'
+else
+  fail "$roster_file must be a regular file with no numbered rule heading"
+fi
+
+grep -rlF -- '| **Top** |' AGENTS.md .agents/skills > "$test_root/top-row-files" || true
+standard_row_files=$(grep -rlF --include=SKILL.md -- '| **Standard** |' .agents/skills || true)
+if [ "$(cat "$test_root/top-row-files")" = "$roster_file" ] &&
+   [ -z "$standard_row_files" ]; then
+  pass 'the tier table has one owner: the roster reference, never a SKILL.md'
+else
+  printf 'Top row found in:\n%s\nStandard row found in a SKILL.md:\n%s\n' \
+    "$(cat "$test_root/top-row-files")" "$standard_row_files" >&2
+  fail 'the roster tier table must live only in the roster reference'
+fi
+
+if grep -Fq '../codex-playbook-subagents/references/roster.md' "$reviews_file" &&
+   grep -Fq 'references/roster.md' "$subagents_file"; then
+  pass 'reviews and subagents skills both point to the roster reference'
+else
+  fail 'reviews and subagents skills must both point to references/roster.md'
+fi
+
+if grep -Fq 'union' "$reviews_file" &&
+   grep -Fq 'plus the one being built' "$reviews_file" &&
+   grep -Fq 'mechanical included' "$reviews_file" &&
+   ! grep -Fq 'merge adds' "$reviews_file"; then
+  pass 'rule 3.5 accounting: union, the one being built, mechanical included; no "merge adds"'
+else
+  fail 'reviews skill accounting wording is missing union, "plus the one being built", or "mechanical included", or still says "merge adds"'
+fi
+
+old_tier_names=$(grep -Fn -e 'the deep tier' -e 'the standard tier' -e 'the fast tier' \
+  AGENTS.md .agents/skills/*/SKILL.md || true)
+if [ -z "$old_tier_names" ]; then
+  pass 'no old lower-case tier names remain in AGENTS.md or any SKILL.md'
+else
+  printf '%s\n' "$old_tier_names" >&2
+  fail 'old tier names remain in AGENTS.md or a SKILL.md'
 fi
 
 if grep -Fq 'Linux or WSL' .agents/skills/codex-playbook-platform-linux/SKILL.md &&

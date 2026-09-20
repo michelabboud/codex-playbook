@@ -6,6 +6,7 @@ repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 test_root=$(mktemp -d "${TMPDIR:-/tmp}/codex-playbook-tests.XXXXXX")
 active_skill_names=$(cat "$repo_root/config/managed-skills.txt")
 retired_skill_names=$(cat "$repo_root/config/retired-skills.txt")
+nested_roster='codex-playbook-subagents/references/roster.md'
 passes=0
 
 cleanup() {
@@ -89,6 +90,7 @@ assert_active_install() {
   do
     assert_absent "$skill_root/$skill_name"       "$label_prefix: retired $skill_name is inactive"
   done
+  assert_file_equal "$repo_root/.agents/skills/$nested_roster"     "$skill_root/$nested_roster"     "$label_prefix: nested roster reference is byte-identical"
 }
 
 reported_path() {
@@ -821,6 +823,111 @@ run_untrusted_restore_test() {
   assert_contains 'keep rules' "$codex_home/AGENTS.md"     'refused restore leaves current rules untouched'
 }
 
+write_fail_once_mv_for_skill() {
+  destination_path=$1
+  cat > "$destination_path" <<'EOF'
+#!/bin/sh
+destination=''
+for argument in "$@"
+do
+  destination=$argument
+done
+case "$destination" in
+  */"$FAIL_ONCE_SKILL")
+    if [ ! -e "$FAIL_ONCE_MARKER" ]; then
+      : > "$FAIL_ONCE_MARKER"
+      printf 'simulated skill activation failure\n' >&2
+      exit 1
+    fi
+    ;;
+esac
+exec /bin/mv "$@"
+EOF
+  chmod +x "$destination_path"
+}
+
+seed_tailored_nested_subagents() {
+  skill_root=$1
+  codex_home=$2
+  mkdir -p "$skill_root/codex-playbook-subagents/references" "$codex_home"
+  printf 'original rules\n' > "$codex_home/AGENTS.md"
+  printf 'tailored subagents\n' > "$skill_root/codex-playbook-subagents/SKILL.md"
+  printf 'tailored roster\n' > "$skill_root/$nested_roster"
+  printf 'tailored extra\n' > "$skill_root/codex-playbook-subagents/references/extra.md"
+  chmod 640 "$skill_root/$nested_roster"
+  chmod 750 "$skill_root/codex-playbook-subagents/references"
+}
+
+run_nested_reference_upgrade_test() {
+  case_root="$test_root/nested-upgrade"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$home/.agents/skills"
+  mkdir -p "$skill_root/codex-playbook-subagents" "$codex_home"
+  printf 'original rules\n' > "$codex_home/AGENTS.md"
+  printf 'older subagents\n' > "$skill_root/codex-playbook-subagents/SKILL.md"
+
+  HOME="$home" CODEX_HOME="$codex_home"     "$repo_root/scripts/install.sh" --replace-agents > "$case_root/install.log"
+  backup_dir=$(reported_path 'Recovery checkpoint' "$case_root/install.log")
+
+  assert_contains 'older subagents'     "$backup_dir/codex-playbook-subagents/SKILL.md"     'checkpoint preserves the older subagents skill'
+  assert_absent "$backup_dir/$nested_roster"     'checkpoint of an older tree records that it had no roster reference'
+  assert_file_equal "$repo_root/.agents/skills/$nested_roster"     "$skill_root/$nested_roster"     'upgrade over an older tree gains the roster reference'
+
+  HOME="$home" CODEX_HOME="$codex_home"     "$repo_root/scripts/restore.sh" "$backup_dir" > "$case_root/restore.log"
+
+  assert_contains 'older subagents'     "$skill_root/codex-playbook-subagents/SKILL.md"     'restore reinstates the older subagents skill'
+  assert_absent "$skill_root/$nested_roster"     'restore removes the roster reference the older tree never held'
+}
+
+run_nested_reference_replacement_and_restore_test() {
+  case_root="$test_root/nested-replacement"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$home/.agents/skills"
+  seed_tailored_nested_subagents "$skill_root" "$codex_home"
+
+  HOME="$home" CODEX_HOME="$codex_home"     "$repo_root/scripts/install.sh" --replace-agents > "$case_root/install.log"
+  backup_dir=$(reported_path 'Recovery checkpoint' "$case_root/install.log")
+
+  assert_contains 'tailored roster' "$backup_dir/$nested_roster"     'checkpoint preserves a tailored nested roster reference'
+  assert_contains 'tailored extra'     "$backup_dir/codex-playbook-subagents/references/extra.md"     'checkpoint preserves every nested file, not only the roster'
+  assert_mode 640 "$backup_dir/$nested_roster"     'checkpoint preserves nested-file mode'
+  assert_file_equal "$repo_root/.agents/skills/$nested_roster"     "$skill_root/$nested_roster"     'install replaces a tailored roster reference with the source'
+  assert_absent "$skill_root/codex-playbook-subagents/references/extra.md"     'install leaves no stale nested file beside the source roster'
+
+  HOME="$home" CODEX_HOME="$codex_home"     "$repo_root/scripts/restore.sh" "$backup_dir" > "$case_root/restore.log"
+
+  assert_contains 'tailored subagents'     "$skill_root/codex-playbook-subagents/SKILL.md"     'restore reinstates the tailored subagents skill'
+  assert_contains 'tailored roster' "$skill_root/$nested_roster"     'restore reinstates the tailored nested roster reference'
+  assert_contains 'tailored extra'     "$skill_root/codex-playbook-subagents/references/extra.md"     'restore reinstates every nested file the checkpoint held'
+  assert_mode 640 "$skill_root/$nested_roster"     'restore reinstates nested-file mode'
+  assert_mode 750 "$skill_root/codex-playbook-subagents/references"     'restore reinstates nested-directory mode'
+}
+
+run_nested_reference_rollback_test() {
+  case_root="$test_root/nested-rollback"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$home/.agents/skills"
+  fake_bin="$case_root/fake-bin"
+  marker="$case_root/fail-once"
+  seed_tailored_nested_subagents "$skill_root" "$codex_home"
+  mkdir -p "$fake_bin"
+  write_fail_once_mv_for_skill "$fake_bin/mv"
+
+  if PATH="$fake_bin:$PATH" FAIL_ONCE_MARKER="$marker"       FAIL_ONCE_SKILL=codex-playbook-writing       HOME="$home" CODEX_HOME="$codex_home"       "$repo_root/scripts/install.sh" --replace-agents > "$case_root/install.log" 2>&1; then
+    fail 'activation failure after the subagents skill was swapped aborts installation'
+  else
+    pass 'activation failure after the subagents skill was swapped aborts installation'
+  fi
+  assert_contains 'verified checkpoint was restored' "$case_root/install.log"     'late activation failure reports successful rollback'
+  assert_contains 'tailored subagents'     "$skill_root/codex-playbook-subagents/SKILL.md"     'rollback restores the tailored subagents skill'
+  assert_contains 'tailored roster' "$skill_root/$nested_roster"     'rollback restores the tailored nested roster reference'
+  assert_contains 'tailored extra'     "$skill_root/codex-playbook-subagents/references/extra.md"     'rollback restores every nested file the checkpoint held'
+  assert_absent "$skill_root/codex-playbook-writing"     'rollback removes the partially installed later skill'
+}
+
 run_first_install_and_restore_test
 run_refusal_test
 run_shadowed_agents_refusal_test
@@ -842,5 +949,8 @@ run_legacy_format_one_restore_test
 run_invalid_complete_marker_test
 run_invalid_manifest_state_test
 run_untrusted_restore_test
+run_nested_reference_upgrade_test
+run_nested_reference_replacement_and_restore_test
+run_nested_reference_rollback_test
 
 printf '\nAll %s installer lifecycle assertions passed.\n' "$passes"
