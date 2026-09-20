@@ -64,6 +64,16 @@ here rather than in a fifth record for the same change:
   the rule and its carriers from one dataset — a build step for a rulebook whose contract is
   that the Markdown *is* the source.
 
+**Restated, still before publication, after the third review and at the owner's choice.** The
+ceiling is one invariant, enforced at admission: *a line carries at most three unruled batches,
+the open one included.* A batch is unruled from its first dispatch; closing pins the review
+target, freezes membership and changes the batch's state, never the count; only a ruling brings
+the count down; nothing lands on a line outside a batch. Every defect since the first review had
+sat between closed batches, which the rule counted, and open work, which admission, branching
+and merging act on. Rejected: rows 17–18 for the two newest states; a short ceiling that ends in
+"ask the coordinator". The installer also refuses a symbolic link at `.agents` or
+`.agents/skills`. Records: `docs/reviews/2026-09-20-sol-0.1.4-third-review-validation.md`.
+
 ## Consequences
 
 - One more inventory file, validated by the rulebook tests and consumed by the installer.
