@@ -29,8 +29,11 @@ behavior.
   body, and `templates/playbook-local.md` must still pass
   `./scripts/check-local.sh templates/playbook-local.md . .agents/skills` with
   **zero items checked** — the template ships with no entry in force, every
-  example inside a fenced code block that the check ignores. A Dead-words line
-  outside a fence in that file is a failing test.
+  example inside a fenced code block that the check ignores. Any *entry line*
+  outside a fence in that file is a failing test: a line that begins, after any
+  indentation and an optional `- ` or `* ` bullet, with `**Fill`, `**Add`,
+  `**Override` or the Dead-words marker. Write *about* the kinds in another shape
+  ("An **Override** changes…"), never in the shape of an entry.
 - Update `config/managed-resources.txt` when a skill gains, loses, or renames a
   nested file an installation depends on — a reference a rule tells the reader
   to open. The installer reads it during source preflight and refuses, before

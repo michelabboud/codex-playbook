@@ -3,11 +3,23 @@
 New work belongs here only when it is valuable, out-of-scope for the current
 approved phase, and described concretely enough to become a future plan.
 
-- **2026-09-21 · parity · open** — the 4,096-byte bound on a local-layer line
-  exists in this edition only (informational finding I2 of the mechanical
-  review). The Claude edition's parser has no bound and would accept a longer
-  line. Offer the bound upstream, or record the divergence permanently; the
-  parity matrix carries it for now.
+- **2026-09-21 · parity · closed by the shared ruling** — the 4,096-byte bound on
+  a local-layer line existed in this edition only (informational finding I2 of
+  the mechanical review). It is now a ruling for both editions, so the divergence
+  is gone. This edition applies the bound to every line rather than only to a
+  Dead-words line, which is stricter than the ruling requires and satisfies it.
+- **2026-09-21 · parity · open** — this edition refuses an **ancestor of the local
+  file that exists and is not a directory**, and an Override whose window a
+  *bullet-less* `**Override` line opens, both of which the shared ruling leaves
+  unspecified. Both are fail-closed readings and neither has a shared vector, so
+  the two editions could diverge on them without a test noticing. Raise with the
+  Claude edition; the multi-line cases cannot go in the single-line vector file as
+  it stands.
+- **2026-09-21 · hardening · open** — `scripts/check-local.sh` refuses a glob
+  character in a file name, which also means a playbook file whose real name
+  contains `*`, `?` or `[` can never be named by an Override. No file in either
+  edition has such a name and none should; if one ever does, the grammar needs an
+  escape rather than a relaxation of the refusal.
 - **2026-09-21 · shared vectors · open** — both editions accept `, and ` as a
   join between two file names and no shared vector covers it, so nothing would
   catch one edition dropping it. The vectors file is byte-identical between the

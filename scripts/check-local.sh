@@ -1,6 +1,11 @@
 #!/bin/sh
 
-set -eu
+# -f disables pathname expansion for the whole run. Every expansion below is
+# quoted, so nothing depends on globbing; turning it off means a file name that
+# carries a glob character can never be expanded against the current directory
+# by a future edit, whatever quoting that edit forgets. A name that carries one
+# is refused outright — see resolve_named_file.
+set -euf
 
 usage() {
   cat <<'EOF'
@@ -38,13 +43,24 @@ inside a code span. Lines inside a fenced code block are ignored, so a file may
 quote this grammar without the example binding anyone; a fence left open at the
 end of the file is an error.
 
+An Override entry owes a Dead-words line. Outside a fenced code block, an entry
+line is one that -- after any indentation and an optional "- " or "* " bullet --
+begins with **Fill, **Add or **Override; a heading is a line beginning with #.
+An **Override entry with no valid Dead-words line before the next entry line,
+the next heading, or the end of the file is an error**, so a marker spelled any
+other way cannot pass as prose and leave the override unchecked. A Dead-words
+line with no Override before it is still parsed and searched.
+
 Exit status:
   0  every override still matches the playbook text, or there is no local file
   1  at least one override is stale: its quoted words are gone
   2  usage error, an unparsable "Dead words:" line, a bare marker that is not
-     at the start of its line, an over-long line, an unclosed fenced code
-     block, or a named file that does not exist, is not a regular file, or
-     escapes its root
+     at the start of its line, an Override with no Dead-words line, an over-long
+     line, an unclosed fenced code block, a named file that carries a glob
+     character, does not exist, is not a regular file, or escapes its root, or a
+     local file that exists and cannot be read as a regular file -- including
+     one behind a directory that cannot be searched, which is never reported as
+     an absent file
 EOF
 }
 
@@ -89,6 +105,14 @@ fence_char=''
 fence_length=0
 fence_line=0
 
+# The line of an Override entry that is still waiting for its "Dead words:"
+# line, or 0 when none is. An Override that never gets one is an error: without
+# this, every way of mistyping the marker — lower case, the colon outside the
+# bold, no bold at all — read as ordinary prose, and the Override installed with
+# nothing checked and "every override still matches" on the console. The window
+# closes at the next entry line, the next heading, or the end of the file.
+pending_override_line=0
+
 report_error() {
   printf '%s:%s: error: %s\n' "$local_file" "$1" "$2" >&2
   errors=$((errors + 1))
@@ -105,6 +129,28 @@ report_stale() {
 # taken for the failure itself.
 note_stop() {
   parse_stopped_at=$1
+}
+
+# Reports an Override whose window has just closed with no valid "Dead words:"
+# line in it, and clears the wait. Called at every entry line, every heading,
+# and once at the end of the file.
+report_pending_override() {
+  if [ "$pending_override_line" -ne 0 ]; then
+    report_error "$pending_override_line" \
+      "this Override entry carries no valid $marker line before the next entry, the next heading, or the end of the file: an Override must quote the playbook words it replaces, and a marker spelled any other way is not the marker"
+    pending_override_line=0
+  fi
+}
+
+# Removes an optional list bullet from a line already stripped of its leading
+# blanks, leaving the result in trim_value. Only the two Markdown bullets an
+# entry is ever written with count; a numbered list is not an entry shape here.
+strip_list_bullet() {
+  case "$1" in
+    '- '*) trim_value=${1#'- '} ;;
+    '* '*) trim_value=${1#'* '} ;;
+    *) trim_value=$1 ;;
+  esac
 }
 
 # Removes leading, then trailing, spaces and tabs. The result is in
@@ -235,12 +281,79 @@ line_has_bare_marker() {
   return 1
 }
 
+# Is the absence of this path something we actually observed, or something we
+# merely failed to see? POSIX `test` cannot tell the two apart: [ ! -e PATH ] is
+# false both when nothing is there and when a directory along the way may not be
+# searched. So absence is proved rather than assumed — every directory above the
+# leaf is walked from the top, and one that exists but cannot be searched is an
+# error, because a local layer may be sitting inside it. Returns 1, having
+# reported why, when the absence cannot be proved.
+#
+# Root may search any directory, so on a root run every -x below is true and
+# this walk proves nothing it did not already know. That is correct: root can in
+# fact see the file, so a stat that found nothing really did find nothing.
+prove_absence() {
+  case "$1" in
+    /*) absent_at=''; absent_rest=${1#/} ;;
+    *) absent_at='.'; absent_rest=$1 ;;
+  esac
+
+  # Only the directories above the leaf are walked; the leaf itself is the thing
+  # already known not to be there.
+  while :
+  do
+    case "$absent_rest" in
+      */*)
+        absent_component=${absent_rest%%/*}
+        absent_rest=${absent_rest#*/}
+        ;;
+      *) return 0 ;;
+    esac
+
+    # A doubled or trailing slash names the same directory again.
+    [ -n "$absent_component" ] || continue
+    absent_at="$absent_at/$absent_component"
+
+    if [ -d "$absent_at" ]; then
+      if [ ! -x "$absent_at" ]; then
+        printf 'ERROR: %s cannot be searched, so whether a local layer exists at %s is unknown; a local layer that cannot be read is never treated as an absent one.\n' \
+          "$absent_at" "$1" >&2
+        return 1
+      fi
+      continue
+    fi
+
+    if [ -e "$absent_at" ] || [ -L "$absent_at" ]; then
+      printf 'ERROR: %s is not a directory, so the local layer at %s cannot be reached.\n' \
+        "$absent_at" "$1" >&2
+      return 1
+    fi
+
+    # Nothing is here, and its own parent was searchable, so this absence was
+    # observed: the leaf below it cannot exist either.
+    return 0
+  done
+}
+
 # Resolves a file named in an item to a path under one of the two roots.
 # Sets resolved_path. Returns 1, having reported why, when the name escapes
 # its root or does not name a regular file.
 resolve_named_file() {
   resolve_line=$1
   resolve_name=$2
+
+  # A name is a literal path, never a pattern. Refusing the three glob
+  # characters outright keeps the refusal a rule about the name rather than an
+  # accident of what happens to be on disk: `SKILL.m?` must be an error whether
+  # or not some file matches it, and a file whose real name carries a star is
+  # not reachable through this grammar.
+  case "$resolve_name" in
+    *'*'*|*'?'*|*'['*)
+      report_error "$resolve_line" \
+        "the named file contains a glob character (one of * ? [), and a name is a literal path: $resolve_name"
+      return 1
+      ;;
+  esac
 
   case "$resolve_name" in
     /*)
@@ -402,6 +515,7 @@ if [ -z "$local_file" ] || [ -z "$agents_root" ] || [ -z "$skills_root" ]; then
 fi
 
 if [ ! -e "$local_file" ] && [ ! -L "$local_file" ]; then
+  prove_absence "$local_file" || exit 2
   printf 'No local layer at %s; nothing is customized.\n' "$local_file"
   exit 0
 fi
@@ -444,6 +558,23 @@ do
     continue
   fi
 
+  # An Override's window for its "Dead words:" line closes at the next entry
+  # line and at the next heading. Neither line is itself a marker line, so both
+  # fall through to the checks below afterwards.
+  case "$stripped_line" in
+    '#'*) report_pending_override ;;
+    *)
+      strip_list_bullet "$stripped_line"
+      case "$trim_value" in
+        '**Fill'*|'**Add'*) report_pending_override ;;
+        '**Override'*)
+          report_pending_override
+          pending_override_line=$line_number
+          ;;
+      esac
+      ;;
+  esac
+
   case "$stripped_line" in
     "$marker"*) ;;
     *)
@@ -481,6 +612,11 @@ do
   if ! parse_dead_words "$line_number" "$item_text"; then
     report_error "$line_number" \
       "this \"Dead words:\" line does not parse: expected \`words\` (in \`file\`), items separated by \" · \"; stopped at: ${parse_stopped_at:-<end of line>}"
+  else
+    # Only a line that parsed satisfies an Override. A line that did not is
+    # reported at its own number, and the Override it should have carried is
+    # reported at the Override's — one mistake, two places it shows.
+    pending_override_line=0
   fi
 done < "$local_file"
 
@@ -489,9 +625,15 @@ if [ -n "$fence_char" ]; then
     'this fenced code block is never closed, so every line after it was ignored'
 fi
 
+report_pending_override
+
 if [ "$errors" -ne 0 ]; then
-  printf '%s: %s unusable local-layer item(s); nothing was installed.\n' \
-    "$local_file" "$errors" >&2
+  # The count of searches goes out on this path too. A refused file has often
+  # had some of its items checked — a Dead-words line that parses is searched
+  # whether or not another line of the file is unusable — and saying so keeps
+  # the refusal honest about how far it got.
+  printf '%s: %s unusable local-layer item(s); nothing was installed. %s dead-words item(s) checked before the refusal.\n' \
+    "$local_file" "$errors" "$checked" >&2
   exit 2
 fi
 

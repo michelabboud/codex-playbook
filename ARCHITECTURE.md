@@ -13,7 +13,8 @@ ${CODEX_HOME:-$HOME/.codex}/AGENTS.md
   critical rules 0.1–0.4 · mandatory trigger router
 
 ${CODEX_HOME:-$HOME/.codex}/playbook-local.md
-  the user's local layer · never shipped, never written by either script
+  the user's local layer · never shipped, never written by either script;
+  read in source preflight, only to check it
 
 $HOME/.agents/skills/
   codex-playbook-code/              rules 1.1–1.6
@@ -117,11 +118,14 @@ rule or approval boundary.
 
 One file in the Codex home is not a managed destination:
 `playbook-local.md`. The playbook never ships it; `scripts/install.sh` and
-`scripts/restore.sh` never create, write over, move, copy, or delete it. That is
-the whole of the mechanism, and it is deliberately a mechanism of *omission* —
-the alternative, teaching the installer to carry a user file across a
-whole-folder swap, would be new write logic in the repository's risk-class file
-for no gain over a file it simply never touches.
+`scripts/restore.sh` never create, write to, copy over, move, or delete it. They
+do **read** it: `install.sh` passes it to `scripts/check-local.sh` in source
+preflight, which is the whole point of the check, so the claim is about writing
+and about shipping, never about contact. That is the whole of the mechanism, and
+it is deliberately a mechanism of *omission* — the alternative, teaching the
+installer to carry a user file across a whole-folder swap, would be new write
+logic in the repository's risk-class file for no gain over a file it never
+writes to.
 
 It sits beside `AGENTS.md` rather than inside a skill folder because the
 installer swaps each skill folder whole; anything written inside one moves into

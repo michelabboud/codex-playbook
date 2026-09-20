@@ -21,9 +21,10 @@ replaced.
 
 One path in that directory is **not** a destination:
 `${CODEX_HOME:-$HOME/.codex}/playbook-local.md`, the local layer, belongs to
-you. Neither `scripts/install.sh` nor `scripts/restore.sh` creates, writes over,
-moves, copies, or deletes it. Installation reads it once, during source
-preflight, and touches it nowhere else.
+you. The playbook never ships it, and neither `scripts/install.sh` nor
+`scripts/restore.sh` creates, writes to, copies over, moves, or deletes it.
+Installation reads it once, during source preflight, to check it, and has no
+other contact with it at all.
 
 `CODEX_HOME` controls Codex configuration and the global `AGENTS.md`. It does
 not relocate user-scoped `$HOME/.agents/skills`. It must be an absolute,
@@ -71,7 +72,7 @@ and retire them without losing their previous contents.
 3. Review Michel's Git identity in the workflow skill. If this is becoming your
    own playbook, do not edit it into the installed skill — the next update
    replaces that file whole. Write it as a **Fill** in your local layer, which
-   the installer never touches. See "Make it yours: the local layer" below.
+   the installer never writes to. See "Make it yours: the local layer" below.
 
 A non-empty global `AGENTS.override.md` takes precedence over `AGENTS.md` in
 Codex's discovery chain. The installer refuses that shadowed state rather than
@@ -92,10 +93,11 @@ The installer executes this order:
 2. Run `scripts/check-local.sh` against the local layer and **the text this run
    would install** — before `umask`, before any directory is created, before any
    backup. A stale override, an unparsable `**Dead words:**` line, a bare marker
-   that is not at the start of its line, or a named file that is missing or
-   escapes its root refuses the installation, naming the entry's `file:line` and
-   the words. There is no flag to install past it: the fix is to re-read the
-   rule and rewrite the entry.
+   that is not at the start of its line, an `**Override**` with no valid
+   Dead-words line, a named file that is missing, carries a glob character, or
+   escapes its root, or a local file that exists and cannot be read refuses the
+   installation, naming the entry's `file:line` and the words. There is no flag
+   to install past it: the fix is to re-read the rule and rewrite the entry.
 3. Refuse an unsafe or shadowing global `AGENTS.override.md`, a different
    existing global `AGENTS.md` unless `--replace-agents` was given, and any
    managed destination that is not a plain directory.
@@ -137,8 +139,11 @@ in the local layer instead — see the next section — and then a plain
 
 ## Make it yours: the local layer
 
-Your customizations live in one file the playbook never ships and the scripts
-never touch: `${CODEX_HOME:-$HOME/.codex}/playbook-local.md`. `AGENTS.md`
+Your customizations live in one file the playbook never ships and no script
+writes to: `${CODEX_HOME:-$HOME/.codex}/playbook-local.md`. Installation reads
+it, once, during source preflight, to check your Overrides against the text it is
+about to install — that is the only contact either script has with it, and it
+never creates, writes to, copies over, moves, or deletes it. `AGENTS.md`
 gives it its force in the paragraph headed "The local layer": read it at the
 start of a session when it exists, and where an entry there changes a rule, the
 entry wins over the playbook's wording. An absent file means nothing is
@@ -149,9 +154,19 @@ script:
 
 ```bash
 codex_home=${CODEX_HOME:-"$HOME/.codex"}
-test ! -e "$codex_home/playbook-local.md" &&
+if [ -e "$codex_home/playbook-local.md" ] ||
+   [ -L "$codex_home/playbook-local.md" ]; then
+  printf 'A local layer already exists; leaving it alone.\n'
+else
   cp templates/playbook-local.md "$codex_home/playbook-local.md"
+fi
 ```
+
+That guard is not decoration. The template is documentation and the local file
+is yours: **no command in this guide ever copies over an existing local layer**,
+and the one `cp` here is the only copy toward that path in the whole procedure.
+If a local layer is already there, keep it and take what you want out of the
+template by hand.
 
 The template ships with **no entry in force**: every worked example in it sits
 inside a fenced code block, which the checker ignores, so the copy you have
@@ -179,8 +194,12 @@ Check it at any time against a checkout, without installing anything:
 
 Exit 0 is fresh, 1 is stale with every finding reported as `file:line`, and 2 is
 a usage error, an unparsable line, a bare marker that is not at the start of its
-line, a line longer than 4,096 bytes, an unclosed fenced code block, or a named
-file that is missing or escapes its root.
+line, an **Override** with no valid `**Dead words:**` line before the next entry
+or heading, a line longer than 4,096 bytes, an unclosed fenced code block, a
+named file that carries a glob character (`*`, `?`, `[`) or is missing or escapes
+its root, or a local file that exists and cannot be read as a regular file —
+including one inside a directory nobody may search, which is never reported as an
+absent file.
 
 ## Verify the installed copy
 
@@ -218,6 +237,12 @@ directory. Before changing a destination it creates and verifies a separate
 `codex-playbook-prerestore-*` checkpoint of the current state. It stages the
 desired state, applies it transactionally, and reinstates the pre-restore state
 if staging, swapping, verification, or interruption fails.
+
+**Restore does not touch your local layer either.** A checkpoint never contains
+`playbook-local.md`, so there is nothing for a restore to put back over it: it
+stays exactly as you left it, whatever state the managed files are rolled to.
+There is no uninstall command in this playbook; removing it means deleting the
+managed destinations yourself, and the local file is not one of them.
 
 Format-2 checkpoints carry their own managed inventory. Format-1 checkpoints
 from Codex Playbook v0.1.0 remain supported: restoring one reinstates its three
@@ -264,19 +289,31 @@ An installation tailored before the local layer existed carries its changes
 inside `AGENTS.md` or inside a skill, where the next update overwrites them.
 Migrate once, before that update:
 
-1. Find the differences. Compare each installed file with the checkout of the
-   version that installation records — the `This rulebook is version` line in
-   the installed `AGENTS.md` says which one:
+1. Find the differences. Compare each installed file against **the version that
+   installation actually records** — the `This rulebook is version` line in the
+   installed `AGENTS.md` says which one. Diffing against the current checkout
+   instead mixes two things together: what the owner tailored, and everything the
+   playbook itself changed since. Check that version out beside this one, into a
+   scratch worktree that leaves your own checkout alone:
 
    ```bash
    codex_home=${CODEX_HOME:-"$HOME/.codex"}
-   diff -u AGENTS.md "$codex_home/AGENTS.md" || true
+   installed_version=$(sed -n 's/^\*\*This rulebook is version \([^*]*\)\*\*.*/\1/p' \
+     "$codex_home/AGENTS.md")
+   was=$(mktemp -d)
+   git worktree add --detach "$was" "v$installed_version"
+   diff -u "$was/AGENTS.md" "$codex_home/AGENTS.md" || true
    while IFS= read -r skill_name
    do
-     diff -ur ".agents/skills/$skill_name" \
+     diff -ur "$was/.agents/skills/$skill_name" \
        "$HOME/.agents/skills/$skill_name" || true
-   done < config/managed-skills.txt
+   done < "$was/config/managed-skills.txt"
+   git worktree remove --force "$was"
    ```
+
+   If that version was never released there is no `v` tag for it; use its
+   `checkpoint/<VERSION>` tag instead. Everything the diff shows is then the
+   owner's own work, and only the owner's.
 
 2. Turn each difference into an entry in `playbook-local.md`. Most are a
    **Fill** — a path, an address, a name bound to what you actually have — or an
@@ -288,7 +325,8 @@ Migrate once, before that update:
 4. Run the check. Exit 0 means every Override still bites on the text you wrote
    it against.
 5. Install with `--replace-agents`. The managed files go back to the published
-   text; your entries stay in a file the installer never opened.
+   text; your entries stay in the local file, which the installer read once to
+   check them and never wrote to.
 
 ## Windows
 

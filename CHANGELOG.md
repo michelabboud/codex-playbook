@@ -6,11 +6,11 @@ All notable changes are recorded here. Dates are absolute.
 
 ### Added
 
-- **The local layer: customizations live in one file the playbook never
-  touches** — `${CODEX_HOME:-$HOME/.codex}/playbook-local.md`. It is never
-  shipped, and `scripts/install.sh` and `scripts/restore.sh` never create, write
-  over, move, copy, or delete it. Installation reads it once, in source
-  preflight, and touches it nowhere else. Decision:
+- **The local layer: customizations live in one file the playbook never ships
+  and no script writes to** — `${CODEX_HOME:-$HOME/.codex}/playbook-local.md`.
+  `scripts/install.sh` and `scripts/restore.sh` never create, write to, copy
+  over, move, or delete it. Installation does **read** it, once, in source
+  preflight, to check it, and has no other contact with it at all. Decision:
   `docs/adr/0005-the-local-layer.md`; source, `claude-code-playbook` ADR 0004.
 - **`AGENTS.md` gives it its force**, in a paragraph headed "The local layer":
   read the file at the start of a session when it exists, and where an entry
@@ -28,10 +28,13 @@ All notable changes are recorded here. Dates are absolute.
   string. Exit 0 fresh, or no local file; exit 1 stale, each finding reported as
   `file:line` with the words and where they were sought; exit 2 for a usage
   error, an unparsable line, a bare marker that is not at the start of its line,
-  a line longer than 4,096 bytes, a fenced code block left open at the end of
-  the file, or a named file that does not exist, is not a regular file, or
-  escapes its two roots through an absolute path, a `..` component, or a
-  symbolic link.
+  an **Override** entry with no valid Dead-words line before the next entry line,
+  the next heading, or the end of the file, a line longer than 4,096 bytes, a
+  fenced code block left open at the end of the file, a named file that carries a
+  glob character, does not exist, is not a regular file, or escapes its two roots
+  through an absolute path, a `..` component, or a symbolic link, or a local file
+  that exists and cannot be read as a regular file — including one behind a
+  directory nobody may search, which is never reported as an absent file.
 - **The installer runs that check in source preflight** — before `umask`, before
   any directory is created, before any backup — against the text the run would
   install, not the text already installed. Non-zero refuses the installation and
@@ -43,15 +46,21 @@ All notable changes are recorded here. Dates are absolute.
   the installer never copies it. **It ships with no entry in force:** every
   example sits inside a fenced code block, which the check ignores, so the
   reader who copies the file whole is bound by nothing. `tests/rulebook_test.sh`
-  requires the template to check zero items as shipped and to carry no
-  Dead-words line outside a fence.
-- **`tests/check_local_test.sh`** — 134 assertions covering fresh, stale, one
+  requires the template to check zero items as shipped and to carry **no entry
+  line at all** outside a fence — not merely no Dead-words line: a line that
+  begins, after any indentation and an optional bullet, with `**Fill`, `**Add` or
+  `**Override` is an entry, so the template writes *about* the three kinds in
+  another shape.
+- **`tests/check_local_test.sh`** — 193 assertions covering fresh, stale, one
   file of two gone, unparsable lines, a missing named file, each path escape,
-  words beginning with a dash, regex metacharacters searched literally, CRLF
+  words beginning with a dash, regex metacharacters searched literally, a quoted
+  phrase containing the item separator, a backslash inside the quoted words, CRLF
   line endings, an unterminated last line, the usage errors, the bare marker in
-  every shape a person writes it, fenced code blocks including a tilde fence, a
-  longer fence and one left open, the line-length bound, and all 44 shared
-  conformance vectors.
+  every shape a person writes it — including after the last code span of a line —
+  an Override without its Dead-words line in each of six shapes, a glob character
+  in a named file, a named file that cannot be searched, a local file that cannot
+  be read, fenced code blocks including a tilde fence, a longer fence and one
+  left open, the line-length bound, and all 47 shared conformance vectors.
 - **`tests/fixtures/dead-words-vectors.tsv`** — 47 conformance vectors for the
   Dead-words grammar, carried byte-identical by both editions and run by both.
   The test pins the file's SHA-256, so an edit on either side is a failing test
@@ -67,6 +76,14 @@ All notable changes are recorded here. Dates are absolute.
   the changelog for overridden rules whose meaning moved without their quoted
   sentence moving, and carries the migration for tailoring still living inside a
   managed file.
+- `INSTALL.md`'s migration step now diffs the installed files against **the
+  version the installation records**, checked out beside this one in a scratch
+  worktree, instead of against the current checkout — which mixed the owner's
+  tailoring together with everything the playbook itself changed since. Its
+  template copy is guarded explicitly and says in so many words that no command
+  in the guide ever copies over an existing local layer, and the restore section
+  now states that a checkpoint never contains the local file, so nothing can be
+  rolled back over it.
 - `INSTALL.md` gains "Make it yours: the local layer", a rewritten update
   procedure that checks before it installs, and a migration section. `README.md`
   gains "Make it yours"; `ARCHITECTURE.md` gains the local-layer boundary and
@@ -74,6 +91,55 @@ All notable changes are recorded here. Dates are absolute.
   invalidate an installed user's Override, which is the check working.
 
 ### Fixed
+
+The five entries below come from the mechanical review of the sibling edition's
+local layer, whose findings applied here too. They were ruled for both editions
+before publication, so 0.1.6 ships with them rather than fixing them later.
+
+- **An Override with no Dead-words line exited 0, having checked nothing** — so
+  every way of mistyping the marker (`**dead words:**` in lower case,
+  `**Dead words**:` with the colon outside the bold, a bare `Dead words:`) read as
+  ordinary prose and the override installed unchecked. An Override entry with no
+  valid Dead-words line before the next entry line, the next heading, or the end
+  of the file is now exit 2, reported at the Override's own `file:line`. An entry
+  line is one that begins, after any indentation and an optional `- ` or `* `
+  bullet, with `**Fill`, `**Add` or `**Override`; a Fill and an Add owe no such
+  line, a Dead-words line that stands alone is still parsed and searched, and an
+  Override inside a fenced code block owes nothing because it is not an entry.
+  The same ruling found three live entry lines in this repository's own template,
+  which described the three kinds *in the shape of* an entry; they are reworded
+  and the template test now refuses any unfenced entry line.
+- **A local layer that could not be read was reported as no local layer at all.**
+  POSIX `test` cannot tell "the file is not there" from "I cannot look": `[ ! -e
+  FILE ]` is false for both. A local file inside a directory nobody may search
+  therefore passed as "nothing is customized", exit 0, with the user's overrides
+  entirely unchecked. Absence is now **proved** rather than assumed — every
+  directory above the file is walked from the top, and one that exists and cannot
+  be searched is exit 2, as is an ancestor that is not a directory. An unreadable
+  regular file and a dangling symbolic link were already refused; a symbolic link
+  to a readable regular file is still read, for the dotfile managers.
+- **A file name may not contain a glob character.** `*`, `?` and `[` in a named
+  file are now exit 2 in their own right. Before, such a name was refused only
+  because no file of that literal name happened to exist — an accident of the
+  filesystem rather than a rule, and a file whose real name carried a star was
+  reachable through the grammar. The script also runs under `set -f`, so no future
+  edit can expand a name against the current directory whatever quoting it
+  forgets.
+- **The claim that the playbook `never opens` the local file was untrue, and it
+  was written into law.** `scripts/check-local.sh` reads it; reading it is the entire point of the
+  check. `AGENTS.md`, `README.md`, `ARCHITECTURE.md`, `INSTALL.md`,
+  `CONTRIBUTING.md`, `PROGRESS.md`, the template, `codex-playbook-self-update` and
+  the landing page now say what is true: the playbook never *ships* it, and
+  installation and restore never create, write to, copy over, move or delete it —
+  installation reads it once, to check it, and that is the only way it touches it.
+  A sweep in `tests/rulebook_test.sh` fails on the untrue phrasing anywhere the
+  public reads, and the `AGENTS.md` wording test pins the true sentences.
+- **Five ways the check could fail open now each have an assertion**, written
+  against the mutation that exposed it and proven to die on it: an unterminated
+  last line that is never read; quoted words truncated at the first ` · ` and
+  found as a prefix; a bare marker hidden after the last code span of a line;
+  `read` without `-r` eating a backslash inside the quoted words; and a search
+  that could not run (`grep` exiting 2 or more) reported as a match.
 
 - **A `**Dead words:**` marker that was not at the start of its line was
   skipped in silence** — so an entry written in the natural Markdown shape, on

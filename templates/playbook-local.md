@@ -1,12 +1,14 @@
 # LOCAL — my local layer
 
 *Copy this file to `${CODEX_HOME:-$HOME/.codex}/playbook-local.md` and make it
-yours. The playbook never ships it, and neither `scripts/install.sh` nor
-`scripts/restore.sh` creates, writes over, moves, or deletes it — so an update
-cannot lose what you write here. Nothing in this file is in force as it
-stands: every example sits inside a fenced code block, which the checker
-ignores and which binds nobody. An empty file and an absent file both mean
-nothing is customized.*
+yours. The playbook never ships that file, and neither `scripts/install.sh` nor
+`scripts/restore.sh` creates, writes to, copies over, moves, or deletes it — so
+an update cannot lose what you write here. The installer does **read** it, once,
+during source preflight, to check your Overrides against the text it is about to
+install; that is the only way it ever touches it. Nothing in this file is in
+force as it stands: every example sits inside a fenced code block, which the
+checker ignores and which binds nobody. An empty file and an absent file both
+mean nothing is customized.*
 
 *Force: `AGENTS.md`, "The local layer" — where an entry here changes a rule, the
 entry wins over the playbook's wording. It never adds authority the approval
@@ -18,13 +20,19 @@ table does not have, except by adding a row in so many words.*
 
 ## The three kinds of entry
 
-- **Fill** — supplies a value a rule leaves open, or binds one of its generic
+- A **Fill** supplies a value a rule leaves open, or binds one of its generic
   terms to the thing you actually have. It contradicts nothing.
-- **Add** — a rule or note the playbook does not have. Its own sections are
+- An **Add** is a rule or note the playbook does not have. Its own sections are
   numbered `L1`, `L2`, and onward, numbers the playbook never uses.
-- **Override** — changes what a named rule says. It names the rule, says what is
+- An **Override** changes what a named rule says. It names the rule, says what is
   different in whole sentences, and quotes, on a `**Dead words:**` line, the
   playbook's exact words that no longer apply, each with the file they are in.
+
+*These three bullets describe the kinds; they are deliberately not written in the
+shape of an entry. An entry line is one that begins — after any indentation and
+an optional `- ` or `* ` bullet — with `**Fill`, `**Add` or `**Override`, and an
+Override written that way owes a Dead-words line. Writing about the kinds in that
+shape would make this page carry live entries, which a template never does.*
 
 `scripts/check-local.sh` reads every `**Dead words:**` line and searches the
 named file for each quoted phrase as a fixed string. Found: the override still
@@ -56,6 +64,14 @@ never an entry that is quietly skipped. Prose about the marker puts it inside a
 code span, the way this page does throughout. Lines inside a fenced code block
 are ignored entirely, which is why the worked examples below are inert; a fence
 left open at the end of the file is an error.
+
+**And an Override may not go without one.** An Override entry with no valid
+Dead-words line before the next entry line, the next heading, or the end of the
+file is an error too. That is what makes a mistyped marker — lower case, the
+colon outside the bold, the bold left off — a refusal rather than a silent pass:
+were it only prose, the Override would install with nothing checked. A Fill and
+an Add owe no such line, and a Dead-words line that stands alone is still read
+and searched.
 
 It is the same grammar, byte for byte, as the Claude edition's local layer, so
 one entry can be carried between the two editions unchanged.

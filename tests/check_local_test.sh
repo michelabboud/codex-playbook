@@ -83,6 +83,8 @@ make_case() {
 This rulebook is version 9.9.9 — source example.
 Mechanical review runs on the Standard tier, never the Fast tier.
 A literal dot-star .* and a bracket [a-z] live here as text.
+A heading like ### 11 · Your platform carries the separator itself.
+A backslash \d sequence lives here, as the rulebook's own text does.
 EOF
   cat > "$skills_root/codex-playbook-reviews/SKILL.md" <<'EOF'
 # 3 · Code reviews
@@ -554,6 +556,8 @@ run_local_file_not_regular_test() {
 
   run_check "$local_file" "$agents_root" "$skills_root"
   assert_status 2 'a local path that is not a regular file is an error'
+  assert_output_contains 'is not a regular file' \
+    'a local path that is a directory says it is not a regular file'
 }
 
 run_dangling_local_symlink_test() {
@@ -562,6 +566,338 @@ run_dangling_local_symlink_test() {
 
   run_check "$local_file" "$agents_root" "$skills_root"
   assert_status 2 'a dangling local-file symlink is an error, not an absent file'
+}
+
+run_unreadable_local_file_test() {
+  if [ "$(id -u)" = 0 ]; then
+    pass 'an unreadable local file is an error (skipped: running as root, which can read anything)'
+    return 0
+  fi
+
+  make_case unreadable-local-file
+  cat > "$local_file" <<'EOF'
+  **Dead words:** `a sentence the playbook no longer carries` (in `AGENTS.md`)
+EOF
+  chmod 000 "$local_file"
+
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'a local file that exists and cannot be read is an error, never an absent file'
+  assert_output_contains 'cannot be read' \
+    'the unreadable-local-file error says the file could not be read'
+  assert_output_lacks 'nothing is customized' \
+    'an unreadable local file is never reported as nothing being customized'
+  chmod 644 "$local_file"
+}
+
+# The fail-open the sibling edition's mechanical review found: POSIX test cannot
+# tell "the file is not there" from "I cannot look", because [ ! -e FILE ] is
+# false for both. A local layer inside a directory nobody may search used to be
+# reported as no local layer at all.
+run_unsearchable_ancestor_test() {
+  if [ "$(id -u)" = 0 ]; then
+    pass 'a local file behind an unsearchable directory is an error (skipped: running as root, which may search anything)'
+    return 0
+  fi
+
+  make_case unsearchable-ancestor
+  mkdir -p "$case_root/closed"
+  cat > "$case_root/closed/playbook-local.md" <<'EOF'
+  **Dead words:** `a sentence the playbook no longer carries` (in `AGENTS.md`)
+EOF
+  chmod 000 "$case_root/closed"
+
+  run_check "$case_root/closed/playbook-local.md" "$agents_root" "$skills_root"
+  chmod 755 "$case_root/closed"
+  assert_status 2 'a local file inside a directory that cannot be searched is an error, not an absent file'
+  assert_output_contains 'cannot be searched' \
+    'the unsearchable-ancestor error says the directory could not be searched'
+  assert_output_lacks 'nothing is customized' \
+    'an unsearchable ancestor is never reported as nothing being customized'
+}
+
+run_absent_local_file_behind_searchable_parent_test() {
+  make_case absent-behind-searchable-parent
+  mkdir -p "$case_root/open"
+
+  run_check "$case_root/open/playbook-local.md" "$agents_root" "$skills_root"
+  assert_status 0 'a genuinely absent local file inside a searchable directory is still not an error'
+  assert_output_contains 'nothing is customized' \
+    'a genuinely absent local file still says nothing is customized'
+
+  run_check "$case_root/never-made/playbook-local.md" "$agents_root" "$skills_root"
+  assert_status 0 'an absent local file whose whole directory is absent is still not an error'
+}
+
+run_symlinked_local_file_test() {
+  make_case symlinked-local-file
+  cat > "$case_root/real-local.md" <<'EOF'
+  **Dead words:** `Standard tier` (in `AGENTS.md`)
+EOF
+  ln -s "$case_root/real-local.md" "$local_file"
+
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 0 'a symbolic link to a readable regular file is read, for the dotfile managers'
+  assert_output_contains ': 1 dead-words item(s) checked' \
+    'the symlinked local file was parsed and its file searched'
+}
+
+# An Override with no Dead-words line used to exit 0 having searched nothing, so
+# every mistyped marker — **dead words:**, **Dead words**:, Dead words: — was a
+# silent pass. The Override's window closes at the next entry line, the next
+# heading, or the end of the file.
+run_override_owes_dead_words_tests() {
+  make_case override-owes-dead-words
+
+  cat > "$local_file" <<'EOF'
+# LOCAL
+
+- **Override — mechanical review.** Whatever I want instead.
+  **Dead words:** `Standard tier` (in `AGENTS.md`)
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 0 'case 1: an Override followed by a valid Dead-words line parses normally'
+  assert_output_contains ': 1 dead-words item(s) checked' \
+    'case 1: the Override was satisfied and its words searched'
+
+  cat > "$local_file" <<'EOF'
+# LOCAL
+
+- **Override — mechanical review.** Whatever I want instead.
+  **dead words:** `Standard tier` (in `AGENTS.md`)
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'case 2: an Override whose marker is mistyped in lower case is an error'
+  assert_output_contains "$local_file:3:" \
+    'case 2: the unsatisfied Override is reported at its own line, not the mistyped one'
+  assert_output_contains 'carries no valid' \
+    'case 2: the error says the Override carries no valid Dead-words line'
+  assert_output_lacks 'every override still matches' \
+    'case 2: a mistyped marker never reports that every override matches'
+
+  cat > "$local_file" <<'EOF'
+# LOCAL
+
+- **Override — mechanical review.** Whatever I want instead.
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'case 3: an Override with nothing after it at all is an error'
+  assert_output_contains "$local_file:3:" \
+    'case 3: the Override at the end of the file is reported at its own line'
+
+  cat > "$local_file" <<'EOF'
+- **Override — mechanical review.** Whatever I want instead.
+
+## A later section
+
+  **Dead words:** `Standard tier` (in `AGENTS.md`)
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'case 4: a heading closes the Override window, so the later Dead-words line belongs to nothing'
+  assert_output_contains "$local_file:1:" \
+    'case 4: the Override before the heading is reported at its own line'
+  assert_output_contains '1 dead-words item(s) checked' \
+    'case 4: a Dead-words line with no Override before it is still parsed and searched'
+
+  cat > "$local_file" <<'EOF'
+- **Override — mechanical review.** Whatever I want instead.
+- **Fill — something else.** A value of my own.
+  **Dead words:** `Standard tier` (in `AGENTS.md`)
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'case 5: the next entry line closes the Override window'
+  assert_output_contains "$local_file:1:" \
+    'case 5: the Override whose window a Fill closed is reported at its own line'
+
+  cat > "$local_file" <<'EOF'
+# LOCAL
+
+```markdown
+- **Override — shown, never in force.** Whatever I want instead.
+```
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 0 'case 6: an Override inside a fenced code block owes nothing, because it is not an entry'
+  assert_output_contains ': 0 dead-words item(s) checked' \
+    'case 6: the fenced Override is shown, never checked'
+
+  cat > "$local_file" <<'EOF'
+- **Override — mechanical review.** Whatever I want instead.
+  **Dead words:** `Standard tier` (in `AGENTS.md`)
+- **Override — the version line.** Whatever I want instead.
+  **Dead words:** `This rulebook is version` (in `AGENTS.md`)
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 0 'two Overrides each carrying its own Dead-words line are both fine'
+  assert_output_contains ': 2 dead-words item(s) checked' \
+    'both Overrides were satisfied and both sets of words searched'
+
+  cat > "$local_file" <<'EOF'
+# LOCAL
+
+- **Fill — whose rules these are.** Mine.
+- **Add — a rule the playbook lacks.** This one.
+
+## L1 · My own additions
+
+* **Fill — a starred bullet is a bullet too.** A value.
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 0 'a Fill or an Add owes no Dead-words line'
+  assert_output_contains ': 0 dead-words item(s) checked' \
+    'a file of Fills and Adds checks nothing and is still fresh'
+
+  cat > "$local_file" <<'EOF'
+**Override — an Override needs no bullet to be an entry.** Whatever I want.
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'an Override with no list bullet is an entry line too'
+
+  cat > "$local_file" <<'EOF'
+* **Override — a starred bullet is a bullet too.** Whatever I want.
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'an Override behind a star bullet is an entry line too'
+
+  cat > "$local_file" <<'EOF'
+Prose that names an **Override** in the middle of a sentence is prose, and owes
+nothing at all.
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 0 'the word Override in the middle of a line is not an entry'
+}
+
+# The quoted words are one string, taken verbatim between their backticks. An
+# implementation that split them on " · " would search a prefix of what the
+# entry actually quoted — and a prefix is found far more often than the whole,
+# so the check would pass while the sentence it guards had been rewritten.
+run_separator_inside_words_tests() {
+  make_case separator-inside-words
+
+  cat > "$local_file" <<'EOF'
+  **Dead words:** `### 11 · Your platform carries the separator` (in `AGENTS.md`)
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 0 'a quoted phrase containing the item separator is searched whole and found whole'
+  assert_output_contains ': 1 dead-words item(s) checked' \
+    'the phrase containing the separator is one item, not two'
+
+  # The part before the separator is present; the part after it is not. Only an
+  # implementation that searches the whole phrase calls this stale.
+  cat > "$local_file" <<'EOF'
+  **Dead words:** `Standard tier · a phrase that is gone` (in `AGENTS.md`)
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 1 'a phrase whose part after the separator is gone is stale, though its prefix is still there'
+  assert_output_contains 'Standard tier · a phrase that is gone' \
+    'the stale report quotes the whole phrase back, separator included'
+}
+
+# A backslash in the quoted words is part of the words. Reading the local file
+# without read -r would consume it, and the search would then look for a phrase
+# the entry never wrote.
+run_backslash_in_words_test() {
+  make_case backslash-in-words
+  cat > "$local_file" <<'EOF'
+  **Dead words:** `backslash \d sequence` (in `AGENTS.md`)
+EOF
+
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 0 'a backslash inside the quoted words survives into the search'
+  assert_output_contains ': 1 dead-words item(s) checked' \
+    'the phrase carrying a backslash was searched, not mangled'
+}
+
+# The bare marker after a complete code span on the same line still counts: the
+# line is prose with an entry buried in it, and burying one is the failure the
+# fail-closed rule exists to catch. Neither line below is an entry line, so the
+# refusal can only come from the marker check.
+run_marker_after_code_span_test() {
+  make_case marker-after-code-span
+
+  # After the LAST code span of the line. This is the case that needs the text
+  # trailing the final span to be looked at: a scanner that only examined the
+  # text between spans would find nothing here and pass the line as prose.
+  cat > "$local_file" <<'EOF'
+Prose about `a code span` and then **Dead words:** with no code span after it.
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'a bare marker after the last code span of a line is still an error'
+  assert_output_contains 'is not at the start of this line' \
+    'the marker trailing a code span is reported as a misplaced marker'
+  assert_output_lacks 'no "Dead words:" entries' \
+    'a line whose marker trails a code span is never reported as a file with no entries'
+
+  # And between two of them, which the scan reaches by another path.
+  cat > "$local_file" <<'EOF'
+Prose about `a code span` and then **Dead words:** `Standard tier` (in `AGENTS.md`)
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'a bare marker between two code spans is an error'
+  assert_output_contains 'is not at the start of this line' \
+    'the marker between code spans is reported as a misplaced marker'
+}
+
+# grep says 0 for found, 1 for not found, and 2 or more for "I could not look".
+# Reading the third as the second would report a searchable-but-unreadable
+# playbook file as a fresh override.
+run_unsearchable_named_file_test() {
+  if [ "$(id -u)" = 0 ]; then
+    pass 'a named file that cannot be searched is an error (skipped: running as root, which can read anything)'
+    return 0
+  fi
+
+  make_case unsearchable-named-file
+  cat > "$local_file" <<'EOF'
+  **Dead words:** `Standard tier` (in `codex-playbook-reviews/SKILL.md`)
+EOF
+  chmod 000 "$skills_root/codex-playbook-reviews/SKILL.md"
+
+  run_check "$local_file" "$agents_root" "$skills_root"
+  chmod 644 "$skills_root/codex-playbook-reviews/SKILL.md"
+  assert_status 2 'a named file that exists but cannot be searched is an error, never a match'
+  assert_output_contains 'could not search' \
+    'the failed search says it could not search the file'
+  assert_output_lacks 'every override still matches' \
+    'a search that never happened is never reported as an override that matches'
+}
+
+run_glob_in_named_file_tests() {
+  make_case glob-in-named-file
+
+  cat > "$local_file" <<'EOF'
+  **Dead words:** `Standard tier` (in `codex-playbook-reviews/*.md`)
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'a named file containing * is an error'
+  assert_output_contains 'glob character' \
+    'the glob error says the name carried a glob character'
+
+  cat > "$local_file" <<'EOF'
+  **Dead words:** `Standard tier` (in `codex-playbook-reviews/SKILL.m?`)
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'a named file containing ? is an error'
+  assert_output_contains 'glob character' \
+    'the ? error says the name carried a glob character'
+
+  cat > "$local_file" <<'EOF'
+  **Dead words:** `Standard tier` (in `codex-playbook-reviews/SKILL[.]md`)
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'a named file containing [ is an error'
+  assert_output_contains 'glob character' \
+    'the [ error says the name carried a glob character'
+
+  # The refusal must be the rule, not an accident of what happens to be on
+  # disk: a file whose real name carries a star is still refused.
+  printf 'Standard tier\n' > "$skills_root/codex-playbook-reviews/star*.md"
+  cat > "$local_file" <<'EOF'
+  **Dead words:** `Standard tier` (in `codex-playbook-reviews/star*.md`)
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'a name carrying a glob character is refused even when a file of exactly that name exists'
+  assert_output_contains 'glob character' \
+    'the refusal is the rule about the name, not a report that the file is missing'
 }
 
 # The conformance vectors are shared with claude-code-playbook, byte for byte:
@@ -724,6 +1060,16 @@ run_multiple_stale_items_test
 run_usage_tests
 run_local_file_not_regular_test
 run_dangling_local_symlink_test
+run_unreadable_local_file_test
+run_unsearchable_ancestor_test
+run_absent_local_file_behind_searchable_parent_test
+run_symlinked_local_file_test
+run_override_owes_dead_words_tests
+run_separator_inside_words_tests
+run_backslash_in_words_test
+run_marker_after_code_span_test
+run_unsearchable_named_file_test
+run_glob_in_named_file_tests
 run_shared_vectors_test
 
 printf '\nAll %s local-layer staleness assertions passed.\n' "$passes"

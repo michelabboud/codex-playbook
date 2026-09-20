@@ -506,6 +506,9 @@ do
 done <<'EOF'
 **The local layer:**
 `${CODEX_HOME:-$HOME/.codex}/playbook-local.md`
+The playbook never ships it
+never create, write to, copy over, move, or delete it
+once, to check my Overrides against the text it is about to install
 Read it at the start of a session when it exists
 the entry wins over the playbook's wording
 A **Fill** supplies a value a rule leaves open
@@ -527,6 +530,9 @@ do
   fi
 done <<'EOF'
 Never replace tailored rules without the backup and approval procedure
+never opens
+without opening
+never touches it
 EOF
 if grep -Fq -e "$local_layer_pointer" AGENTS.md; then
   printf 'AGENTS.md carries the per-skill pointer line, which belongs only in a SKILL.md\n' >&2
@@ -568,6 +574,54 @@ else
   fail "$pointer_failures local-layer pointer check(s) failed"
 fi
 
+# "The playbook never opens the local file" was untrue: scripts/check-local.sh
+# reads it, which is the whole point of the check. The honest claim is that the
+# playbook never ships it and no script writes to it, and that the installer
+# reads it only to check it. These phrases are swept out of every file the
+# public reads. History is excluded — an ADR, a review, or a dated report
+# records what was written at the time and is never edited (a superseding
+# record is how that gets corrected).
+# A claim is what the text says in its own voice; a citation is the same words
+# inside a code span or a fenced code block, which is how a changelog entry, a
+# contributing note or a lane report names the wording it is retiring or quotes
+# the output that exposed it. So the phrase is sought only outside both — the same
+# convention the Dead-words grammar itself uses for prose about its marker — while
+# the line's subject may be named anywhere on the line, backticks included,
+# because a path is nearly always written in a code span.
+untrue_contact_claims=$(
+  find . -path './.git' -prune \
+    -o -path './docs/adr' -prune \
+    -o -path './docs/reviews' -prune \
+    -o -path './docs/reports' -prune \
+    -o -path './docs/handoffs' -prune \
+    -o -path './docs/plans' -prune \
+    -o -path './tests/rulebook_test.sh' -prune \
+    -o -type f \( -name '*.md' -o -name '*.html' -o -name '*.sh' \) \
+    -exec awk '
+      FNR == 1 { fenced = 0 }
+      /^[ \t]*(```|~~~)/ { fenced = !fenced; next }
+      fenced { next }
+      {
+        bare = $0
+        gsub(/`[^`]*`/, "", bare)
+        if (bare ~ /never open|without opening/) {
+          print FILENAME ":" FNR ": " $0
+          next
+        }
+        if (bare ~ /never touch/ &&
+            $0 ~ /playbook-local|local layer|local file/) {
+          print FILENAME ":" FNR ": " $0
+        }
+      }
+    ' {} +
+)
+if [ -z "$untrue_contact_claims" ]; then
+  pass 'no public file claims the playbook never opens or never touches the local layer; the scripts do read it, to check it'
+else
+  printf '%s\n' "$untrue_contact_claims" >&2
+  fail 'a public file still claims the playbook never opens or never touches the local layer'
+fi
+
 template_failures=0
 template_check_failed=0
 local_template=templates/playbook-local.md
@@ -595,14 +649,23 @@ else
       "$local_template" "$template_check" >&2
     template_failures=$((template_failures + 1))
   fi
-  unfenced_markers=$(
+  # A template ships no live entry at all, not merely no live Dead-words line.
+  # An entry line is what scripts/check-local.sh calls one: after any
+  # indentation and an optional "- " or "* " bullet, it begins with **Fill,
+  # **Add or **Override. A template that writes *about* the kinds in that shape
+  # would be carrying entries, and an Override among them would refuse the
+  # install — so the shape itself is what this asserts, not just the marker.
+  unfenced_entries=$(
     awk '/^[ \t]*(```|~~~)/ { fenced = !fenced; next } !fenced { print }' \
       "$local_template" |
-      grep -c '^[ \t]*\*\*Dead words:\*\*' || true
+      grep -cE '^[ \t]*(- |\* )?\*\*(Dead words:\*\*|Fill|Add|Override)' || true
   )
-  if [ "$unfenced_markers" -ne 0 ]; then
-    printf '%s carries %s Dead-words line(s) outside a fenced code block\n' \
-      "$local_template" "$unfenced_markers" >&2
+  if [ "$unfenced_entries" -ne 0 ]; then
+    printf '%s carries %s entry line(s) outside a fenced code block; a template ships none\n' \
+      "$local_template" "$unfenced_entries" >&2
+    awk '/^[ \t]*(```|~~~)/ { fenced = !fenced; next } !fenced { print FNR ": " $0 }' \
+      "$local_template" |
+      grep -E ': [ \t]*(- |\* )?\*\*(Dead words:\*\*|Fill|Add|Override)' >&2 || true
     template_failures=$((template_failures + 1))
   fi
 fi

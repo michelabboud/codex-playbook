@@ -100,7 +100,7 @@ upgrade, restore, and Windows guidance is in [`INSTALL.md`](INSTALL.md).
 | Global authority router | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` | Always-loaded partnership, authority, classification, approval, and trigger routing |
 | Sixteen personal skills | `$HOME/.agents/skills/codex-playbook-*/` | Full subject procedures loaded through progressive disclosure |
 | Recovery checkpoint | `${CODEX_HOME:-$HOME/.codex}/backups/` | Verified pre-install state for exact restoration |
-| **Never installed, never touched** | `${CODEX_HOME:-$HOME/.codex}/playbook-local.md` | Your local layer: the one file the scripts only ever read |
+| **Never shipped, never written** | `${CODEX_HOME:-$HOME/.codex}/playbook-local.md` | Your local layer: the one file the scripts only ever read, and only to check it |
 
 The installer does not modify `config.toml`, authentication, sessions, plugins,
 unrelated skills, or any other Codex state. An upgrade from v0.1.x creates a

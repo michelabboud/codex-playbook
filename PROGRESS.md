@@ -10,7 +10,9 @@ the former standalone repository is preserved at
 `nice-michel/codex-playbook-archive`.
 
 **0.1.6 (2026-09-21, held until published):** customizations now live in one local
-file the installer never touches — `${CODEX_HOME:-$HOME/.codex}/playbook-local.md`.
+file the playbook never ships and no script writes to —
+`${CODEX_HOME:-$HOME/.codex}/playbook-local.md`; the installer reads it only to
+check it.
 `AGENTS.md` gives it its force in a paragraph headed "The local layer" and every
 skill's body opens with one pointer line at it, because a skill loads long after
 the session began. `scripts/check-local.sh` reads every `**Dead words:**` entry
@@ -34,7 +36,23 @@ a fenced code block is ignored, a fence left open is an error, a line is bounded
 at 4,096 bytes, and a run that checked nothing says so rather than claiming that
 every override matches. The 47 conformance vectors both editions carry,
 byte-identical, are now run by the suite and the fixture's SHA-256 is pinned.
-The suites now run 55 rulebook checks, 134 local-layer assertions, and
+
+**Then the sibling edition's own mechanical review found five more things that
+applied here too**, and they were ruled for both editions and fixed before
+publication rather than after. An **Override with no Dead-words line** used to
+exit 0 having checked nothing, so every way of mistyping the marker was a silent
+pass; it is now an error reported at the Override's line, and the ruling caught
+three live entry lines in this repository's own template. A **local layer that
+could not be read** used to be reported as no local layer at all, because POSIX
+`test` cannot tell "not there" from "cannot look"; absence is now proved by
+walking the directories above the file. A **glob character in a file name** is now
+refused as a rule rather than by the accident of no such file existing, and the
+script runs under `set -f`. The claim that the playbook `never opens` the local
+file is **replaced everywhere** by what is true — never shipped, never written,
+read once to be checked — and a sweep in the suite fails on the old phrasing.
+And **five ways the check could fail open each gained an assertion**, every one
+written against the mutation that exposed it and proven to die on it. The suites
+now run 56 rulebook checks, 193 local-layer assertions, and
 383 installer lifecycle assertions. **Unverified:** no fresh Codex session has yet
 been observed reading the local file at session start on this client — the
 mechanism is a sentence in `AGENTS.md` plus a pointer per skill, not anything the

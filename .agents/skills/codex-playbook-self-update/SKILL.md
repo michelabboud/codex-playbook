@@ -37,9 +37,10 @@ because this skill exists.
 ## Check the local layer against the new text
 
 The owner's customizations live in `${CODEX_HOME:-$HOME/.codex}/playbook-local.md`,
-which the playbook never ships and no script creates, writes over, moves, or
-deletes. An absent file means nothing is customized; there is nothing to check
-and nothing to migrate.
+which the playbook never ships and no script creates, writes to, copies over,
+moves, or deletes. The check below does read it — that is the one contact any
+part of this playbook has with it. An absent file means nothing is customized;
+there is nothing to check and nothing to migrate.
 
 When it exists, run the new checkout's own check against it **before proposing
 the replacement**, so the owner learns about a stale entry while it is still a
@@ -55,8 +56,11 @@ that are gone: report them and let the owner rewrite the entry against the new
 rule. Never delete or edit quoted words to silence the check — that is the
 override losing its meaning silently, which is the failure this check exists to
 prevent. Exit 2 is an unparsable line, a `**Dead words:**` marker that is not at
-the start of its line, a line longer than 4,096 bytes, an unclosed fenced code
-block, or a named file that is missing or escapes its root; report it the same
+the start of its line, an `**Override**` entry with no valid Dead-words line
+before the next entry or heading, a line longer than 4,096 bytes, an unclosed
+fenced code block, a named file that carries a glob character or is missing or
+escapes its root, or a local file that exists and cannot be read as a regular
+file — including one behind a directory nobody may search; report it the same
 way. The check fails closed on purpose: it refuses rather than skipping, so no
 entry is ever passed over in silence.
 
