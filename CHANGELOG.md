@@ -52,7 +52,7 @@ All notable changes are recorded here. Dates are absolute.
   every shape a person writes it, fenced code blocks including a tilde fence, a
   longer fence and one left open, the line-length bound, and all 44 shared
   conformance vectors.
-- **`tests/fixtures/dead-words-vectors.tsv`** — 44 conformance vectors for the
+- **`tests/fixtures/dead-words-vectors.tsv`** — 47 conformance vectors for the
   Dead-words grammar, carried byte-identical by both editions and run by both.
   The test pins the file's SHA-256, so an edit on either side is a failing test
   rather than a quiet divergence.

@@ -18,7 +18,7 @@ never touches. The source text is `claude-code-playbook` commit
 `e5c4f855f54938a2d7b636dc5ae648d17e2bff21` — ADR 0004, *Customizations live in a
 local layer the playbook never touches*, with its decision 5 completed before
 publication: the Dead-words grammar is read as code spans rather than split on
-the separator, the check fails closed, and the 44 conformance vectors of
+the separator, the check fails closed, and the 47 conformance vectors of
 `tests/fixtures/dead-words-vectors.tsv` are carried by both editions,
 byte-identical, and run by each edition's own tests. It supersedes
 `267057ae88876d746cba956bda48bf37bd69acb9`, which this matrix cited before the

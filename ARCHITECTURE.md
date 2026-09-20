@@ -148,7 +148,7 @@ reported as matching. Prose that names the marker puts it inside a code span,
 and lines inside a fenced code block are ignored entirely — which is how the
 template can show the grammar without the example binding its reader. The
 grammar itself is shared with the Claude edition: both repositories carry
-`tests/fixtures/dead-words-vectors.tsv`, byte for byte, and each runs all 44 of
+`tests/fixtures/dead-words-vectors.tsv`, byte for byte, and each runs all 47 of
 its vectors against its own implementation.
 
 Its limit is stated rather than hidden: it catches a *rewritten* sentence, not a

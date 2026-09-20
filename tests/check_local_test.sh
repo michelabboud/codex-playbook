@@ -570,8 +570,8 @@ run_dangling_local_symlink_test() {
 # divergence. A vector that looks wrong is a conversation with the other
 # edition, never an edit to this fixture.
 vectors_file="$repo_root/tests/fixtures/dead-words-vectors.tsv"
-vectors_sha=9e3522e66e36ff328e36310d98839bb075020fdd0438da698165a5a105a4a345
-vectors_expected_count=44
+vectors_sha=644a4eb1215d06e7486f4b1b256098109d51b428c3130357c56d688e1c8d5765
+vectors_expected_count=47
 tab=$(printf '\t')
 
 sha256_of() {

@@ -16,6 +16,8 @@ ok 2	**Dead words:** `first item` (in `@F1@`) · `second item` (in `@F2@`)
 ok 2	**Dead words:** `one item, two files` (in `@F1@` and `@F2@`)
 ok 2	**Dead words:** `one item, two files, comma` (in `@F1@`, `@F2@`)
 ok 3	**Dead words:** `two items` (in `@F1@` and `@F2@`) · `three searches` (in `@F1@`)
+ok 3	**Dead words:** `three files, plain and` (in `@F1@`, `@F2@` and `@F1@`)
+ok 3	**Dead words:** `three files, comma before and` (in `@F1@`, `@F2@`, and `@F1@`)
 ok 1	**Dead words:** `### 11 · Your platform` (in `@F1@`)
 ok 2	**Dead words:** `a · inside` (in `@F1@`) · `and · again` (in `@F2@`)
 ok 1	**Dead words:** `words with (in brackets) inside` (in `@F1@`)
@@ -27,6 +29,7 @@ ok 1	**Dead words:** `<YOUR GIT EMAIL` (in `@F1@`)
 ok 1	**Dead words:** `it's "quoted" & <tagged>` (in `@F1@`)
 error	**Dead words:**
 error	**Dead words:** 
+error	**Dead words:**`no whitespace after the marker` (in `@F1@`)
 error	**Dead words:** `` (in `@F1@`)
 error	**Dead words:** `no file named`
 error	**Dead words:** `no file named`.

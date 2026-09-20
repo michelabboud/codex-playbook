@@ -32,7 +32,7 @@ repaired: the parser now scans each line left to right over its code spans and
 **fails closed** — the bare marker anywhere but the start of a line is an error,
 a fenced code block is ignored, a fence left open is an error, a line is bounded
 at 4,096 bytes, and a run that checked nothing says so rather than claiming that
-every override matches. The 44 conformance vectors both editions carry,
+every override matches. The 47 conformance vectors both editions carry,
 byte-identical, are now run by the suite and the fixture's SHA-256 is pinned.
 The suites now run 55 rulebook checks, 134 local-layer assertions, and
 383 installer lifecycle assertions. **Unverified:** no fresh Codex session has yet

@@ -7,7 +7,7 @@ a `**Dead words:**` marker that was not at the start of its line was skipped in
 silence, so a stale override could install — and all five findings, plus two of
 the informational ones, are repaired in the working tree of this lane and not
 yet committed: `scripts/check-local.sh` now scans code spans and fails closed,
-the template ships no live entry, the 44 shared conformance vectors run, and the
+the template ships no live entry, the 47 shared conformance vectors run, and the
 three untested guarantees of finding 3 are asserted. `./scripts/verify.sh`
 passes; the suites run 55 rulebook checks, 134 local-layer assertions and 383
 installer lifecycle assertions.
