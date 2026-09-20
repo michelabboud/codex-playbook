@@ -61,7 +61,7 @@ builds" — with no mechanics, no limit, and no answer to how far development ma
 This repository's identity is faithful parity with the source, so it is now one rule behind
 (source: 50 rules; here: 49) and carries a weaker review rule than the one its owner works by.
 
-## 2. What is ported (unchanged in substance)
+## 2. What is ported (from the corrected source, 0.1.14)
 
 1. **Rule 3.1 — three kinds of review, defined by what they close:** mechanical (a task) ·
    deep (a batch, or a risk-class task) · **high deep** (a milestone or a release — a gate).
@@ -72,10 +72,11 @@ This repository's identity is faithful parity with the source, so it is now one 
    subagents do not count as blind; a blind reviewer's cold-read note is what counts as
    independent corroboration.
 3. **Rule 3.5 (new, the 50th rule) — how far development may run ahead:** mechanical review
-   never holds development · deep review to a ceiling of **two unruled batches under a line's
-   tip**, counted by **git ancestry** (a branch off unreviewed work inherits; a merge adds and
-   waits if it would exceed) · three waits at any depth · high deep reviews are gates and the
-   count drains to zero before one · the planner owns the stall · review capacity is shared.
+   never holds development · deep review to a ceiling of two unruled batches under a line's
+   tip — **worded per the owner's decision in §0** — counted by **git ancestry** against a
+   coordinator-kept ledger (a branch off unreviewed work inherits; a merge takes the **union**
+   and waits if it would exceed) · three waits at any depth · high deep reviews are gates, and
+   **every lower review, mechanical included, is settled** before one · the planner owns the stall · review capacity is shared.
 4. The guide (reasoning, failure modes, evidence and its limits) and the decision record.
 
 ## 3. Decisions this plan proposes — each with a recommendation
