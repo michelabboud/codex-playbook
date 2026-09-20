@@ -33,7 +33,7 @@ sits waiting for is a stall, so the rulebook pipelines them:
 | Kind | Closes | While it runs, development… |
 |---|---|---|
 | **Mechanical** | every task | never waits |
-| **Deep** | every batch of 3–10 tasks | keeps going — a new batch starts only while at most **two closed** batches are unreviewed, one batch open per line at a time, and at three the line accepts only the fixes that rule a batch; counted by git ancestry as a set, against a ledger the coordinator keeps; sixteen worked cases are part of the rule |
+| **Deep** | every batch of 3–10 tasks | keeps going — a line carries at most **three unruled** batches, the one being built included (*unruled*: started, and not yet settled — a review that has returned with open findings still counts); nothing lands outside a batch, so at three with none open only fixes land; counted by git ancestry as a set, against a ledger the coordinator keeps; sixteen worked cases are part of the rule |
 | **High deep** | a milestone or a release | waits — it may revise the plan, every lower review is settled first, and the wait works the queue of minor findings |
 
 What makes that safe is mechanics, not optimism: **a review's input is a commit,

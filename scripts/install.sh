@@ -207,6 +207,12 @@ done
 [ -x "$repo_root/scripts/restore.sh" ] ||
   die 'The restore script is missing or is not executable.'
 
+for source_tree in "$repo_root/.agents" "$repo_root/.agents/skills"
+do
+  [ -d "$source_tree" ] && [ ! -L "$source_tree" ] ||
+    die "The source directory $source_tree is missing, is not a directory, or is a symbolic link."
+done
+
 for skill_name in $active_skill_names
 do
   skill_source="$repo_root/.agents/skills/$skill_name"

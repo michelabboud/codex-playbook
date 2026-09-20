@@ -157,6 +157,21 @@ come down. Everything else waits, including a merge whose union stays at three
 the third batch closed: it may finish, and its result is kept, not accepted,
 until a ruling reopens admission.
 
+*And then restated rather than patched.* A fourth review found two more states
+the wording missed — a batch that rule 3.2 closes early while one of its tasks is
+still running, and a branch cut from a batch that is still *open* — and, asked
+directly whether to keep patching, said no. The diagnosis is worth keeping: every
+defect so far sat at one seam. The rule counted batches once they were *closed*,
+while everything it governs — admission, branching, merging, accepting a result —
+acts on work from the moment it *opens*. So the ceiling is now one invariant:
+**a line carries at most three unruled batches, the open one included.** A batch
+takes its slot at its first dispatch. Closing it pins the review target and
+freezes what belongs to it — a straggler goes to the next batch — and changes its
+state, never the count. Only a ruling brings the count down. And nothing lands on
+a line outside a batch: a change belongs to the open batch or is a fix attached
+to an unruled one, which is why, at three with none open, only fixes land. The
+exposure is what it was: two in review plus the one being built.
+
 ### Why the count follows ancestry
 
 Counting per worktree is almost right and leaks in two places. A branch started

@@ -3,10 +3,11 @@
 New work belongs here only when it is valuable, out-of-scope for the current
 approved phase, and described concretely enough to become a future plan.
 
-- **2026-09-20 · measurement · open** — the admission rule (two closed batches)
-  in rule 3.5 rests on one friendly programme in the source's evidence, a
-  behaviour-preserving refactor. Record how often a line reached the ceiling on
-  real feature work before treating the number as settled.
+- **2026-09-20 · measurement · open** — the ceiling (three unruled batches per
+  line, the open one included) in rule 3.5 rests on one friendly programme in
+  the source's evidence, a behaviour-preserving refactor. Record how often a
+  line reached the ceiling on real feature work before treating the number as
+  settled.
 - **2026-09-20 · measurement · open** — "mechanical review on Standard, never
   Fast" was measured on two Claude models. Take the same nine-defect comparison
   on the Codex configurations actually bound, and record it in the roster
@@ -21,6 +22,9 @@ approved phase, and described concretely enough to become a future plan.
 - **2026-09-20 · verification · open** — the installer's inventory patterns use
   POSIX extended regular expressions and were run under GNU grep only; BusyBox
   and BSD `grep -E` are assessed, not executed (source: Sol's re-review).
+- **2026-09-20 · hardening · open** — the installer's preflight assumes a
+  quiescent source checkout; a source mutated between preflight and copy is out
+  of scope and undefended (source: Sol's third review).
 - **2026-09-20 · rule question · open** — with a Strong tier in the roster,
   should risk-domain implementation (security, concurrency, unsafe code) start on
   Strong rather than Top, keeping Top for planning and review? Wording left as it

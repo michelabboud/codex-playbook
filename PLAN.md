@@ -9,7 +9,7 @@ and was never published; the ceiling became an admission rule and the source was
 One logical task, not a phase: it closes once, as 0.1.4.
 
 **Plan:** `docs/plans/2026-09-20-non-blocking-review-pipeline-port-plan.md`
-**Review:** `docs/reviews/2026-09-20-astra-pipeline-port-plan-opinion.md` · `…-cold-read.md` · `…-validation.md` · `docs/reviews/2026-09-20-sol-0.1.4-deep-review.md` · `…-validation.md` · `docs/reviews/2026-09-20-sol-0.1.4-re-review.md` · `…-validation.md`
+**Review:** `docs/reviews/2026-09-20-astra-pipeline-port-plan-opinion.md` · `…-cold-read.md` · `…-validation.md` · `docs/reviews/2026-09-20-sol-0.1.4-deep-review.md` · `…-validation.md` · `docs/reviews/2026-09-20-sol-0.1.4-re-review.md` · `…-validation.md` · `docs/reviews/2026-09-20-sol-0.1.4-third-review.md` · `…-validation.md`
 
 - [x] Owner's go, including the ceiling decision (plan §0) — 2026-09-20.
 - [x] Source corrected first (`claude-code-playbook` 0.1.14, `checkpoint/0.1.14`) — 2026-09-20.
@@ -20,6 +20,7 @@ One logical task, not a phase: it closes once, as 0.1.4.
 - [x] Repaired contract locked with failing tests (worked cases row by row, nested-resource inventory, installer preflight refusals) — 2026-09-20.
 - [x] Repair implemented: admission rule and worked cases, the stated ownership boundary, `config/managed-resources.txt` and its preflight — 2026-09-20.
 - [x] Repair re-reviewed and failed (Sol; ten findings, nine confirmed, five blocking); rule 3.5 completed in the source first; installer preflight and the worked-cases test hardened — 2026-09-20.
+- [x] Second repair reviewed (Sol; six findings, all confirmed): installer and tests passed, rule 3.5 failed on two omitted states; the owner chose to restate the ceiling as one invariant; source corrected first — 2026-09-20.
 
 Publication order: the source is pushed and tagged `checkpoint/0.1.15` first; the parity matrix cites it.
 

@@ -29,7 +29,8 @@ A skill package is installed whole, so its nested files travel with it.
 `config/managed-resources.txt` names the ones an installation actually depends
 on, and source preflight refuses — before any backup or destination write — when
 one of them is missing from the checkout or is not a regular file, when a
-symbolic link exists anywhere inside an active skill's source directory, and
+symbolic link exists anywhere inside an active skill's source directory, when
+`.agents` or `.agents/skills` in the source is itself a symbolic link, and
 when a listed resource belongs to a skill that is not active. An incomplete
 checkout therefore fails loudly instead of installing a skill that points at
 nothing, outside its own package, or at a file the installation never copies.

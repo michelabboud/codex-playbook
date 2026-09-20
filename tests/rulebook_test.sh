@@ -353,16 +353,18 @@ else
   fail "$worked_case_failures rule 3.5 worked-case contract check(s) failed"
 fi
 
-if grep -Fq 'a new batch starts only while at most two closed batches are unruled' "$reviews_file" &&
+if grep -Fq 'a line carries at most three unruled batches, the open one included' "$reviews_file" &&
+   grep -Fq 'Nothing lands on a line outside a batch' "$reviews_file" &&
+   grep -Fq 'a new batch starts only while at most two closed batches are unruled' "$reviews_file" &&
    grep -Fq 'One batch is open per line at a time' "$reviews_file" &&
    grep -Fq 'the only work the line accepts is what rules a batch' "$reviews_file" &&
    grep -Fq 'the row wins' "$reviews_file" &&
    ! grep -Fq 'never blocks the next task' "$reviews_file" &&
    ! grep -Fq 'anywhere above it' "$reviews_file" &&
    ! grep -Fq 'merge adds' "$reviews_file"; then
-  pass 'rule 3.5 states the admission rule, gives the table precedence, and keeps no superseded wording'
+  pass 'rule 3.5 states the ceiling as one invariant, closes the line to work outside a batch, gives the table precedence, and keeps no superseded wording'
 else
-  fail 'reviews skill must state the admission rule, "One batch is open per line at a time", "the only work the line accepts is what rules a batch" and "the row wins", and must not say "never blocks the next task", "anywhere above it", or "merge adds"'
+  fail 'reviews skill must state the ceiling as one invariant ("a line carries at most three unruled batches, the open one included"), say "Nothing lands on a line outside a batch", keep the admission reading, "One batch is open per line at a time", "the only work the line accepts is what rules a batch" and "the row wins", and must not say "never blocks the next task", "anywhere above it", or "merge adds"'
 fi
 
 resource_inventory=config/managed-resources.txt
@@ -374,6 +376,14 @@ if [ -n "$skill_symlinks" ]; then
     "$skill_symlinks" >&2
   resource_failures=$((resource_failures + 1))
 fi
+for skill_tree in .agents .agents/skills
+do
+  if [ -L "$skill_tree" ] || [ ! -d "$skill_tree" ]; then
+    printf '%s must be a real directory: a symbolic link there is an ancestor of every scan root\n' \
+      "$skill_tree" >&2
+    resource_failures=$((resource_failures + 1))
+  fi
+done
 if [ -f "$resource_inventory" ] && [ ! -L "$resource_inventory" ] && [ -s "$resource_inventory" ]; then
   if [ "$(LC_ALL=C sort "$resource_inventory")" != "$(cat "$resource_inventory")" ]; then
     printf '%s is not sorted\n' "$resource_inventory" >&2
@@ -417,7 +427,7 @@ else
   resource_failures=$((resource_failures + 1))
 fi
 if [ "$resource_failures" -eq 0 ]; then
-  pass 'the nested-resource inventory lists exactly the roster reference, as a sorted set of real files owned by active skills, with no symlink under .agents/skills'
+  pass 'the nested-resource inventory lists exactly the roster reference, as a sorted set of real files owned by active skills, with no symlink under .agents/skills and neither .agents nor .agents/skills a symbolic link itself'
 else
   fail "$resource_failures nested-resource inventory check(s) failed"
 fi

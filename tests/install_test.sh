@@ -1061,6 +1061,32 @@ run_symlink_inside_active_skill_refusal_test() {
     'symbolic link inside an active skill'
 }
 
+run_symlinked_skills_directory_refusal_test() {
+  case_root="$test_root/symlinked-skills-directory"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$home/.agents/skills"
+  fixture_root="$case_root/source"
+  relocated_skills="$case_root/relocated-skills"
+  seed_untouched_destination "$skill_root" "$codex_home"
+  build_complete_source_fixture "$fixture_root"
+  mv "$fixture_root/.agents/skills" "$relocated_skills"
+  ln -s "$relocated_skills" "$fixture_root/.agents/skills"
+
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$fixture_root/scripts/install.sh" --replace-agents > "$case_root/install.log" 2>&1; then
+    fail 'install refuses a source whose skills directory is a symbolic link'
+  else
+    pass 'install refuses a source whose skills directory is a symbolic link'
+  fi
+  assert_contains 'symbolic link' "$case_root/install.log" \
+    'the refusal names the unsafe source directory as a symbolic link'
+  assert_contains "$fixture_root/.agents/skills" "$case_root/install.log" \
+    'the refusal names the symbolic-linked source path'
+  assert_untouched_destination "$skill_root" "$codex_home" \
+    'symbolic-linked source skills directory'
+}
+
 run_unterminated_resource_inventory_refusal_test() {
   case_root="$test_root/unterminated-resource-inventory"
   home="$case_root/home"
@@ -1142,6 +1168,7 @@ run_missing_nested_resource_refusal_test
 run_symlinked_nested_resource_refusal_test
 run_symlinked_resource_directory_refusal_test
 run_symlink_inside_active_skill_refusal_test
+run_symlinked_skills_directory_refusal_test
 run_unterminated_resource_inventory_refusal_test
 run_inactive_resource_owner_refusal_test
 

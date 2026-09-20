@@ -23,7 +23,8 @@ behavior.
   to open. The installer reads it during source preflight and refuses, before
   any backup or destination write, when a listed file is missing or is not a
   regular file, when a symbolic link exists anywhere inside an active skill's
-  source directory, and when a listed resource belongs to a skill that is not
+  source directory, when `.agents` or `.agents/skills` in the source is itself
+  a symbolic link, and when a listed resource belongs to a skill that is not
   in `config/managed-skills.txt`.
 
 ## Required checks

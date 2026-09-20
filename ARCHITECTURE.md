@@ -70,10 +70,14 @@ Three files are authoritative:
   the roster reference the reviews and subagents skills both read. The installer
   consumes it during source preflight and refuses, before any backup or
   destination write, when a listed file is missing or is not a regular file,
-  when any symbolic link exists inside an active skill's source directory, or
+  when any symbolic link exists inside an active skill's source directory, when
+  `.agents` or `.agents/skills` in the source is itself a symbolic link, or
   when a listed resource belongs to a skill that is not active;
   `tests/rulebook_test.sh` holds it to a sorted, unique set of real files under
-  an active skill, with no symbolic link anywhere under `.agents/skills/`.
+  an active skill, with no symbolic link anywhere under `.agents/skills/` and
+  neither `.agents` nor `.agents/skills` a symbolic link itself. A link at
+  either of those two paths sits above every scan root, so a scan that starts
+  inside them resolves through it and never reports it.
   The symlink refusal covers the whole package, not only the listed leaf:
   `cp -pR` preserves a link, so a symlinked intermediate directory would let an
   installed skill resolve a rulebook file outside its own package. Whole-directory copying makes a bundled file free to install

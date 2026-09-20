@@ -7,15 +7,16 @@ All notable changes are recorded here. Dates are absolute.
 ### Added
 
 - Rule 3.5, the fiftieth rule — how far development may run ahead of review.
-  Mechanical review never holds development. Deep review's ceiling is an
-  admission rule: a new batch starts only while at most two closed batches are
-  unruled; when a third closes, all three reviews run and nothing new starts
-  until one is ruled — worst case three batch ranges. Counted by git ancestry as
-  a set (a merge is a union) against a ledger the coordinator keeps; three waits
-  at any depth; high deep reviews are gates and every lower review, mechanical
-  included, is settled first; the planner owns the stall. The rule carries a
-  normative table of sixteen worked cases, and the table wins over the prose.
-  Direct port of source 0.1.15.
+  Mechanical review never holds development. Deep review's ceiling is one
+  invariant, enforced at admission: a line carries at most three unruled
+  batches, the open one included; closing a batch never changes the count, only
+  a ruling brings it down, and nothing lands on a line outside a batch — worst
+  case three batch ranges per line. Counted by git ancestry as a set (a merge is
+  a union) against a ledger the coordinator keeps; three waits at any depth;
+  high deep reviews are gates and every lower review, mechanical included, is
+  settled first; the planner owns the stall. The rule carries a normative table
+  of sixteen worked cases, and the table wins over the prose. Direct port of
+  source 0.1.15.
 - One owner for tier selection:
   `.agents/skills/codex-playbook-subagents/references/roster.md`. Four capability
   tiers — Top, Strong, Standard, Fast — each filled by a model and a reasoning
@@ -63,16 +64,21 @@ All notable changes are recorded here. Dates are absolute.
   has no newline. Each refusal happens before any backup or destination write.
 - **The worked-cases test compared one phrase per row**, which passes a row that also says the
   opposite. It now compares the rule's table row for row against a canonical copy under `tests/`.
+- **The ceiling was restated as one invariant rather than patched a fifth time.** A third review
+  of this port, still before publication, passed the installer and the tests and failed rule 3.5
+  on two more omitted states — a batch closed early with a task still running, and a branch cut
+  from an open batch — and said not to patch again. The owner chose the restatement; the source
+  was corrected first. Rows 7 and 13–16 reworded; still sixteen.
+- The installer also refuses a symbolic link at `.agents` or `.agents/skills` in the source.
 
 ### Process
 
-- Reviewed twice by the other model family before anything was published, each
-  time as a separate process against pinned commits with a cold-read note first.
-  The plan review returned eleven findings and the deep review of the first
-  candidate returned eight and **failed it**; all nineteen were confirmed, nine
-  of them defects in the source rule, which was corrected first each time
-  (source 0.1.14, then 0.1.15). The first candidate was never pushed. Records
-  under `docs/reviews/2026-09-20-*`.
+- Reviewed four times by the other model family before anything was published, each time as a
+  separate process against pinned commits with a cold-read note first: the plan (eleven
+  findings), the first candidate (eight, **failed**), its repair (ten, **failed**), and the
+  second repair (six, **failed** on rule 3.5 alone). Thirty-four of thirty-five findings were
+  confirmed, and the one dismissal was overturned by the next review. The source rule was
+  corrected first each time. No candidate was pushed. Records under `docs/reviews/2026-09-20-*`.
 
 ## 0.1.3 — 2026-09-17
 
