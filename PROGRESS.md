@@ -21,8 +21,21 @@ stale, unparsable, or escaping entry refuses the installation with no flag to
 pass it. The installer gained no write path, and `restore.sh` gained no code at
 all: the local file is protected by never being named. `templates/playbook-local.md`
 carries the grammar and a worked example of each kind and is documentation, never
-installed. The suites now run 55 rulebook checks, 64 local-layer assertions, and
-372 installer lifecycle assertions. **Unverified:** no fresh Codex session has yet
+installed — and it ships with **no entry in force**, its examples inert inside a
+fenced code block.
+
+**The batch's mechanical review failed it**, with one blocking finding: a
+`**Dead words:**` marker that was not at the start of its line was skipped in
+silence, so a stale override installed while the check reported that every
+override still matched. All five findings were confirmed and all five are
+repaired: the parser now scans each line left to right over its code spans and
+**fails closed** — the bare marker anywhere but the start of a line is an error,
+a fenced code block is ignored, a fence left open is an error, a line is bounded
+at 4,096 bytes, and a run that checked nothing says so rather than claiming that
+every override matches. The 44 conformance vectors both editions carry,
+byte-identical, are now run by the suite and the fixture's SHA-256 is pinned.
+The suites now run 55 rulebook checks, 134 local-layer assertions, and
+383 installer lifecycle assertions. **Unverified:** no fresh Codex session has yet
 been observed reading the local file at session start on this client — the
 mechanism is a sentence in `AGENTS.md` plus a pointer per skill, not anything the
 client enforces; and the scripts were executed under GNU coreutils and `dash`

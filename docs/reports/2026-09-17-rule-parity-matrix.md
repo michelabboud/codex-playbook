@@ -15,17 +15,32 @@ did not move, and source 0.1.15 — `claude-code-playbook` commit
 **The local layer (0.1.6), and its ordering dependency.** Codex Playbook 0.1.6
 ports the source's decision that customizations live in a file the playbook
 never touches. The source text is `claude-code-playbook` commit
-`267057ae88876d746cba956bda48bf37bd69acb9` (ADR 0004, *Customizations live in a
-local layer the playbook never touches*), which that repository publishes as
-**0.1.16**. As of this revision `checkpoint/0.1.16` does not yet exist there —
-its highest published tag is `checkpoint/0.1.15` — so this edition's own
-`checkpoint/0.1.6` is held until it does, exactly as 0.1.4 was held for
-`checkpoint/0.1.15`. The local layer adds no numbered rule and changes no row
-below: it is a paragraph of `AGENTS.md` and one pointer line per skill. Two
-differences from the source are deliberate and recorded in ADR 0005: **one**
-local file rather than two, because Codex has no path-scoped loading for a
-second one to preserve, and the file is `playbook-local.md`, never
-`AGENTS.override.md`, which Codex reads *instead of* `AGENTS.md`.
+`e5c4f855f54938a2d7b636dc5ae648d17e2bff21` — ADR 0004, *Customizations live in a
+local layer the playbook never touches*, with its decision 5 completed before
+publication: the Dead-words grammar is read as code spans rather than split on
+the separator, the check fails closed, and the 44 conformance vectors of
+`tests/fixtures/dead-words-vectors.tsv` are carried by both editions,
+byte-identical, and run by each edition's own tests. It supersedes
+`267057ae88876d746cba956bda48bf37bd69acb9`, which this matrix cited before the
+grammar was completed and which carries the first, narrower version of that
+decision. The source's own implementation of the completed grammar is its
+commit `1b2ff2780a2d03e7f05e96150c6bb3f7f0dc1976`; **neither commit is
+published**, so both are cited as they stood on 2026-09-21 and may still move.
+That repository publishes this work as **0.1.16**, and as of this revision
+`checkpoint/0.1.16` does not yet exist there — its highest published tag is
+`checkpoint/0.1.15` — so this edition's own `checkpoint/0.1.6` is held until it
+does, exactly as 0.1.4 was held for `checkpoint/0.1.15`. The local layer adds no
+numbered rule and changes no row below: it is a paragraph of `AGENTS.md` and one
+pointer line per skill. Three differences from the source are deliberate; the
+first two are recorded in ADR 0005. **One** local file rather than two, because
+Codex has no path-scoped loading for a second one to preserve. The file is
+`playbook-local.md`, never `AGENTS.override.md`, which Codex reads *instead of*
+`AGENTS.md`. And this edition alone refuses a local-layer line longer than
+**4,096 bytes** — a fail-closed bound on the quadratic parse, raised as
+informational finding I2 of the mechanical review of 2026-09-21; the shared
+vectors carry no line near it, so the bound cannot change how any of them
+behaves, but a hand-written line longer than that would be refused here and
+accepted by the source.
 
 **Target architecture:** lean global authority router plus sixteen
 progressive-disclosure Codex skills.

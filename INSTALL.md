@@ -88,30 +88,34 @@ From the repository root:
 The installer executes this order:
 
 1. Validate both inventories, all sixteen source skills, `AGENTS.md`,
-   `VERSION`, the restore and local-layer-check commands, the global override
-   state, and every managed destination.
-1. Run `scripts/check-local.sh` against the local layer and **the text this run
+   `VERSION`, and the restore and local-layer-check commands.
+2. Run `scripts/check-local.sh` against the local layer and **the text this run
    would install** — before `umask`, before any directory is created, before any
-   backup. A stale override, an unparsable `**Dead words:**` line, or a named
-   file that is missing or escapes its root refuses the installation, naming the
-   entry's `file:line` and the words. There is no flag to install past it: the
-   fix is to re-read the rule and rewrite the entry.
-2. Refuse a different existing global `AGENTS.md` by default.
-3. Create a unique, private format-2 checkpoint.
-4. Record the exact sixteen active and two retired managed names plus whether
+   backup. A stale override, an unparsable `**Dead words:**` line, a bare marker
+   that is not at the start of its line, or a named file that is missing or
+   escapes its root refuses the installation, naming the entry's `file:line` and
+   the words. There is no flag to install past it: the fix is to re-read the
+   rule and rewrite the entry.
+3. Refuse an unsafe or shadowing global `AGENTS.override.md`, a different
+   existing global `AGENTS.md` unless `--replace-agents` was given, and any
+   managed destination that is not a plain directory.
+4. Create a unique, private format-2 checkpoint.
+5. Record the exact sixteen active and two retired managed names plus whether
    every destination was present or absent.
-5. Copy every present destination into the checkpoint with its file modes and
+6. Copy every present destination into the checkpoint with its file modes and
    verify each copy with `cmp` or `diff`.
-6. Write `COMPLETE` only after the entire checkpoint verifies.
-7. Stage and verify the new global router and all sixteen skills.
-8. Swap managed destinations. Retired skills are removed from the active skill
+7. Write `COMPLETE` only after the entire checkpoint verifies.
+8. Stage and verify the new global router and all sixteen skills.
+9. Swap managed destinations. Retired skills are removed from the active skill
    directory only after their checkpoint has verified.
-9. On any copy, swap, verification, or signal failure, automatically restore the
-   verified checkpoint.
-10. Compare every live item with source and print the installed version,
+10. On any copy, swap, verification, or signal failure, automatically restore the
+    verified checkpoint.
+11. Compare every live item with source and print the installed version,
     destination paths, skill count, and exact recovery checkpoint.
 
-**No managed destination is replaced before step 6 succeeds.** A failed backup
+Steps 1 to 3 are all read-only: every refusal above happens before `umask`,
+before the first directory, and before the first backup.
+**No managed destination is replaced before step 7 succeeds.** A failed backup
 is a refusal, never a warning.
 
 If another global `AGENTS.md` already exists, merge its tailored rules into this
@@ -149,11 +153,22 @@ test ! -e "$codex_home/playbook-local.md" &&
   cp templates/playbook-local.md "$codex_home/playbook-local.md"
 ```
 
+The template ships with **no entry in force**: every worked example in it sits
+inside a fenced code block, which the checker ignores, so the copy you have
+just made binds you to nothing and checks nothing. Write your own entries into
+the empty sections at its foot, using the examples as a shape.
+
 An entry is a **Fill** (a value a rule leaves open), an **Add** (a rule the
 playbook lacks, in your own `L1`, `L2` sections), or an **Override** (a named
-rule changed, quoting after `**Dead words:**` the playbook's exact words that no
-longer apply, each with the file they are in). `templates/playbook-local.md`
+rule changed, quoting on a `**Dead words:**` line the playbook's exact words that
+no longer apply, each with the file they are in). `templates/playbook-local.md`
 carries the full grammar of that line and a worked example of each kind.
+
+The check fails closed. The marker is only ever the first thing on its line: a
+line that carries it anywhere else is refused rather than skipped, so an entry
+can never be passed over in silence. Prose that needs to name the marker puts
+it inside a code span, and lines inside a fenced code block are ignored
+entirely.
 
 Check it at any time against a checkout, without installing anything:
 
@@ -163,8 +178,9 @@ Check it at any time against a checkout, without installing anything:
 ```
 
 Exit 0 is fresh, 1 is stale with every finding reported as `file:line`, and 2 is
-a usage error, an unparsable line, or a named file that is missing or escapes
-its root.
+a usage error, an unparsable line, a bare marker that is not at the start of its
+line, a line longer than 4,096 bytes, an unclosed fenced code block, or a named
+file that is missing or escapes its root.
 
 ## Verify the installed copy
 
@@ -265,7 +281,8 @@ Migrate once, before that update:
 2. Turn each difference into an entry in `playbook-local.md`. Most are a
    **Fill** — a path, an address, a name bound to what you actually have — or an
    **Add**. Only a difference that contradicts a rule is an **Override**, and it
-   quotes the playbook's words after `**Dead words:**`.
+   quotes the playbook's words on a `**Dead words:**` line of its own — the
+   marker never sits in the middle of a line, where the check would refuse it.
 3. A difference that would be a better rule for everyone is not a local entry:
    send it upstream, and leave it out of the file.
 4. Run the check. Exit 0 means every Override still bites on the text you wrote

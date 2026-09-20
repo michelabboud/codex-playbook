@@ -17,17 +17,62 @@ An item names AGENTS.md, or a path under the skills root such as
 codex-playbook-reviews/SKILL.md, and quotes the playbook words the override
 replaced. The words are searched as a fixed string.
 
+The grammar of the line, which this script reads left to right over its code
+spans and never splits on the separator:
+
+  **Dead words:** `some words` (in `AGENTS.md`) · `other` (in `a/SKILL.md`)
+
+  * optional leading spaces or tabs, then the literal **Dead words:**, then at
+    least one space or tab, then the first item;
+  * items are separated by " · " (space, U+00B7, space);
+  * each item is one code span of the quoted words, then " (in ", then one or
+    more code spans naming files joined by ", ", " and " or ", and ", then ")";
+  * after the last item, one optional "." and then only blanks;
+  * the quoted words are taken verbatim between their backticks -- they may
+    contain " · ", parentheses and the word "in" -- and may neither be empty
+    nor contain a backtick.
+
+It fails closed. A line carrying the bare marker anywhere other than its start
+is an error, never a skipped entry: prose that needs to name the marker puts it
+inside a code span. Lines inside a fenced code block are ignored, so a file may
+quote this grammar without the example binding anyone; a fence left open at the
+end of the file is an error.
+
 Exit status:
   0  every override still matches the playbook text, or there is no local file
   1  at least one override is stale: its quoted words are gone
-  2  usage error, an unparsable "Dead words:" line, or a named file that does
-     not exist, is not a regular file, or escapes its root
+  2  usage error, an unparsable "Dead words:" line, a bare marker that is not
+     at the start of its line, an over-long line, an unclosed fenced code
+     block, or a named file that does not exist, is not a regular file, or
+     escapes its root
 EOF
 }
+
+# A byte-wise locale for the whole run. It makes the fixed-string search below
+# mean the same thing whatever locale the operator is in — which is what "as a
+# fixed string" has to mean for text that is UTF-8 — and it makes the line
+# bound below a count of bytes in every POSIX shell, rather than bytes in one
+# and characters in another.
+LC_ALL=C
+export LC_ALL
 
 backtick='`'
 tab=$(printf '\t')
 carriage_return=$(printf '\r')
+marker='**Dead words:**'
+separator=' · '
+
+# A local-layer line longer than this, in bytes, is refused rather than
+# parsed. The scanner walks a line span by span, so the cost of one line grows
+# with the square of its length; the longest line measured in the real local
+# files this grammar was written for is 844 bytes, so the bound leaves nearly
+# five times that headroom and still bounds the work: measured here, a line of
+# 113 items at 3,742 bytes parses in 11 ms, and the same line with every file
+# present takes 127 ms, most of it the 113 fixed-string searches themselves.
+# Unbounded, the review measured 7.5 s for 3,000 items and 57 s for 12,000.
+# A local layer needs no line longer than this; a file that has one is
+# refused, loudly, rather than parsed slowly.
+max_line_bytes=4096
 
 errors=0
 stale=0
@@ -36,6 +81,13 @@ checked=0
 span_value=''
 span_rest=''
 resolved_path=''
+trim_value=''
+parse_stopped_at=''
+
+# Fenced-code-block state while the file is being read.
+fence_char=''
+fence_length=0
+fence_line=0
 
 report_error() {
   printf '%s:%s: error: %s\n' "$local_file" "$1" "$2" >&2
@@ -46,6 +98,42 @@ report_stale() {
   printf '%s:%s: stale: `%s` is no longer in %s\n' \
     "$local_file" "$1" "$2" "$3" >&2
   stale=$((stale + 1))
+}
+
+# Records where a parse gave up, so the report can point at it. Always
+# succeeds: it runs on the failing path, where a non-zero status would be
+# taken for the failure itself.
+note_stop() {
+  parse_stopped_at=$1
+}
+
+# Removes leading, then trailing, spaces and tabs. The result is in
+# trim_value, because a function whose result came back through $( ) would
+# lose every counter it incremented.
+strip_leading_blanks() {
+  lead_text=$1
+  while :
+  do
+    case "$lead_text" in
+      ' '*) lead_text=${lead_text# } ;;
+      "$tab"*) lead_text=${lead_text#"$tab"} ;;
+      *) break ;;
+    esac
+  done
+  trim_value=$lead_text
+}
+
+strip_trailing_blanks() {
+  trail_text=$1
+  while :
+  do
+    case "$trail_text" in
+      *' ') trail_text=${trail_text% } ;;
+      *"$tab") trail_text=${trail_text%"$tab"} ;;
+      *) break ;;
+    esac
+  done
+  trim_value=$trail_text
 }
 
 # Reads one code span off the front of its argument. Sets span_value to the
@@ -66,6 +154,85 @@ take_code_span() {
   span_value=${take_rest%%"$backtick"*}
   span_rest=${take_rest#*"$backtick"}
   [ -n "$span_value" ] || return 1
+}
+
+# Does this line, already stripped of its leading blanks, open a fenced code
+# block? Sets fence_char, fence_length and fence_line when it does.
+fence_opens() {
+  fence_open_text=$1
+  case "$fence_open_text" in
+    '```'*) fence_open_char=$backtick ;;
+    '~~~'*) fence_open_char='~' ;;
+    *) return 1 ;;
+  esac
+
+  fence_open_length=0
+  fence_open_rest=$fence_open_text
+  while :
+  do
+    case "$fence_open_rest" in
+      "$fence_open_char"*)
+        fence_open_length=$((fence_open_length + 1))
+        fence_open_rest=${fence_open_rest#"$fence_open_char"}
+        ;;
+      *) break ;;
+    esac
+  done
+
+  # A backtick fence's info string may not itself contain a backtick.
+  if [ "$fence_open_char" = "$backtick" ]; then
+    case "$fence_open_rest" in
+      *"$backtick"*) return 1 ;;
+    esac
+  fi
+
+  fence_char=$fence_open_char
+  fence_length=$fence_open_length
+  fence_line=$2
+}
+
+# Does this line close the open fence? The run must be of the same character,
+# at least as long as the opening one, and followed by nothing but blanks.
+fence_closes() {
+  fence_close_length=0
+  fence_close_rest=$1
+  while :
+  do
+    case "$fence_close_rest" in
+      "$fence_char"*)
+        fence_close_length=$((fence_close_length + 1))
+        fence_close_rest=${fence_close_rest#"$fence_char"}
+        ;;
+      *) break ;;
+    esac
+  done
+  [ "$fence_close_length" -ge "$fence_length" ] || return 1
+  strip_trailing_blanks "$fence_close_rest"
+  [ -z "$trim_value" ]
+}
+
+# Is the bare marker present outside every code span of this line? Complete
+# code spans are removed first; an unterminated backtick leaves its text in
+# place, so a marker after one still counts — fail closed.
+line_has_bare_marker() {
+  bare_out=''
+  bare_rest=$1
+  while :
+  do
+    case "$bare_rest" in
+      *"$backtick"*"$backtick"*)
+        bare_out=$bare_out${bare_rest%%"$backtick"*}
+        bare_rest=${bare_rest#*"$backtick"}
+        bare_rest=${bare_rest#*"$backtick"}
+        ;;
+      *) break ;;
+    esac
+  done
+  bare_out=$bare_out$bare_rest
+  case "$bare_out" in
+    *"$marker"*) return 0 ;;
+  esac
+  return 1
 }
 
 # Resolves a file named in an item to a path under one of the two roots.
@@ -148,11 +315,10 @@ check_item() {
     return 0
   fi
 
-  # LC_ALL=C makes the comparison byte-wise whatever locale the operator runs
-  # in, which is what "as a fixed string" has to mean for text that is UTF-8.
-  # -e protects words that begin with a dash; -- protects the path.
+  # The run's LC_ALL=C makes this comparison byte-wise. -e protects words that
+  # begin with a dash; -- protects the path.
   set +e
-  LC_ALL=C grep -F -q -e "$item_words" -- "$resolved_path"
+  grep -F -q -e "$item_words" -- "$resolved_path"
   grep_status=$?
   set -e
 
@@ -169,25 +335,26 @@ check_item() {
 }
 
 # Parses the items of one "Dead words:" line, checking each named file as it
-# is read. Returns 1 when the line does not parse.
+# is read. The caller has already stripped the blanks at both ends. Returns 1,
+# having noted where it stopped, when the line does not parse.
 parse_dead_words() {
   parse_line=$1
   parse_rest=$2
 
   while :
   do
-    take_code_span "$parse_rest" || return 1
+    take_code_span "$parse_rest" || { note_stop "$parse_rest"; return 1; }
     item_words=$span_value
     parse_rest=$span_rest
 
     case "$parse_rest" in
       ' (in '*) parse_rest=${parse_rest#' (in '} ;;
-      *) return 1 ;;
+      *) note_stop "$parse_rest"; return 1 ;;
     esac
 
     while :
     do
-      take_code_span "$parse_rest" || return 1
+      take_code_span "$parse_rest" || { note_stop "$parse_rest"; return 1; }
       parse_rest=$span_rest
       check_item "$parse_line" "$item_words" "$span_value"
       case "$parse_rest" in
@@ -198,14 +365,18 @@ parse_dead_words() {
         ' and '*) parse_rest=${parse_rest#' and '} ;;
         ', and '*) parse_rest=${parse_rest#', and '} ;;
         ', '*) parse_rest=${parse_rest#', '} ;;
-        *) return 1 ;;
+        *) note_stop "$parse_rest"; return 1 ;;
       esac
     done
 
+    # One closing "." is allowed after the last item, so an entry may end like
+    # a sentence. Anything else is trailing prose, and a line whose tail was
+    # not understood is an error, never a half-read entry.
     case "$parse_rest" in
       '') return 0 ;;
-      ' · '*) parse_rest=${parse_rest#' · '} ;;
-      *) return 1 ;;
+      '.') return 0 ;;
+      "$separator"*) parse_rest=${parse_rest#"$separator"} ;;
+      *) note_stop "$parse_rest"; return 1 ;;
     esac
   done
 }
@@ -252,36 +423,71 @@ do
   line_number=$((line_number + 1))
   raw_line=${raw_line%"$carriage_return"}
 
-  stripped_line=$raw_line
-  while :
-  do
-    case "$stripped_line" in
-      ' '*) stripped_line=${stripped_line# } ;;
-      "$tab"*) stripped_line=${stripped_line#"$tab"} ;;
-      *) break ;;
-    esac
-  done
+  if [ "${#raw_line}" -gt "$max_line_bytes" ]; then
+    report_error "$line_number" \
+      "this line is ${#raw_line} bytes long; a local-layer line may not exceed $max_line_bytes bytes"
+    continue
+  fi
+
+  strip_leading_blanks "$raw_line"
+  stripped_line=$trim_value
+
+  # Inside a fenced code block nothing is an entry: a file may quote this
+  # grammar without the example being checked, or binding anyone.
+  if [ -n "$fence_char" ]; then
+    if fence_closes "$stripped_line"; then
+      fence_char=''
+    fi
+    continue
+  fi
+  if fence_opens "$stripped_line" "$line_number"; then
+    continue
+  fi
 
   case "$stripped_line" in
-    '**Dead words:**'*) ;;
-    *) continue ;;
-  esac
-
-  item_text=${stripped_line#'**Dead words:**'}
-  case "$item_text" in
-    ' '*) item_text=${item_text# } ;;
+    "$marker"*) ;;
     *)
-      report_error "$line_number" \
-        'a "Dead words:" line must continue with a space and one quoted phrase'
+      # Not an entry. The bare marker anywhere else on the line is an error,
+      # never a silently skipped entry; inside a code span it is prose.
+      if line_has_bare_marker "$raw_line"; then
+        report_error "$line_number" \
+          "the $marker marker is not at the start of this line, so an entry here would be skipped: give the entry a line of its own, or put the marker inside a code span when the line is prose about it"
+      fi
       continue
       ;;
   esac
 
+  item_text=${stripped_line#"$marker"}
+  case "$item_text" in
+    ' '*|"$tab"*) ;;
+    *)
+      report_error "$line_number" \
+        'a "Dead words:" line must continue with a space or a tab and one quoted phrase'
+      continue
+      ;;
+  esac
+
+  strip_leading_blanks "$item_text"
+  item_text=$trim_value
+  strip_trailing_blanks "$item_text"
+  item_text=$trim_value
+
+  if [ -z "$item_text" ]; then
+    report_error "$line_number" \
+      'a "Dead words:" line must continue with a space or a tab and one quoted phrase'
+    continue
+  fi
+
   if ! parse_dead_words "$line_number" "$item_text"; then
     report_error "$line_number" \
-      'this "Dead words:" line does not parse: expected `words` (in `file`), items separated by " · "'
+      "this \"Dead words:\" line does not parse: expected \`words\` (in \`file\`), items separated by \" · \"; stopped at: ${parse_stopped_at:-<end of line>}"
   fi
 done < "$local_file"
+
+if [ -n "$fence_char" ]; then
+  report_error "$fence_line" \
+    'this fenced code block is never closed, so every line after it was ignored'
+fi
 
 if [ "$errors" -ne 0 ]; then
   printf '%s: %s unusable local-layer item(s); nothing was installed.\n' \
@@ -290,9 +496,15 @@ if [ "$errors" -ne 0 ]; then
 fi
 
 if [ "$stale" -ne 0 ]; then
-  printf '%s: %s stale override item(s) of %s checked. Re-read the rule and rewrite the entry.\n' \
+  printf '%s: %s of %s dead-words item(s) checked are stale. Re-read the rule and rewrite the entry.\n' \
     "$local_file" "$stale" "$checked" >&2
   exit 1
+fi
+
+if [ "$checked" -eq 0 ]; then
+  printf '%s: 0 dead-words item(s) checked; the file carries no "Dead words:" entries.\n' \
+    "$local_file"
+  exit 0
 fi
 
 printf '%s: %s dead-words item(s) checked; every override still matches the playbook text.\n' \

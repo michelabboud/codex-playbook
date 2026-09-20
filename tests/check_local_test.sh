@@ -374,20 +374,137 @@ run_unterminated_last_line_test() {
     'the unterminated last line was parsed and its file searched'
 }
 
-run_ignored_lines_test() {
-  make_case ignored-lines
+run_bare_marker_tests() {
+  make_case bare-marker
+
+  # The blocking finding of the mechanical review: a marker that is not at the
+  # start of its line used to be dropped in silence, so a stale entry written
+  # in the natural Markdown shape installed with "every override matches".
   cat > "$local_file" <<'EOF'
 # LOCAL
 
-Prose that mentions **Dead words:** in the middle of a sentence is prose.
+Prose that mentions **Dead words:** in the middle of a sentence is refused.
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'a bare marker in the middle of a line is an error, not a skipped entry'
+  assert_output_contains "$local_file:3:" \
+    'the misplaced marker is reported as file:line'
+  assert_output_contains 'is not at the start of this line' \
+    'the misplaced-marker error says why the line was refused'
+
+  cat > "$local_file" <<'EOF'
+- **Override — rule 9.1.** **Dead words:** `a sentence the playbook no longer carries` (in `AGENTS.md`)
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'a bullet-led entry whose marker follows prose is an error, never a stale entry that installs'
+  assert_output_lacks 'every override still matches' \
+    'a refused file never reports that every override matches'
+
+  printf '> **Dead words:** `Standard tier` (in `AGENTS.md`)\n' > "$local_file"
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'a blockquoted marker is an error'
+
+  cat > "$local_file" <<'EOF'
+# LOCAL
+
+Prose that names the `**Dead words:**` marker inside a code span is prose.
 
 - **Fill — something.** A value, with no dead words at all.
 EOF
-
   run_check "$local_file" "$agents_root" "$skills_root"
-  assert_status 0 'only a line that begins with the marker is parsed'
+  assert_status 0 'the marker inside a code span is prose and is ignored'
   assert_output_contains ': 0 dead-words item(s) checked' \
-    'prose mentioning the marker mid-line is not parsed as an item'
+    'a file of prose about the marker checks nothing'
+  assert_output_contains 'no "Dead words:" entries' \
+    'a file with no entries says so instead of claiming every override matches'
+  assert_output_lacks 'every override still matches' \
+    'zero items checked is never reported as every override matching'
+
+  printf '**Dead words** `no colon, so not the marker` (in `AGENTS.md`)\n' \
+    > "$local_file"
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 0 'a bolded phrase without the colon is not the marker'
+  assert_output_contains ': 0 dead-words item(s) checked' \
+    'a phrase that is not the marker is checked as nothing'
+}
+
+run_fenced_block_tests() {
+  make_case fenced-block
+
+  cat > "$local_file" <<'EOF'
+# LOCAL
+
+Here is the grammar, shown but not meant:
+
+```markdown
+**Dead words:** `a sentence the playbook no longer carries` (in `AGENTS.md`)
+**Dead words:** this line would not parse either
+- **Override — rule 9.1.** **Dead words:** `mid-line` (in `AGENTS.md`)
+```
+
+- **Fill — something.** A value of my own.
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 0 'every line of a fenced code block is ignored, stale and malformed alike'
+  assert_output_contains ': 0 dead-words item(s) checked' \
+    'a fenced example is shown, never checked'
+
+  cat > "$local_file" <<'EOF'
+~~~
+**Dead words:** `a sentence the playbook no longer carries` (in `AGENTS.md`)
+~~~
+  **Dead words:** `Standard tier` (in `AGENTS.md`)
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 0 'a tilde fence opens and closes a block too'
+  assert_output_contains ': 1 dead-words item(s) checked' \
+    'the entry after a closed fence is still checked'
+
+  cat > "$local_file" <<'EOF'
+````
+```
+**Dead words:** `a sentence the playbook no longer carries` (in `AGENTS.md`)
+```
+````
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 0 'a shorter run of the fence character does not close a longer fence'
+  assert_output_contains ': 0 dead-words item(s) checked' \
+    'the nested example stays inside the longer fence'
+
+  cat > "$local_file" <<'EOF'
+```
+**Dead words:** `a sentence the playbook no longer carries` (in `AGENTS.md`)
+EOF
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'a fenced code block left open at the end of the file is an error'
+  assert_output_contains "$local_file:1:" \
+    'the unclosed fence is reported at the line that opened it'
+  assert_output_contains 'never closed' \
+    'the unclosed-fence error says the block was never closed'
+}
+
+run_line_length_bound_test() {
+  make_case line-length
+
+  bound_bytes=4096
+  long_words=$(awk 'BEGIN { while (i++ < 4096) printf "x" }')
+
+  printf '%s\n' "$long_words" > "$local_file"
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 0 'a line exactly at the bound is read'
+
+  printf 'x%s\n' "$long_words" > "$local_file"
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'a line longer than the bound is refused, not parsed'
+  assert_output_contains "may not exceed $bound_bytes bytes" \
+    'the over-long-line error states the bound it enforces'
+  assert_output_contains "$local_file:1:" \
+    'the over-long line is reported as file:line'
+
+  printf '  **Dead words:** `%s` (in `AGENTS.md`)\n' "$long_words" > "$local_file"
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'an over-long Dead words line is refused before it is parsed'
 }
 
 run_indented_marker_test() {
@@ -447,6 +564,141 @@ run_dangling_local_symlink_test() {
   assert_status 2 'a dangling local-file symlink is an error, not an absent file'
 }
 
+# The conformance vectors are shared with claude-code-playbook, byte for byte:
+# one grammar, two implementations, one file that says what it is. The hash is
+# pinned here so an edit on either side is a failing test rather than a quiet
+# divergence. A vector that looks wrong is a conversation with the other
+# edition, never an edit to this fixture.
+vectors_file="$repo_root/tests/fixtures/dead-words-vectors.tsv"
+vectors_sha=9e3522e66e36ff328e36310d98839bb075020fdd0438da698165a5a105a4a345
+vectors_expected_count=44
+tab=$(printf '\t')
+
+sha256_of() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$1" | cut -d' ' -f1
+  elif command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$1" | cut -d' ' -f1
+  elif command -v openssl >/dev/null 2>&1; then
+    openssl dgst -sha256 "$1" | sed 's/.*= *//'
+  else
+    printf 'no-sha256-command-found'
+  fi
+}
+
+# Replaces every occurrence of a token, leaving the result in replaced_value.
+# The shell has no ${var//pattern/text}, and a sed subshell would have to
+# escape a file name that may contain a slash.
+replaced_value=''
+replace_token() {
+  replace_out=''
+  replace_rest=$1
+  while :
+  do
+    case "$replace_rest" in
+      *"$2"*)
+        replace_out=$replace_out${replace_rest%%"$2"*}$3
+        replace_rest=${replace_rest#*"$2"}
+        ;;
+      *) break ;;
+    esac
+  done
+  replaced_value=$replace_out$replace_rest
+}
+
+# How many fixed-string searches the run reported. Every summary line carries
+# the same "<N> dead-words item(s) checked" token, whatever the outcome was.
+searches_made() {
+  printf '%s\n' "$check_output" |
+    awk '{ for (i = 1; i <= NF; i++) if ($i == "dead-words") { print $(i - 1); exit } }'
+}
+
+run_shared_vectors_test() {
+  make_case shared-vectors
+
+  vectors_actual_sha=$(sha256_of "$vectors_file")
+  if [ "$vectors_actual_sha" = "$vectors_sha" ]; then
+    pass 'the shared conformance vectors are byte-identical to the file both editions carry'
+  else
+    printf 'Expected sha256 %s, got %s for %s\n' \
+      "$vectors_sha" "$vectors_actual_sha" "$vectors_file" >&2
+    fail 'the shared conformance vectors are byte-identical to the file both editions carry'
+  fi
+
+  vector_number=0
+  vector_line_number=0
+  while IFS= read -r vector_line || [ -n "$vector_line" ]
+  do
+    vector_line_number=$((vector_line_number + 1))
+    case "$vector_line" in
+      '#'*|'') continue ;;
+    esac
+
+    vector_expectation=${vector_line%%"$tab"*}
+    vector_text=${vector_line#*"$tab"}
+    replace_token "$vector_text" '@F1@' 'AGENTS.md'
+    vector_text=$replaced_value
+    replace_token "$vector_text" '@F2@' 'codex-playbook-reviews/SKILL.md'
+    vector_text=$replaced_value
+
+    printf '%s\n' "$vector_text" > "$local_file"
+    run_check "$local_file" "$agents_root" "$skills_root"
+    vector_searches=$(searches_made)
+    vector_number=$((vector_number + 1))
+    vector_label="shared vector $vector_number (line $vector_line_number, $vector_expectation)"
+
+    case "$vector_expectation" in
+      'ok '*)
+        vector_want=${vector_expectation#ok }
+        if [ "$check_status" -gt 1 ]; then
+          printf 'Vector expected to parse exited %s. Line: %s\nOutput:\n%s\n' \
+            "$check_status" "$vector_text" "$check_output" >&2
+          fail "$vector_label"
+        elif [ "$vector_searches" != "$vector_want" ]; then
+          printf 'Vector expected %s search(es), made %s. Line: %s\nOutput:\n%s\n' \
+            "$vector_want" "${vector_searches:-none reported}" "$vector_text" \
+            "$check_output" >&2
+          fail "$vector_label"
+        else
+          pass "$vector_label"
+        fi
+        ;;
+      error)
+        if [ "$check_status" -eq 2 ]; then
+          pass "$vector_label"
+        else
+          printf 'Vector expected exit 2, got %s. Line: %s\nOutput:\n%s\n' \
+            "$check_status" "$vector_text" "$check_output" >&2
+          fail "$vector_label"
+        fi
+        ;;
+      ignore)
+        if [ "$check_status" -eq 0 ] && [ "$vector_searches" = 0 ]; then
+          pass "$vector_label"
+        else
+          printf 'Vector expected exit 0 with no search, got exit %s and %s search(es). Line: %s\nOutput:\n%s\n' \
+            "$check_status" "${vector_searches:-none reported}" "$vector_text" \
+            "$check_output" >&2
+          fail "$vector_label"
+        fi
+        ;;
+      *)
+        printf 'Unknown expectation "%s" on line %s of %s\n' \
+          "$vector_expectation" "$vector_line_number" "$vectors_file" >&2
+        fail "$vector_label"
+        ;;
+    esac
+  done < "$vectors_file"
+
+  if [ "$vector_number" -eq "$vectors_expected_count" ]; then
+    pass "all $vectors_expected_count shared vectors ran"
+  else
+    printf 'Ran %s vectors, expected %s\n' \
+      "$vector_number" "$vectors_expected_count" >&2
+    fail "all $vectors_expected_count shared vectors ran"
+  fi
+}
+
 run_absent_local_file_test
 run_fresh_test
 run_fresh_two_files_in_one_item_test
@@ -464,11 +716,14 @@ run_symlinked_component_escape_test
 run_symlinked_leaf_escape_test
 run_crlf_test
 run_unterminated_last_line_test
-run_ignored_lines_test
+run_bare_marker_tests
+run_fenced_block_tests
+run_line_length_bound_test
 run_indented_marker_test
 run_multiple_stale_items_test
 run_usage_tests
 run_local_file_not_regular_test
 run_dangling_local_symlink_test
+run_shared_vectors_test
 
 printf '\nAll %s local-layer staleness assertions passed.\n' "$passes"

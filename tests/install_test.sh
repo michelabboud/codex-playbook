@@ -1255,6 +1255,60 @@ EOF
   assert_untouched_destination "$skill_root" "$codex_home" 'local layer checked against source'
 }
 
+run_local_layer_agents_checked_against_source_test() {
+  case_root="$test_root/local-layer-agents-source-text"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$home/.agents/skills"
+  seed_untouched_destination "$skill_root" "$codex_home"
+  # The twin of the skill-file case: the phrase lives only in the *installed*
+  # router, so a preflight that read the installed AGENTS.md would find it and
+  # install a stale override.
+  printf 'a phrase only the installed router carries\n' >> "$codex_home/AGENTS.md"
+  cat > "$codex_home/$local_layer_name" <<'EOF'
+- **Override — written against the installed router.** Whatever I decided instead.
+  **Dead words:** `a phrase only the installed router carries` (in `AGENTS.md`)
+EOF
+
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$repo_root/scripts/install.sh" --replace-agents > "$case_root/install.log" 2>&1; then
+    fail 'install checks AGENTS.md entries against the source router, not the installed one'
+  else
+    pass 'install checks AGENTS.md entries against the source router, not the installed one'
+  fi
+  assert_contains 'a phrase only the installed router carries' "$case_root/install.log" \
+    'the refusal names the phrase the incoming AGENTS.md does not carry'
+  assert_contains "$repo_root/AGENTS.md" "$case_root/install.log" \
+    'the refusal names the source AGENTS.md as the file it searched'
+  assert_untouched_destination "$skill_root" "$codex_home" \
+    'AGENTS.md entry checked against source'
+}
+
+run_local_layer_is_never_created_test() {
+  case_root="$test_root/local-layer-never-created"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$home/.agents/skills"
+  mkdir -p "$home" "$codex_home"
+  local_file="$codex_home/$local_layer_name"
+
+  HOME="$home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/install.sh" > "$case_root/install.log"
+  backup_dir=$(reported_path 'Recovery checkpoint' "$case_root/install.log")
+  assert_absent "$local_file" \
+    'a first install on a home that never had a local layer creates none'
+  assert_absent "$backup_dir/$local_layer_name" \
+    'the checkpoint of a home with no local layer holds no local file either'
+
+  HOME="$home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/install.sh" --replace-agents > "$case_root/reinstall.log"
+  assert_absent "$local_file" '--replace-agents creates no local layer'
+
+  HOME="$home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/restore.sh" "$backup_dir" > "$case_root/restore.log"
+  assert_absent "$local_file" 'restore creates no local layer'
+}
+
 run_local_layer_survives_lifecycle_test() {
   case_root="$test_root/local-layer-lifecycle"
   home="$case_root/home"
@@ -1331,6 +1385,8 @@ run_inactive_resource_owner_refusal_test
 run_stale_local_layer_refusal_test
 run_unparsable_local_layer_refusal_test
 run_local_layer_checked_against_source_test
+run_local_layer_agents_checked_against_source_test
+run_local_layer_is_never_created_test
 run_local_layer_survives_lifecycle_test
 
 printf '\nAll %s installer lifecycle assertions passed.\n' "$passes"

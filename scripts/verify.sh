@@ -158,9 +158,15 @@ else
   pass "no placeholder text remains"
 fi
 
+# The shared conformance vectors are excluded because two of them are *about*
+# trailing blanks — "trailing spaces are allowed" after an item, and the marker
+# followed by one space and nothing else. The file is carried byte-identical by
+# both editions and its SHA-256 is pinned in tests/check_local_test.sh, so it is
+# guarded more tightly than this sweep could guard it.
 whitespace_matches=$(grep -RInE '[[:blank:]]+$' \
   --exclude-dir=.git \
   --exclude='*.png' \
+  --exclude=dead-words-vectors.tsv \
   . || true)
 if [ -z "$whitespace_matches" ]; then
   pass "tracked text contains no trailing whitespace"

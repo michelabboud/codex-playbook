@@ -22,13 +22,16 @@ All notable changes are recorded here. Dates are absolute.
   have except by adding a row in so many words.
 - **One pointer line opens the body of every managed skill**, because a skill
   loads long after the session began and cannot rely on the session-start read.
-- **`scripts/check-local.sh`** — POSIX `sh`, no new dependency. It reads every
-  `**Dead words:**` line and searches each named file for each quoted phrase as
-  a fixed string. Exit 0 fresh, or no local file; exit 1 stale, each finding
-  reported as `file:line` with the words and where they were sought; exit 2 for
-  a usage error, an unparsable line, or a named file that does not exist, is not
-  a regular file, or escapes its two roots through an absolute path, a `..`
-  component, or a symbolic link.
+- **`scripts/check-local.sh`** — POSIX `sh`, no new dependency. It scans every
+  `**Dead words:**` line left to right over its code spans, never splitting on
+  the separator, and searches each named file for each quoted phrase as a fixed
+  string. Exit 0 fresh, or no local file; exit 1 stale, each finding reported as
+  `file:line` with the words and where they were sought; exit 2 for a usage
+  error, an unparsable line, a bare marker that is not at the start of its line,
+  a line longer than 4,096 bytes, a fenced code block left open at the end of
+  the file, or a named file that does not exist, is not a regular file, or
+  escapes its two roots through an absolute path, a `..` component, or a
+  symbolic link.
 - **The installer runs that check in source preflight** — before `umask`, before
   any directory is created, before any backup — against the text the run would
   install, not the text already installed. Non-zero refuses the installation and
@@ -37,13 +40,22 @@ All notable changes are recorded here. Dates are absolute.
   name it.
 - **`templates/playbook-local.md`** — the grammar of a Dead-words line and a
   worked example of each kind. It is documentation: no inventory names it and
-  the installer never copies it. Its own examples quote real playbook text, and
-  `tests/rulebook_test.sh` runs the check against it so the template cannot go
-  stale unnoticed.
-- **`tests/check_local_test.sh`** — 64 assertions covering fresh, stale, one
+  the installer never copies it. **It ships with no entry in force:** every
+  example sits inside a fenced code block, which the check ignores, so the
+  reader who copies the file whole is bound by nothing. `tests/rulebook_test.sh`
+  requires the template to check zero items as shipped and to carry no
+  Dead-words line outside a fence.
+- **`tests/check_local_test.sh`** — 134 assertions covering fresh, stale, one
   file of two gone, unparsable lines, a missing named file, each path escape,
   words beginning with a dash, regex metacharacters searched literally, CRLF
-  line endings, an unterminated last line, and the usage errors.
+  line endings, an unterminated last line, the usage errors, the bare marker in
+  every shape a person writes it, fenced code blocks including a tilde fence, a
+  longer fence and one left open, the line-length bound, and all 44 shared
+  conformance vectors.
+- **`tests/fixtures/dead-words-vectors.tsv`** — 44 conformance vectors for the
+  Dead-words grammar, carried byte-identical by both editions and run by both.
+  The test pins the file's SHA-256, so an edit on either side is a failing test
+  rather than a quiet divergence.
 
 ### Changed
 
@@ -61,11 +73,56 @@ All notable changes are recorded here. Dates are absolute.
   the limit of the check; `CONTRIBUTING.md` records that rewording a rule can
   invalidate an installed user's Override, which is the check working.
 
+### Fixed
+
+- **A `**Dead words:**` marker that was not at the start of its line was
+  skipped in silence** — so an entry written in the natural Markdown shape, on
+  the same line as the Override it belongs to or after a list bullet, was never
+  parsed, and the check reported "0 items checked; every override still
+  matches" and let the installation proceed with a stale override in place. The
+  blocking finding of the mechanical review of 2026-09-21
+  (`docs/reviews/2026-09-21-local-layer-mechanical-review.md`, finding 1). The
+  bare marker anywhere other than the start of a line is now exit 2; prose that
+  names the marker puts it inside a code span; and a run that checked nothing
+  says so instead of claiming that every override matches.
+- **The grammar now matches the Claude edition's, and every shared vector runs.**
+  Quoted words are read verbatim between their backticks, so they may contain
+  ` · `, parentheses and the word "in"; a tab may follow the marker; one closing
+  `.` and trailing blanks are allowed; lines inside a fenced code block are
+  ignored and a fence left open at the end of the file is an error. Five of the
+  44 shared vectors failed before this (finding 2).
+- **The template's examples were live entries** that bound anyone who copied the
+  file as shipped (finding 5). They are now inert inside a fenced code block, a
+  ruling that goes to both editions.
+- **`ARCHITECTURE.md` said the router is "approximately 8 KB"** (finding 4). It
+  is 9,526 bytes; the line now says 9 KB and gives the measured figure.
+- **Three guarded behaviours had no test** (finding 3): that neither script ever
+  *creates* the local file, that the `AGENTS.md` paragraph states what makes an
+  Override stale and numbers local sections `L1`, `L2`, and that the preflight
+  reads the *source* `AGENTS.md` rather than the installed one. All three are
+  now asserted, and each of the review's surviving mutations is killed by the
+  assertion written for it.
+- **`INSTALL.md`'s installer-order list** was numbered `1. 1. 2. 3.` and claimed
+  the override state and the destinations were validated before the local check,
+  which runs first (informational finding I1). The list is now numbered once
+  through, in the order the code runs.
+- **A local-layer line is bounded at 4,096 bytes** (informational finding I2):
+  the scanner's cost grows with the square of a line's length and had no bound.
+  Measured here: 113 items at 3,742 bytes parse in 11 ms; unbounded, the review
+  measured 7.5 s for 3,000 items and 57 s for 12,000. This bound is this
+  edition's alone and is recorded in the parity matrix.
+
 ### Publication
 
 - Held: `checkpoint/0.1.6` is not tagged until the Claude edition publishes
   `checkpoint/0.1.16`, whose text this ports — the same ordering 0.1.4 kept. The
-  parity matrix names the source commit.
+  parity matrix names the source commit, now the one carrying the completed
+  Dead-words grammar and the shared vectors.
+- The batch's mechanical review returned FAIL with one blocking finding; all
+  five findings were confirmed by the coordinator
+  (`docs/reviews/2026-09-21-local-layer-mechanical-review-validation.md`) and
+  every one is fixed above. The batch stays held for a focused mechanical
+  re-check and then the deep review.
 
 ## 0.1.5 — 2026-09-20
 

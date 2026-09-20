@@ -124,7 +124,8 @@ what you actually have), an **Add** (a rule the playbook lacks, under your own
 `**Dead words:**` the playbook's exact words that no longer apply, each with the
 file they are in). Start from
 [`templates/playbook-local.md`](templates/playbook-local.md), which carries the
-grammar and a worked example of each kind.
+grammar and a worked example of each kind — inside a fenced code block, so the
+copy you make binds you to nothing until you write an entry of your own.
 
 `scripts/check-local.sh` searches each named file for each quoted phrase as a
 fixed string. Found: the override still bites on the text it was written
@@ -133,6 +134,11 @@ the installer refuses the update — naming the entry's `file:line` and the word
 — until you re-read the rule and rewrite the entry. The check runs in source
 preflight, before any directory is created and before any backup, against the
 text the run would install. There is no flag to install past it.
+
+It fails closed. A `**Dead words:**` marker that is not the first thing on its
+line is an error, never an entry quietly passed over, so no override can be
+skipped and then reported as matching; prose about the marker puts it inside a
+code span, and a fenced code block is ignored entirely.
 
 ## Source parity
 

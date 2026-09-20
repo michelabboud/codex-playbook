@@ -510,8 +510,10 @@ Read it at the start of a session when it exists
 the entry wins over the playbook's wording
 A **Fill** supplies a value a rule leaves open
 An **Add** is a rule or note the playbook lacks
+numbered `L1`, `L2`, and onward
 numbers the playbook never uses
 An **Override** changes a named rule
+quotes, after **Dead words:**, the playbook's exact words that no longer apply, each with the file they are in;
 the override is **stale**: tell me before relying on it
 An absent file means nothing is customized
 never adds authority the approval table does not have, except by adding a row in so many words
@@ -567,6 +569,7 @@ else
 fi
 
 template_failures=0
+template_check_failed=0
 local_template=templates/playbook-local.md
 if [ ! -f "$local_template" ] || [ -L "$local_template" ]; then
   printf '%s is missing or is not a regular file\n' "$local_template" >&2
@@ -577,14 +580,34 @@ else
     printf 'an installer inventory names templates/, which the installer must never install\n' >&2
     template_failures=$((template_failures + 1))
   fi
-  if ! ./scripts/check-local.sh "$local_template" . .agents/skills >/dev/null 2>&1; then
+  # A template ships with no live entry. Its examples sit inside a fenced code
+  # block, which the checker ignores, so a reader who copies the file whole is
+  # bound by nothing and the checker searches for nothing.
+  template_check=$(./scripts/check-local.sh "$local_template" . .agents/skills 2>&1) ||
+    template_check_failed=1
+  if [ "${template_check_failed:-0}" -ne 0 ]; then
     printf '%s does not pass the staleness check against this checkout\n' "$local_template" >&2
-    ./scripts/check-local.sh "$local_template" . .agents/skills >&2 || true
+    printf '%s\n' "$template_check" >&2
+    template_failures=$((template_failures + 1))
+  fi
+  if ! printf '%s\n' "$template_check" | grep -Fq '0 dead-words item(s) checked'; then
+    printf '%s carries a live Dead-words entry; the template must check nothing:\n%s\n' \
+      "$local_template" "$template_check" >&2
+    template_failures=$((template_failures + 1))
+  fi
+  unfenced_markers=$(
+    awk '/^[ \t]*(```|~~~)/ { fenced = !fenced; next } !fenced { print }' \
+      "$local_template" |
+      grep -c '^[ \t]*\*\*Dead words:\*\*' || true
+  )
+  if [ "$unfenced_markers" -ne 0 ]; then
+    printf '%s carries %s Dead-words line(s) outside a fenced code block\n' \
+      "$local_template" "$unfenced_markers" >&2
     template_failures=$((template_failures + 1))
   fi
 fi
 if [ "$template_failures" -eq 0 ]; then
-  pass 'the local-layer template exists outside every installer inventory and its own examples are fresh'
+  pass 'the local-layer template exists outside every installer inventory, carries no live entry, and checks nothing as shipped'
 else
   fail "$template_failures local-layer template check(s) failed"
 fi

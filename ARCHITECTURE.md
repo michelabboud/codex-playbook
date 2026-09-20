@@ -55,9 +55,9 @@ Loading them after the action would be too late. `AGENTS.md` therefore retains:
 - critical rules 0.1–0.4; and
 - the skill trigger index.
 
-At approximately 8 KB, this leaves substantially more of Codex's combined
-global/project instruction budget available to each repository than the old
-13 KB monolith. The full rule corpus is approximately 100 KB but is never loaded
+At approximately 9 KB — 9,526 bytes at this version, measured — this leaves
+substantially more of Codex's combined global/project instruction budget
+available to each repository than the old 13 KB monolith. The full rule corpus is approximately 100 KB but is never loaded
 as a unit.
 
 Skills carry procedure and detail, never new authority. A skill may explain how
@@ -140,6 +140,16 @@ each named file for each quoted phrase as a fixed string, and the installer runs
 it in source preflight — before `umask`, before any directory is created, before
 any backup — against the text that run would install. Non-zero refuses the
 install, with no flag to pass it. The check adds no write path to the installer.
+
+**It fails closed**, which is the property the whole mechanism rests on: a line
+carrying the bare marker anywhere other than its start is an error rather than
+a line the parser passes over, so no entry can be skipped in silence and then
+reported as matching. Prose that names the marker puts it inside a code span,
+and lines inside a fenced code block are ignored entirely — which is how the
+template can show the grammar without the example binding its reader. The
+grammar itself is shared with the Claude edition: both repositories carry
+`tests/fixtures/dead-words-vectors.tsv`, byte for byte, and each runs all 44 of
+its vectors against its own implementation.
 
 Its limit is stated rather than hidden: it catches a *rewritten* sentence, not a
 *changed meaning* elsewhere in the same rule. `INSTALL.md` therefore also has

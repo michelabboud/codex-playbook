@@ -3,6 +3,20 @@
 New work belongs here only when it is valuable, out-of-scope for the current
 approved phase, and described concretely enough to become a future plan.
 
+- **2026-09-21 · parity · open** — the 4,096-byte bound on a local-layer line
+  exists in this edition only (informational finding I2 of the mechanical
+  review). The Claude edition's parser has no bound and would accept a longer
+  line. Offer the bound upstream, or record the divergence permanently; the
+  parity matrix carries it for now.
+- **2026-09-21 · shared vectors · open** — both editions accept `, and ` as a
+  join between two file names and no shared vector covers it, so nothing would
+  catch one edition dropping it. The vectors file is byte-identical between the
+  repositories, so adding a vector is a change to both: raise it with the
+  Claude edition rather than editing the fixture here.
+- **2026-09-21 · parity · open** — the Claude edition's checker ends every run
+  with a machine-readable count line; this one carries the same count inside
+  its human summary instead, which the vector test parses. If a third caller
+  ever needs the count, adopt the source's line rather than parsing prose.
 - **2026-09-21 · verification · open** — no fresh Codex session has yet been
   observed reading `playbook-local.md` at session start, or honouring a skill's
   pointer line. The mechanism is a sentence in `AGENTS.md` plus one line per

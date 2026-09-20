@@ -9,6 +9,9 @@ Strong tier from the second model family; nothing is pushed before it is ruled.
 
 **Plan:** `docs/plans/2026-09-21-local-layer-plan.md`
 **Decision:** `docs/adr/0005-the-local-layer.md`
+**Review:** `docs/reviews/2026-09-21-local-layer-mechanical-review.md` ·
+`…-validation.md` — mechanical, target `5c90bb6`: **FAIL**, one blocking
+finding, five of five confirmed by the coordinator.
 
 - [x] 1 · Rules text — the `AGENTS.md` local-layer paragraph, the self-update
   sentence corrected, one pointer line in all sixteen managed skills, asserted
@@ -19,6 +22,13 @@ Strong tier from the second model family; nothing is pushed before it is ruled.
 - [x] 4 · `templates/playbook-local.md`, `INSTALL.md`, and the
   `codex-playbook-self-update` skill — 2026-09-21.
 - [x] 5 · Propagation and close-out at 0.1.6 — 2026-09-21.
+- [x] 6 · The mechanical review's five findings repaired, with informational
+  I1 and I2 — the parser scans code spans and fails closed, all 44 shared
+  vectors run, the template ships no live entry, and finding 3's three
+  guarantees are asserted — 2026-09-21. Left **uncommitted** in the repair
+  lane's worktree; the report is `LANE-B2-REPORT.md`.
+- [ ] Focused mechanical re-check of the repair, at the depth of the review
+  that found the defect.
 - [ ] Deep review of tasks 2 and 3, then of the batch; findings ruled.
 - [ ] `checkpoint/0.1.6` tagged and pushed — **only after** the Claude edition's
   `checkpoint/0.1.16` exists, as the parity matrix records.

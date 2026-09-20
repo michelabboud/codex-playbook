@@ -54,8 +54,11 @@ Exit 0 is fresh. Exit 1 names each stale override as `file:line` with the words
 that are gone: report them and let the owner rewrite the entry against the new
 rule. Never delete or edit quoted words to silence the check — that is the
 override losing its meaning silently, which is the failure this check exists to
-prevent. Exit 2 is an unparsable line or a named file that is missing or escapes
-its root; report it the same way.
+prevent. Exit 2 is an unparsable line, a `**Dead words:**` marker that is not at
+the start of its line, a line longer than 4,096 bytes, an unclosed fenced code
+block, or a named file that is missing or escapes its root; report it the same
+way. The check fails closed on purpose: it refuses rather than skipping, so no
+entry is ever passed over in silence.
 
 The installer runs the same check in source preflight and refuses on a non-zero
 result, before any directory is created and before any backup. There is no flag
