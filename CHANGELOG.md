@@ -9,8 +9,11 @@ All notable changes are recorded here. Dates are absolute.
 - **The rule 3.5 wording contract checked its required phrases across the whole reviews skill.**
   It now requires every phrase within the extracted rule 3.5 and separately sweeps the whole
   skill for forbidden superseded wording. The fifth independent review found the gap, and the
-  same model family fixed it at the owner's word. This changes neither rulebook nor installer
-  behaviour.
+  same model family fixed it. Before publication, the task's mechanical review — performed by
+  a different model family from the worker — found that the contract needed to name each
+  sentence at fault, pin `opens an **ad-hoc batch**` in the prose rather than through the table,
+  and identify its forbidden-wording sweep as covering rules 3.1, 3.3 and 3.5. This changes
+  neither rulebook nor installer behaviour.
 
 ## 0.1.4 — 2026-09-20
 

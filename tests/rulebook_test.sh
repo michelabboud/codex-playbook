@@ -357,28 +357,57 @@ else
   fail "$worked_case_failures rule 3.5 worked-case contract check(s) failed"
 fi
 
-if grep -Fq 'a line carries at most three unruled batches, the open one included' "$rule_35" &&
-   grep -Fq 'One batch is open per line at a time' "$rule_35" &&
-   grep -Fq "Every landing belongs to the line's open batch" "$rule_35" &&
-   grep -Fq 'ad-hoc batch' "$rule_35" &&
-   grep -Fq 'Only closed work merges between lines' "$rule_35" &&
-   grep -Fq 'What this rule does not name is resolved toward review' "$rule_35" &&
-   grep -Fq 'the only work the line accepts is what rules a batch' "$rule_35" &&
-   grep -Fq 'the row wins' "$rule_35"; then
+required_rule_35_failures=
+while IFS= read -r sentence
+do
+  if ! grep -Fq "$sentence" "$rule_35"; then
+    if [ -n "$required_rule_35_failures" ]; then
+      required_rule_35_failures="$required_rule_35_failures; "
+    fi
+    required_rule_35_failures="${required_rule_35_failures}rule 3.5 itself is missing: \"$sentence\""
+  fi
+done <<'EOF'
+a line carries at most three unruled batches, the open one included
+One batch is open per line at a time
+Every landing belongs to the line's open batch
+opens an **ad-hoc batch**
+Only closed work merges between lines
+What this rule does not name is resolved toward review
+the only work the line accepts is what rules a batch
+the row wins
+EOF
+if [ -z "$required_rule_35_failures" ]; then
   pass 'rule 3.5 itself states the ceiling as one invariant, admits every landing to the open batch (ad-hoc where no plan covers it), merges only closed work, resolves the unnamed toward review, and gives the table precedence'
 else
-  fail "rule 3.5 itself must state the ceiling as one invariant (\"a line carries at most three unruled batches, the open one included\"), say \"One batch is open per line at a time\", \"Every landing belongs to the line's open batch\", \"ad-hoc batch\", \"Only closed work merges between lines\", the residual clause \"What this rule does not name is resolved toward review\", \"the only work the line accepts is what rules a batch\" and \"the row wins\""
+  fail "$required_rule_35_failures"
 fi
 
-if ! grep -Fq 'never blocks the next task' "$reviews_file" &&
-   ! grep -Fq 'anywhere above it' "$reviews_file" &&
-   ! grep -Fq 'merge adds' "$reviews_file" &&
-   ! grep -Fq 'a new batch starts only while at most two closed batches are unruled' "$reviews_file" &&
-   ! grep -Fq 'Nothing lands on a line outside a batch' "$reviews_file" &&
-   ! grep -Fq 'ceiling of two' "$reviews_file"; then
-  pass 'the reviews skill contains no superseded rule 3.5 wording'
+forbidden_reviews_failures=
+while IFS= read -r sentence
+do
+  matches=$(grep -nF "$sentence" "$reviews_file" || true)
+  if [ -n "$matches" ]; then
+    locations=$(
+      printf '%s\n' "$matches" |
+        awk -F: -v file="$reviews_file" '{ printf "%s%s:%s", separator, file, $1; separator = ", " }'
+    )
+    if [ -n "$forbidden_reviews_failures" ]; then
+      forbidden_reviews_failures="$forbidden_reviews_failures; "
+    fi
+    forbidden_reviews_failures="${forbidden_reviews_failures}superseded sentence \"$sentence\" found at $locations"
+  fi
+done <<'EOF'
+never blocks the next task
+anywhere above it
+merge adds
+a new batch starts only while at most two closed batches are unruled
+Nothing lands on a line outside a batch
+ceiling of two
+EOF
+if [ -z "$forbidden_reviews_failures" ]; then
+  pass 'the reviews skill contains none of the six superseded sentences of rules 3.1, 3.3 and 3.5'
 else
-  fail "the reviews skill must not say \"never blocks the next task\", \"anywhere above it\", \"merge adds\", \"a new batch starts only while at most two closed batches are unruled\" (not exact — the fourth review), \"Nothing lands on a line outside a batch\" (contradicted the table — the fourth review), or \"ceiling of two\""
+  fail "the reviews skill contains one or more of the six superseded sentences of rules 3.1, 3.3 and 3.5: $forbidden_reviews_failures"
 fi
 
 resource_inventory=config/managed-resources.txt
