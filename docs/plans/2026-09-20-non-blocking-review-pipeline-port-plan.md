@@ -1,6 +1,8 @@
 # Plan — port the non-blocking review pipeline into Codex Playbook (→ 0.1.4)
 
-- **Status:** DRAFT, **revision 2** — awaiting the owner's go (rule 7.1). Revision 1 (`a654bde`)
+- **Status:** APPROVED 2026-09-20 — the owner's "go" on revision 2; he named no ceiling reading, so
+  the recommended one stands: **(a) two closed unruled batches plus the one being built**.
+  Step S0 done the same day (`claude-code-playbook` `checkpoint/0.1.14`). Revision 1 (`a654bde`)
   was reviewed by Astra the same day: *proceed with changes*, eleven findings, all confirmed —
   `docs/reviews/2026-09-20-astra-pipeline-port-plan-opinion.md` and `…-validation.md`. §0 below
   is what changed; the body is rewritten to match.
