@@ -107,6 +107,7 @@ codex_home=${CODEX_HOME:-"$HOME/.codex"}
 skills_root="$HOME/.agents/skills"
 agents_source="$repo_root/AGENTS.md"
 agents_target="$codex_home/AGENTS.md"
+local_layer_target="$codex_home/playbook-local.md"
 active_inventory="$repo_root/config/managed-skills.txt"
 retired_inventory="$repo_root/config/retired-skills.txt"
 resource_inventory="$repo_root/config/managed-resources.txt"
@@ -206,6 +207,8 @@ done
 [ -f "$repo_root/VERSION" ] || die 'The source VERSION file is missing.'
 [ -x "$repo_root/scripts/restore.sh" ] ||
   die 'The restore script is missing or is not executable.'
+[ -x "$repo_root/scripts/check-local.sh" ] ||
+  die 'The local-layer check script is missing or is not executable.'
 
 for source_tree in "$repo_root/.agents" "$repo_root/.agents/skills"
 do
@@ -236,6 +239,15 @@ do
   grep -Fxq "$resource_owner" "$active_inventory" ||
     die "The managed resource $resource_path belongs to $resource_owner, which is not an active skill."
 done
+
+# Source preflight, still before umask, before any directory is created and
+# before any backup: every "Dead words:" entry of the user's local layer is
+# checked against the text this run is about to install. A stale or unparsable
+# entry refuses the installation. This adds no write path: the local layer is
+# read here and touched nowhere else.
+"$repo_root/scripts/check-local.sh" "$local_layer_target" "$repo_root" \
+  "$repo_root/.agents/skills" ||
+  die "The local layer at $local_layer_target does not match the playbook text this run would install. Re-read the rules named above and rewrite those entries; there is no flag to install past this."
 
 override_target="$codex_home/AGENTS.override.md"
 if [ -L "$override_target" ] || { [ -e "$override_target" ] && [ ! -f "$override_target" ]; }; then

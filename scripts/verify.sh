@@ -46,8 +46,11 @@ for required_file in \
   docs/assets/codex-playbook-hero.png \
   docs/runbooks/github-pages.md \
   docs/reports/2026-09-17-rule-parity-matrix.md \
+  scripts/check-local.sh \
   scripts/install.sh \
   scripts/restore.sh \
+  templates/playbook-local.md \
+  tests/check_local_test.sh \
   tests/install_test.sh \
   tests/rulebook_test.sh
 do
@@ -77,7 +80,8 @@ else
   fail "modular rulebook contract fails"
 fi
 
-for shell_file in scripts/install.sh scripts/restore.sh tests/install_test.sh tests/rulebook_test.sh
+for shell_file in scripts/check-local.sh scripts/install.sh scripts/restore.sh \
+  tests/check_local_test.sh tests/install_test.sh tests/rulebook_test.sh
 do
   if [ -x "$shell_file" ]; then
     pass "$shell_file is executable"
@@ -90,6 +94,12 @@ do
     fail "$shell_file has invalid shell syntax"
   fi
 done
+
+if ./tests/check_local_test.sh; then
+  pass "local-layer staleness tests pass"
+else
+  fail "local-layer staleness tests fail"
+fi
 
 if ./tests/install_test.sh; then
   pass "installer lifecycle tests pass"

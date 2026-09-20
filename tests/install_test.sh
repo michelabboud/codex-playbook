@@ -79,6 +79,27 @@ assert_mode() {
   fi
 }
 
+mtime_of() {
+  if stat -f '%m' "$1" >/dev/null 2>&1; then
+    stat -f '%m' "$1"
+  else
+    stat -c '%Y' "$1"
+  fi
+}
+
+assert_mtime() {
+  expected=$1
+  target=$2
+  label=$3
+  actual=$(mtime_of "$target")
+  if [ "$actual" = "$expected" ]; then
+    pass "$label"
+  else
+    printf 'Expected mtime %s, got %s: %s\n' "$expected" "$actual" "$target" >&2
+    fail "$label"
+  fi
+}
+
 assert_active_install() {
   skill_root=$1
   label_prefix=$2
@@ -935,7 +956,9 @@ build_complete_source_fixture() {
   cp "$repo_root/VERSION" "$fixture_root/VERSION"
   cp "$repo_root/scripts/install.sh" "$fixture_root/scripts/install.sh"
   cp "$repo_root/scripts/restore.sh" "$fixture_root/scripts/restore.sh"
-  chmod +x "$fixture_root/scripts/install.sh" "$fixture_root/scripts/restore.sh"
+  cp "$repo_root/scripts/check-local.sh" "$fixture_root/scripts/check-local.sh"
+  chmod +x "$fixture_root/scripts/install.sh" "$fixture_root/scripts/restore.sh" \
+    "$fixture_root/scripts/check-local.sh"
   cp -pR "$repo_root/config/." "$fixture_root/config/"
   for skill_name in $active_skill_names
   do
@@ -1140,6 +1163,140 @@ run_inactive_resource_owner_refusal_test() {
     'inactive resource owner'
 }
 
+local_layer_name=playbook-local.md
+
+write_fresh_local_layer() {
+  cat > "$1" <<'EOF'
+# LOCAL — my local layer
+
+- **Fill — the registry home.** Mine lives elsewhere.
+- **Override — mechanical review.** Whatever I decided instead.
+  **Dead words:** `Standard tier` (in `codex-playbook-reviews/SKILL.md`)
+- **Override — the version line.** Whatever I decided instead.
+  **Dead words:** `This rulebook is version` (in `AGENTS.md`)
+EOF
+}
+
+run_stale_local_layer_refusal_test() {
+  case_root="$test_root/stale-local-layer"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$home/.agents/skills"
+  seed_untouched_destination "$skill_root" "$codex_home"
+  cat > "$codex_home/$local_layer_name" <<'EOF'
+- **Override — a rule this playbook rewrote.** Whatever I decided instead.
+  **Dead words:** `a sentence this playbook no longer carries` (in `AGENTS.md`)
+EOF
+  cp "$codex_home/$local_layer_name" "$case_root/expected-local.md"
+
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$repo_root/scripts/install.sh" --replace-agents > "$case_root/install.log" 2>&1; then
+    fail 'install refuses a stale local layer'
+  else
+    pass 'install refuses a stale local layer'
+  fi
+  assert_contains 'a sentence this playbook no longer carries' "$case_root/install.log" \
+    'the stale refusal quotes the words that are gone'
+  assert_contains "$codex_home/$local_layer_name:2:" "$case_root/install.log" \
+    'the stale refusal reports the entry as file:line'
+  assert_untouched_destination "$skill_root" "$codex_home" 'stale local layer'
+  assert_file_equal "$case_root/expected-local.md" "$codex_home/$local_layer_name" \
+    'stale local layer: the refused installation leaves the local file byte-identical'
+}
+
+run_unparsable_local_layer_refusal_test() {
+  case_root="$test_root/unparsable-local-layer"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$home/.agents/skills"
+  seed_untouched_destination "$skill_root" "$codex_home"
+  cat > "$codex_home/$local_layer_name" <<'EOF'
+- **Override — an entry I mistyped.** Whatever I decided instead.
+  **Dead words:** Standard tier (in codex-playbook-reviews/SKILL.md)
+EOF
+  cp "$codex_home/$local_layer_name" "$case_root/expected-local.md"
+
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$repo_root/scripts/install.sh" --replace-agents > "$case_root/install.log" 2>&1; then
+    fail 'install refuses an unparsable local layer'
+  else
+    pass 'install refuses an unparsable local layer'
+  fi
+  assert_contains 'does not parse' "$case_root/install.log" \
+    'the unparsable refusal says the line does not parse'
+  assert_contains "$codex_home/$local_layer_name:2:" "$case_root/install.log" \
+    'the unparsable refusal reports the line as file:line'
+  assert_untouched_destination "$skill_root" "$codex_home" 'unparsable local layer'
+  assert_file_equal "$case_root/expected-local.md" "$codex_home/$local_layer_name" \
+    'unparsable local layer: the refused installation leaves the local file byte-identical'
+}
+
+run_local_layer_checked_against_source_test() {
+  case_root="$test_root/local-layer-source-text"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$home/.agents/skills"
+  seed_untouched_destination "$skill_root" "$codex_home"
+  printf 'a phrase only the installed copy carries\n' \
+    >> "$skill_root/codex-playbook-subagents/SKILL.md"
+  cat > "$codex_home/$local_layer_name" <<'EOF'
+- **Override — written against the installed copy.** Whatever I decided instead.
+  **Dead words:** `a phrase only the installed copy carries` (in `codex-playbook-subagents/SKILL.md`)
+EOF
+
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$repo_root/scripts/install.sh" --replace-agents > "$case_root/install.log" 2>&1; then
+    fail 'install checks the local layer against the source text, not the installed text'
+  else
+    pass 'install checks the local layer against the source text, not the installed text'
+  fi
+  assert_contains 'a phrase only the installed copy carries' "$case_root/install.log" \
+    'the refusal names the phrase the incoming text does not carry'
+  assert_untouched_destination "$skill_root" "$codex_home" 'local layer checked against source'
+}
+
+run_local_layer_survives_lifecycle_test() {
+  case_root="$test_root/local-layer-lifecycle"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$home/.agents/skills"
+  mkdir -p "$home" "$codex_home"
+  local_file="$codex_home/$local_layer_name"
+  write_fresh_local_layer "$local_file"
+  cp "$local_file" "$case_root/expected-local.md"
+  chmod 640 "$local_file"
+  touch -t 202601020304.05 "$local_file"
+  expected_mode=$(mode_of "$local_file")
+  expected_mtime=$(mtime_of "$local_file")
+
+  HOME="$home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/install.sh" > "$case_root/install.log"
+  backup_dir=$(reported_path 'Recovery checkpoint' "$case_root/install.log")
+
+  assert_file_equal "$case_root/expected-local.md" "$local_file" \
+    'first install leaves the local file byte-identical'
+  assert_mode "$expected_mode" "$local_file" 'first install leaves the local file mode'
+  assert_mtime "$expected_mtime" "$local_file" 'first install leaves the local file mtime'
+  assert_absent "$backup_dir/$local_layer_name" \
+    'the recovery checkpoint does not copy the local file'
+
+  HOME="$home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/install.sh" --replace-agents > "$case_root/reinstall.log"
+
+  assert_file_equal "$case_root/expected-local.md" "$local_file" \
+    '--replace-agents leaves the local file byte-identical'
+  assert_mode "$expected_mode" "$local_file" '--replace-agents leaves the local file mode'
+  assert_mtime "$expected_mtime" "$local_file" '--replace-agents leaves the local file mtime'
+
+  HOME="$home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/restore.sh" "$backup_dir" > "$case_root/restore.log"
+
+  assert_file_equal "$case_root/expected-local.md" "$local_file" \
+    'restore leaves the local file byte-identical'
+  assert_mode "$expected_mode" "$local_file" 'restore leaves the local file mode'
+  assert_mtime "$expected_mtime" "$local_file" 'restore leaves the local file mtime'
+}
+
 run_first_install_and_restore_test
 run_refusal_test
 run_shadowed_agents_refusal_test
@@ -1171,5 +1328,9 @@ run_symlink_inside_active_skill_refusal_test
 run_symlinked_skills_directory_refusal_test
 run_unterminated_resource_inventory_refusal_test
 run_inactive_resource_owner_refusal_test
+run_stale_local_layer_refusal_test
+run_unparsable_local_layer_refusal_test
+run_local_layer_checked_against_source_test
+run_local_layer_survives_lifecycle_test
 
 printf '\nAll %s installer lifecycle assertions passed.\n' "$passes"
