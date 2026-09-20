@@ -2,6 +2,71 @@
 
 All notable changes are recorded here. Dates are absolute.
 
+## 0.1.6 — 2026-09-21
+
+### Added
+
+- **The local layer: customizations live in one file the playbook never
+  touches** — `${CODEX_HOME:-$HOME/.codex}/playbook-local.md`. It is never
+  shipped, and `scripts/install.sh` and `scripts/restore.sh` never create, write
+  over, move, copy, or delete it. Installation reads it once, in source
+  preflight, and touches it nowhere else. Decision:
+  `docs/adr/0005-the-local-layer.md`; source, `claude-code-playbook` ADR 0004.
+- **`AGENTS.md` gives it its force**, in a paragraph headed "The local layer":
+  read the file at the start of a session when it exists, and where an entry
+  there changes a rule, the entry wins over the playbook's wording. An entry is
+  a **Fill**, an **Add** under its own `L1`, `L2` sections, or an **Override**
+  quoting after `**Dead words:**` the playbook's exact words that no longer
+  apply, each with the file they are in. An absent file means nothing is
+  customized, and the local layer adds no authority the approval table does not
+  have except by adding a row in so many words.
+- **One pointer line opens the body of every managed skill**, because a skill
+  loads long after the session began and cannot rely on the session-start read.
+- **`scripts/check-local.sh`** — POSIX `sh`, no new dependency. It reads every
+  `**Dead words:**` line and searches each named file for each quoted phrase as
+  a fixed string. Exit 0 fresh, or no local file; exit 1 stale, each finding
+  reported as `file:line` with the words and where they were sought; exit 2 for
+  a usage error, an unparsable line, or a named file that does not exist, is not
+  a regular file, or escapes its two roots through an absolute path, a `..`
+  component, or a symbolic link.
+- **The installer runs that check in source preflight** — before `umask`, before
+  any directory is created, before any backup — against the text the run would
+  install, not the text already installed. Non-zero refuses the installation and
+  there is no flag to pass it. The installer gained no write path; `restore.sh`
+  gained no code at all, because the surest way not to touch a file is not to
+  name it.
+- **`templates/playbook-local.md`** — the grammar of a Dead-words line and a
+  worked example of each kind. It is documentation: no inventory names it and
+  the installer never copies it. Its own examples quote real playbook text, and
+  `tests/rulebook_test.sh` runs the check against it so the template cannot go
+  stale unnoticed.
+- **`tests/check_local_test.sh`** — 64 assertions covering fresh, stale, one
+  file of two gone, unparsable lines, a missing named file, each path escape,
+  words beginning with a dash, regex metacharacters searched literally, CRLF
+  line endings, an unterminated last line, and the usage errors.
+
+### Changed
+
+- The self-update sentence of `AGENTS.md` no longer speaks of replacing tailored
+  rules. Tailoring belongs in the local layer; an update replaces every managed
+  file wholesale.
+- `codex-playbook-self-update` runs the check before proposing a replacement,
+  reports each stale entry by `file:line` rather than silencing it, cross-checks
+  the changelog for overridden rules whose meaning moved without their quoted
+  sentence moving, and carries the migration for tailoring still living inside a
+  managed file.
+- `INSTALL.md` gains "Make it yours: the local layer", a rewritten update
+  procedure that checks before it installs, and a migration section. `README.md`
+  gains "Make it yours"; `ARCHITECTURE.md` gains the local-layer boundary and
+  the limit of the check; `CONTRIBUTING.md` records that rewording a rule can
+  invalidate an installed user's Override, which is the check working.
+
+### Publication
+
+- Held: `checkpoint/0.1.6` is not tagged until the Claude edition publishes
+  `checkpoint/0.1.16`, whose text this ports — the same ordering 0.1.4 kept. The
+  parity matrix names the source commit.
+
 ## 0.1.5 — 2026-09-20
 
 ### Fixed

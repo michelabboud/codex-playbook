@@ -66,7 +66,7 @@ Codex Playbook uses that progressive-disclosure model:
 - All three platform skills install for portability. The router selects only the
   execution environment's skill: Linux or WSL, macOS, or native Windows.
 
-The global router is about 8 KB instead of loading the roughly 100 KB complete
+The global router is about 9 KB instead of loading the roughly 100 KB complete
 rule corpus into every session.
 
 ## Install
@@ -100,12 +100,39 @@ upgrade, restore, and Windows guidance is in [`INSTALL.md`](INSTALL.md).
 | Global authority router | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` | Always-loaded partnership, authority, classification, approval, and trigger routing |
 | Sixteen personal skills | `$HOME/.agents/skills/codex-playbook-*/` | Full subject procedures loaded through progressive disclosure |
 | Recovery checkpoint | `${CODEX_HOME:-$HOME/.codex}/backups/` | Verified pre-install state for exact restoration |
+| **Never installed, never touched** | `${CODEX_HOME:-$HOME/.codex}/playbook-local.md` | Your local layer: the one file the scripts only ever read |
 
 The installer does not modify `config.toml`, authentication, sessions, plugins,
 unrelated skills, or any other Codex state. An upgrade from v0.1.x creates a
 checkpoint and retires the obsolete dependency-review and release skills only
 after their contents are safely captured; their rules now live in the code and
 workflow skills.
+
+## Make it yours
+
+"Make it your own" used to mean editing the installed files, which made every
+update a merge. It no longer does. Your customizations live in one file the
+playbook never ships and neither script ever creates, writes over, moves, or
+deletes: `${CODEX_HOME:-$HOME/.codex}/playbook-local.md`. `AGENTS.md` gives it
+its force in a paragraph headed "The local layer" — read it at the start of a
+session when it exists, and **where an entry there changes a rule, the entry
+wins over the playbook's wording.** An absent file means nothing is customized.
+
+An entry is a **Fill** (a value a rule leaves open, or a generic term bound to
+what you actually have), an **Add** (a rule the playbook lacks, under your own
+`L1`, `L2` sections), or an **Override** (a named rule changed, quoting after
+`**Dead words:**` the playbook's exact words that no longer apply, each with the
+file they are in). Start from
+[`templates/playbook-local.md`](templates/playbook-local.md), which carries the
+grammar and a worked example of each kind.
+
+`scripts/check-local.sh` searches each named file for each quoted phrase as a
+fixed string. Found: the override still bites on the text it was written
+against. Not found: the playbook rewrote that rule, the override is stale, and
+the installer refuses the update — naming the entry's `file:line` and the words
+— until you re-read the rule and rewrite the entry. The check runs in source
+preflight, before any directory is created and before any backup, against the
+text the run would install. There is no flag to install past it.
 
 ## Source parity
 
@@ -128,10 +155,13 @@ config/managed-skills.txt authoritative installed-skill inventory
 config/managed-resources.txt  nested files an installation depends on
 config/rule-manifest.tsv  authoritative 50-rule ownership map
 INSTALL.md                backup-first install and recovery procedure
+templates/playbook-local.md  local-layer template; documentation, never installed
 scripts/install.sh        format-2 transactional installer
 scripts/restore.sh        format-1/format-2 transactional restoration
+scripts/check-local.sh    local-layer staleness check, run in source preflight
 tests/rulebook_test.sh    exact rule, owner, metadata, and visual parity checks
 tests/install_test.sh     isolated install, upgrade, rollback, and restore tests
+tests/check_local_test.sh local-layer grammar, staleness, and path-escape tests
 docs/index.html           visual playbook served by GitHub Pages
 docs/adr/                 architectural decisions
 docs/reports/             parity and verification evidence
@@ -140,7 +170,7 @@ docs/plans/               approved designs and implementation plans
 
 ## Version
 
-Current: **v0.1.5**. `VERSION` is the source of truth; release detail lives in
+Current: **v0.1.6**. `VERSION` is the source of truth; release detail lives in
 [`CHANGELOG.md`](CHANGELOG.md).
 
 ## License

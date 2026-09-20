@@ -18,6 +18,17 @@ behavior.
   implementation.
 - Update `config/managed-skills.txt` when a skill is added, renamed, or retired;
   the installer, restore command, and lifecycle tests consume that inventory.
+- **Rewording a rule can break an installed user's Override.** An Override in a
+  user's `playbook-local.md` quotes the playbook's exact words after
+  `**Dead words:**`, and `scripts/check-local.sh` refuses their next update when
+  those words are gone. That refusal is the feature working — the user re-reads
+  the rule and rewrites the entry — so reword freely, and say plainly in the
+  changelog entry which rule changed, because the check cannot see a changed
+  meaning that leaves the quoted sentence standing.
+- A new skill needs the one local-layer pointer line as the first line of its
+  body, and `templates/playbook-local.md` must still pass
+  `./scripts/check-local.sh templates/playbook-local.md . .agents/skills` — its
+  examples quote real playbook text on purpose.
 - Update `config/managed-resources.txt` when a skill gains, loses, or renames a
   nested file an installation depends on — a reference a rule tells the reader
   to open. The installer reads it during source preflight and refuses, before
@@ -33,6 +44,7 @@ Run:
 
 ```bash
 ./tests/rulebook_test.sh
+./tests/check_local_test.sh
 ./tests/install_test.sh
 ./scripts/verify.sh
 ```

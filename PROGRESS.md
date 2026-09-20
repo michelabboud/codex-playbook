@@ -1,13 +1,32 @@
 # Progress
 
-**Current version:** 0.1.5
+**Current version:** 0.1.6
 
-**Last updated:** 2026-09-20
+**Last updated:** 2026-09-21
 
 The canonical repository is now `michelabboud/codex-playbook`.
 `nice-michel/codex-playbook` is its fork for branches and pull requests, while
 the former standalone repository is preserved at
 `nice-michel/codex-playbook-archive`.
+
+**0.1.6 (2026-09-21, held until published):** customizations now live in one local
+file the installer never touches — `${CODEX_HOME:-$HOME/.codex}/playbook-local.md`.
+`AGENTS.md` gives it its force in a paragraph headed "The local layer" and every
+skill's body opens with one pointer line at it, because a skill loads long after
+the session began. `scripts/check-local.sh` reads every `**Dead words:**` entry
+and searches the named file for each quoted phrase as a fixed string; the
+installer runs it in source preflight — before `umask`, before any directory is
+created, before any backup — against the text that run would install, and a
+stale, unparsable, or escaping entry refuses the installation with no flag to
+pass it. The installer gained no write path, and `restore.sh` gained no code at
+all: the local file is protected by never being named. `templates/playbook-local.md`
+carries the grammar and a worked example of each kind and is documentation, never
+installed. The suites now run 55 rulebook checks, 64 local-layer assertions, and
+372 installer lifecycle assertions. **Unverified:** no fresh Codex session has yet
+been observed reading the local file at session start on this client — the
+mechanism is a sentence in `AGENTS.md` plus a pointer per skill, not anything the
+client enforces; and the scripts were executed under GNU coreutils and `dash`
+only, with BusyBox and BSD userlands assessed rather than run.
 
 **0.1.5 (2026-09-20):** the rule 3.5 wording contract now requires its positive phrases inside
 rule 3.5 itself while retaining the whole-skill sweep for superseded wording. The rulebook suite

@@ -3,6 +3,23 @@
 New work belongs here only when it is valuable, out-of-scope for the current
 approved phase, and described concretely enough to become a future plan.
 
+- **2026-09-21 · verification · open** — no fresh Codex session has yet been
+  observed reading `playbook-local.md` at session start, or honouring a skill's
+  pointer line. The mechanism is a sentence in `AGENTS.md` plus one line per
+  skill, not anything the client enforces. Load a fresh session against an
+  installation whose local layer contradicts a rule, and record which text the
+  model follows.
+- **2026-09-21 · portability · open** — `scripts/check-local.sh` and
+  `tests/check_local_test.sh` were executed under GNU coreutils with `dash` as
+  `/bin/sh`. `grep -F -q -e`, `grep -- <file>`, `touch -t` and `stat` are
+  assessed against BusyBox and BSD userlands, not executed there. Run both
+  suites in a BusyBox container and on a BSD host before claiming portability.
+  The same gap is already recorded for the installer's `grep -E` patterns.
+- **2026-09-21 · rule question · open** — the staleness check catches a
+  rewritten sentence, not a changed meaning that leaves the quoted sentence
+  standing. `INSTALL.md` and the self-update skill answer that with a manual
+  changelog cross-check. Consider recording, per changelog entry, the rule IDs
+  it touched, so the cross-check can be mechanical too.
 - **2026-09-20 · test hardening · open** — in `tests/rulebook_test.sh` the two rule 3.5 wording
   loops pass the sentence to `grep -F` without `-e`; a future forbidden sentence that starts
   with `-` would be read as an option, error, and let the sweep pass. None of the fourteen

@@ -1,5 +1,28 @@
 # Plan
 
+## Batch — The local layer (0.1.6)
+
+**Status:** Running — approved 2026-09-21 (the owner's word in conversation).
+One batch of five tasks; tasks 2 and 3 touch `scripts/`, the risk-class files,
+and take a deep review at task grain. The batch closes with a deep review on the
+Strong tier from the second model family; nothing is pushed before it is ruled.
+
+**Plan:** `docs/plans/2026-09-21-local-layer-plan.md`
+**Decision:** `docs/adr/0005-the-local-layer.md`
+
+- [x] 1 · Rules text — the `AGENTS.md` local-layer paragraph, the self-update
+  sentence corrected, one pointer line in all sixteen managed skills, asserted
+  from the inventory — 2026-09-21.
+- [x] 2 · `scripts/check-local.sh` and `tests/check_local_test.sh` — 2026-09-21.
+- [x] 3 · The installer's source preflight, its refusal tests, and the local
+  file's survival through install, `--replace-agents` and restore — 2026-09-21.
+- [x] 4 · `templates/playbook-local.md`, `INSTALL.md`, and the
+  `codex-playbook-self-update` skill — 2026-09-21.
+- [x] 5 · Propagation and close-out at 0.1.6 — 2026-09-21.
+- [ ] Deep review of tasks 2 and 3, then of the batch; findings ruled.
+- [ ] `checkpoint/0.1.6` tagged and pushed — **only after** the Claude edition's
+  `checkpoint/0.1.16` exists, as the parity matrix records.
+
 ## Task — Non-blocking review pipeline (parity with source 0.1.13 → 0.1.15)
 
 **Status:** Complete — 2026-09-20, published as `checkpoint/0.1.4` — approved 2026-09-20 (the owner's "go"; ceiling reading (a), two closed batches plus the one being built). Revision 1 was

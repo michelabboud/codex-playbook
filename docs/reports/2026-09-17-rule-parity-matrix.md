@@ -12,6 +12,21 @@ did not move, and source 0.1.15 — `claude-code-playbook` commit
 `checkpoint/0.1.15`, which adds only that version's close-out — for rows 3.1, 3.3, 3.4,
 3.5 and 8.1.
 
+**The local layer (0.1.6), and its ordering dependency.** Codex Playbook 0.1.6
+ports the source's decision that customizations live in a file the playbook
+never touches. The source text is `claude-code-playbook` commit
+`267057ae88876d746cba956bda48bf37bd69acb9` (ADR 0004, *Customizations live in a
+local layer the playbook never touches*), which that repository publishes as
+**0.1.16**. As of this revision `checkpoint/0.1.16` does not yet exist there —
+its highest published tag is `checkpoint/0.1.15` — so this edition's own
+`checkpoint/0.1.6` is held until it does, exactly as 0.1.4 was held for
+`checkpoint/0.1.15`. The local layer adds no numbered rule and changes no row
+below: it is a paragraph of `AGENTS.md` and one pointer line per skill. Two
+differences from the source are deliberate and recorded in ADR 0005: **one**
+local file rather than two, because Codex has no path-scoped loading for a
+second one to preserve, and the file is `playbook-local.md`, never
+`AGENTS.override.md`, which Codex reads *instead of* `AGENTS.md`.
+
 **Target architecture:** lean global authority router plus sixteen
 progressive-disclosure Codex skills.
 

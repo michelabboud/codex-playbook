@@ -1,7 +1,9 @@
 # Architecture
 
-Codex Playbook is an installable documentation product with one strict boundary:
-authority stays always loaded; subject detail loads only when its trigger fires.
+Codex Playbook is an installable documentation product with two strict
+boundaries: authority stays always loaded while subject detail loads only when
+its trigger fires, and every installed file belongs to the playbook while
+exactly one file beside them belongs to the user.
 
 ## Installed layers
 
@@ -9,6 +11,9 @@ authority stays always loaded; subject detail loads only when its trigger fires.
 ${CODEX_HOME:-$HOME/.codex}/AGENTS.md
   partnership · precedence · request classification · approval table
   critical rules 0.1–0.4 · mandatory trigger router
+
+${CODEX_HOME:-$HOME/.codex}/playbook-local.md
+  the user's local layer · never shipped, never written by either script
 
 $HOME/.agents/skills/
   codex-playbook-code/              rules 1.1–1.6
@@ -108,12 +113,47 @@ one execution-environment skill:
 The platform body supplies commands only. It does not change the underlying
 rule or approval boundary.
 
+## The local layer
+
+One file in the Codex home is not a managed destination:
+`playbook-local.md`. The playbook never ships it; `scripts/install.sh` and
+`scripts/restore.sh` never create, write over, move, copy, or delete it. That is
+the whole of the mechanism, and it is deliberately a mechanism of *omission* —
+the alternative, teaching the installer to carry a user file across a
+whole-folder swap, would be new write logic in the repository's risk-class file
+for no gain over a file it simply never touches.
+
+It sits beside `AGENTS.md` rather than inside a skill folder because the
+installer swaps each skill folder whole; anything written inside one moves into
+the recovery checkpoint at the next update. It is not named
+`AGENTS.override.md`, which Codex reads *instead of* `AGENTS.md`.
+
+Precedence cannot be carried by load order — `AGENTS.md` and the local file are
+two files the client loads independently — so it is carried by a sentence, in
+`AGENTS.md` under "The local layer", and pointed at from the first body line of
+every skill, because a skill loads long after the session began.
+
+An **Override** is the one entry that creates a second text for one rule. It is
+bounded by quoting the playbook's exact words after `**Dead words:**`, which is
+what makes the staleness check mechanical: `scripts/check-local.sh` searches
+each named file for each quoted phrase as a fixed string, and the installer runs
+it in source preflight — before `umask`, before any directory is created, before
+any backup — against the text that run would install. Non-zero refuses the
+install, with no flag to pass it. The check adds no write path to the installer.
+
+Its limit is stated rather than hidden: it catches a *rewritten* sentence, not a
+*changed meaning* elsewhere in the same rule. `INSTALL.md` therefore also has
+the reader cross-check the changelog for every overridden rule an update
+touched.
+
 ## Transactional installation
 
 `scripts/install.sh` operates in four stages:
 
-1. validate source inventories, source files, destinations, and the absence of a
-   non-empty global `AGENTS.override.md` that would shadow the installation;
+1. validate source inventories, source files, destinations, the absence of a
+   non-empty global `AGENTS.override.md` that would shadow the installation, and
+   every `**Dead words:**` entry of the user's local layer against the text
+   about to be installed;
 2. create a private format-2 checkpoint containing `AGENTS.md`, the exact
    active-plus-retired managed inventory, every state marker, and verified
    copies of every present item;
