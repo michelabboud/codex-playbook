@@ -3,6 +3,11 @@
 New work belongs here only when it is valuable, out-of-scope for the current
 approved phase, and described concretely enough to become a future plan.
 
+- **2026-09-20 · test hardening · open** — in `tests/rulebook_test.sh` the two rule 3.5 wording
+  loops pass the sentence to `grep -F` without `-e`; a future forbidden sentence that starts
+  with `-` would be read as an option, error, and let the sweep pass. None of the fourteen
+  current sentences does. Use `grep -nF -e` / `grep -Fq -e` (source: the 0.1.5 mechanical
+  re-check, informational).
 - **2026-09-20 · measurement · open** — the ceiling (three unruled batches per
   line, the open one included) in rule 3.5 rests on one friendly programme in
   the source's evidence, a behaviour-preserving refactor. Record how often a
