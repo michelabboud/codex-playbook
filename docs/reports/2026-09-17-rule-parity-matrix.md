@@ -7,8 +7,10 @@ original matrix. The matrix now covers 50 numbered rules; rule 3.5 is new.
 **Date:** 2026-09-17
 
 **Source:** `michelabboud/claude-code-playbook` at `5db68e3` for every row that
-did not move, and source 0.1.15 (`claude-code-playbook` tag `checkpoint/0.1.15`)
-for rows 3.1, 3.3, 3.4, 3.5 and 8.1.
+did not move, and source 0.1.15 — `claude-code-playbook` commit
+`d992daa5124b3989492f2094cf623ee8cb946ac2`, tagged `checkpoint/0.1.15` when that
+repository is published, which happens before this one — for rows 3.1, 3.3, 3.4,
+3.5 and 8.1.
 
 **Target architecture:** lean global authority router plus sixteen
 progressive-disclosure Codex skills.
@@ -37,7 +39,7 @@ rule with three operating-system implementations.
 | 3.2 | `rules/REVIEWS.md` | `codex-playbook-reviews` | Direct: dependency, diff-size, planner, and risk-based batch boundaries. |
 | 3.3 | `rules/REVIEWS.md` | `codex-playbook-reviews` | Direct, with Adapted mechanics: completion is registered and handled; the snapshot is prepared by whoever holds the permission; a reviewer that cannot write returns its notes through its reply; no claim about Codex threads from another client's evidence. |
 | 3.4 | `rules/REVIEWS.md` | `codex-playbook-reviews` | Adapted: high deep review on the Top tier with two independent passes. |
-| 3.5 | `rules/REVIEWS.md` | `codex-playbook-reviews` | Direct: how far development may run ahead of review — the admission rule, the normative table of twelve worked cases, ancestry set, ledger, three waits, gates. |
+| 3.5 | `rules/REVIEWS.md` | `codex-playbook-reviews` | Direct: how far development may run ahead of review — the admission rule, the normative table of sixteen worked cases, ancestry set, ledger, three waits, gates. |
 | 4.1 | `rules/DOCS.md` | `codex-playbook-documentation` | Direct: write reasoning and gotchas for a new contributor. |
 | 4.2 | `rules/DOCS.md` | `codex-playbook-documentation` | Direct: qualifying ADRs at decision time, permanent and indexed. |
 | 4.3 | `rules/DOCS.md` | `codex-playbook-documentation` | Direct: update changelog, progress, plan, backlog, usage, and architecture. |

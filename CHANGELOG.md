@@ -14,7 +14,7 @@ All notable changes are recorded here. Dates are absolute.
   a set (a merge is a union) against a ledger the coordinator keeps; three waits
   at any depth; high deep reviews are gates and every lower review, mechanical
   included, is settled first; the planner owns the stall. The rule carries a
-  normative table of twelve worked cases, and the table wins over the prose.
+  normative table of sixteen worked cases, and the table wins over the prose.
   Direct port of source 0.1.15.
 - One owner for tier selection:
   `.agents/skills/codex-playbook-subagents/references/roster.md`. Four capability
@@ -50,6 +50,19 @@ All notable changes are recorded here. Dates are absolute.
   conservative floor pending a Codex measurement.
 - The rule count is fifty in the tests, manifest, parity matrix, page and public
   docs. ADR 0002's "49" stands as written.
+
+### Fixed
+
+- **Found by a re-review of this repair, before anything was published.** The admission rule
+  could be granted twice on one count: one batch is now open per line at a time, a batch starts
+  at the first dispatch of a task the plan allocates to it, and at three the line accepts only
+  the fixes that rule a batch. Rows 13–16 of the worked cases. Follows source 0.1.15.
+- **The installer's nested-resource preflight had three gaps.** It now refuses any symlink
+  inside an active skill's source directory (not only a symlinked leaf), refuses a listed
+  resource whose owning skill is not an active skill, and reads an inventory whose last line
+  has no newline. Each refusal happens before any backup or destination write.
+- **The worked-cases test compared one phrase per row**, which passes a row that also says the
+  opposite. It now compares the rule's table row for row against a canonical copy under `tests/`.
 
 ### Process
 

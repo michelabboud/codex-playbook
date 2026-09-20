@@ -28,9 +28,11 @@ before creating a checkpoint.
 A skill package is installed whole, so its nested files travel with it.
 `config/managed-resources.txt` names the ones an installation actually depends
 on, and source preflight refuses — before any backup or destination write — when
-one of them is missing from the checkout or is not a regular file. An incomplete
+one of them is missing from the checkout or is not a regular file, when a
+symbolic link exists anywhere inside an active skill's source directory, and
+when a listed resource belongs to a skill that is not active. An incomplete
 checkout therefore fails loudly instead of installing a skill that points at
-nothing.
+nothing, outside its own package, or at a file the installation never copies.
 
 The installer never modifies `config.toml`, authentication, session history,
 plugins, unrelated skills, or another file. It recognizes the two obsolete

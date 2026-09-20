@@ -13,15 +13,18 @@ behavior.
   gates.
 - Cite current official Codex documentation for client behavior.
 - Update the owning skill, `config/rule-manifest.tsv`, `config/managed-resources.txt`,
-  the current parity matrix, and the visual dataset together. Rule 11.1 is the
-  only declared multi-file rule implementation.
+  `tests/fixtures/rule-3-5-worked-cases.md`, the current parity matrix, and the
+  visual dataset together. Rule 11.1 is the only declared multi-file rule
+  implementation.
 - Update `config/managed-skills.txt` when a skill is added, renamed, or retired;
   the installer, restore command, and lifecycle tests consume that inventory.
 - Update `config/managed-resources.txt` when a skill gains, loses, or renames a
   nested file an installation depends on — a reference a rule tells the reader
   to open. The installer reads it during source preflight and refuses, before
   any backup or destination write, when a listed file is missing or is not a
-  regular file.
+  regular file, when a symbolic link exists anywhere inside an active skill's
+  source directory, and when a listed resource belongs to a skill that is not
+  in `config/managed-skills.txt`.
 
 ## Required checks
 

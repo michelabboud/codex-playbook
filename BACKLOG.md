@@ -18,6 +18,9 @@ approved phase, and described concretely enough to become a future plan.
 - **2026-09-20 · verification · open** — what context isolation real reviewer
   launches provide on this client has not been measured. Rule 3.3 asserts
   nothing beyond "record what the runtime actually provides".
+- **2026-09-20 · verification · open** — the installer's inventory patterns use
+  POSIX extended regular expressions and were run under GNU grep only; BusyBox
+  and BSD `grep -E` are assessed, not executed (source: Sol's re-review).
 - **2026-09-20 · rule question · open** — with a Strong tier in the roster,
   should risk-domain implementation (security, concurrency, unsafe code) start on
   Strong rather than Top, keeping Top for planning and review? Wording left as it

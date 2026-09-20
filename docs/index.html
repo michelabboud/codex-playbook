@@ -289,7 +289,7 @@
           [
             "3.5",
             "How far development may run ahead of review",
-            "Mechanical review never holds development. Deep review's ceiling is an admission rule: a new batch starts only while at most two closed batches are unreviewed — one is normal, the second is announced loudly; when a third closes, all three reviews run and nothing new starts until one is ruled. The honest worst case is three batch ranges. Counted by git ancestry as a set: a branch off unreviewed work inherits, a merge takes the union, cherry-picks and squashes carry no ancestry. The coordinator keeps the ledger. The rule carries a normative table of twelve worked cases. Three waits hold at any depth: work that is expensive to undo · anything irreversible or outward-facing · a blocker. High deep reviews are gates: every lower review, mechanical included, is settled first; the candidate is frozen; the wait works the queue on a line not merged into it."
+            "Mechanical review never holds development. Deep review's ceiling is an admission rule: a new batch starts only while at most two closed batches are unreviewed — one is normal, the second is announced loudly; one batch is open per line at a time, so an admission is never granted twice on one count; when a third closes, all three reviews run and the line accepts only the fixes that rule a batch until one is ruled — a new batch, a merge that carries no fix, and any later task already dispatched all wait. The honest worst case is three batch ranges. Counted by git ancestry as a set: a branch off unreviewed work inherits, a merge takes the union, cherry-picks and squashes carry no ancestry. The coordinator keeps the ledger. The rule carries a normative table of sixteen worked cases. Three waits hold at any depth: work that is expensive to undo · anything irreversible or outward-facing · a blocker. High deep reviews are gates: every lower review, mechanical included, is settled first; the candidate is frozen; the wait works the queue on a line not merged into it."
           ]
         ]
       },
@@ -409,7 +409,7 @@
           [
             "8.1",
             "Delegate clean seams and escalate early",
-            "Use capability tiers, measured concurrency, planner/coordinator separation, and evidence-bearing escalation. Which configuration fills each tier — Top · Strong · Standard · Fast — is the roster reference bundled with the subagents skill; no product names live in the rules."
+            "Use capability tiers, measured concurrency, planner/coordinator separation, and evidence-bearing escalation. Which configuration fills each tier — Top · Strong · Standard · Fast — is the roster reference bundled with the subagents skill; the tier assignments carry no model product identifiers."
           ]
         ]
       },

@@ -214,14 +214,22 @@ do
     die "The source skill $skill_name is missing or is not a directory."
   [ -f "$skill_source/SKILL.md" ] && [ ! -L "$skill_source/SKILL.md" ] ||
     die "The source skill $skill_name has no regular SKILL.md."
+  skill_symlinks=$(find "$skill_source" -type l)
+  [ -z "$skill_symlinks" ] ||
+    die "The source skill $skill_name contains a symbolic link. Unsafe path: $skill_symlinks"
 done
 
-while IFS= read -r resource_path
+managed_resource_paths=$(cat "$resource_inventory")
+for resource_path in $managed_resource_paths
 do
   resource_source="$repo_root/$resource_path"
   [ -f "$resource_source" ] && [ ! -L "$resource_source" ] ||
     die "The source resource $resource_path is missing or is not a regular file."
-done < "$resource_inventory"
+  resource_owner=${resource_path#.agents/skills/}
+  resource_owner=${resource_owner%%/*}
+  grep -Fxq "$resource_owner" "$active_inventory" ||
+    die "The managed resource $resource_path belongs to $resource_owner, which is not an active skill."
+done
 
 override_target="$codex_home/AGENTS.override.md"
 if [ -L "$override_target" ] || { [ -e "$override_target" ] && [ ! -f "$override_target" ]; }; then

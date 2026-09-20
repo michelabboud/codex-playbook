@@ -306,23 +306,31 @@ awk '
   inside { exit }
 ' "$reviews_file" > "$rule_35"
 
-cat > "$test_root/expected-case-phrases" <<'EOF'
-1	Keep building
-2	N+2 may start
-3	No new batch starts
-4	N+3 may start
-5	two, not three
-6	The merge waits
-7	starts at one
-8	Ancestry does not show it
-9	ruled for X only
-10	The gate does not start
-11	Stop the line
-12	not merged into the candidate
+worked_cases_fixture=tests/fixtures/rule-3-5-worked-cases.md
+
+cat > "$test_root/expected-case-numbers" <<'EOF'
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
 EOF
 
-cut -f1 "$test_root/expected-case-phrases" > "$test_root/expected-case-numbers"
-grep -Eo '^[[:space:]]*\| [0-9]+ \|' "$rule_35" |
+grep -E '^[[:space:]]*\|' "$rule_35" |
+  sed 's/^[[:space:]]*//' |
+  grep -Ev '^\|[-|]+\|$' > "$test_root/actual-worked-cases" || true
+grep -Eo '^\| [0-9]+ \|' "$test_root/actual-worked-cases" |
   grep -Eo '[0-9]+' > "$test_root/actual-case-numbers" || true
 
 worked_case_failures=0
@@ -331,32 +339,41 @@ if ! cmp -s "$test_root/expected-case-numbers" "$test_root/actual-case-numbers";
     "$(cat "$test_root/actual-case-numbers")" >&2
   worked_case_failures=$((worked_case_failures + 1))
 fi
-while IFS="$tab" read -r case_number case_phrase
-do
-  case_row=$(grep -E "^[[:space:]]*\| $case_number \|" "$rule_35" || true)
-  if ! printf '%s\n' "$case_row" | grep -Fq "$case_phrase"; then
-    printf 'Rule 3.5 worked case %s does not say "%s"\n' "$case_number" "$case_phrase" >&2
-    worked_case_failures=$((worked_case_failures + 1))
-  fi
-done < "$test_root/expected-case-phrases"
+if [ ! -f "$worked_cases_fixture" ] || [ -L "$worked_cases_fixture" ]; then
+  printf '%s is missing or is not a regular file\n' "$worked_cases_fixture" >&2
+  worked_case_failures=$((worked_case_failures + 1))
+elif ! cmp -s "$worked_cases_fixture" "$test_root/actual-worked-cases"; then
+  printf 'Rule 3.5 worked-case table differs from %s:\n' "$worked_cases_fixture" >&2
+  diff "$worked_cases_fixture" "$test_root/actual-worked-cases" >&2 || true
+  worked_case_failures=$((worked_case_failures + 1))
+fi
 if [ "$worked_case_failures" -eq 0 ]; then
-  pass 'rule 3.5 carries the twelve worked cases, in order, each saying what it must'
+  pass 'rule 3.5 carries the sixteen worked cases, in order, row for row against the canonical table'
 else
   fail "$worked_case_failures rule 3.5 worked-case contract check(s) failed"
 fi
 
 if grep -Fq 'a new batch starts only while at most two closed batches are unruled' "$reviews_file" &&
+   grep -Fq 'One batch is open per line at a time' "$reviews_file" &&
+   grep -Fq 'the only work the line accepts is what rules a batch' "$reviews_file" &&
    grep -Fq 'the row wins' "$reviews_file" &&
    ! grep -Fq 'never blocks the next task' "$reviews_file" &&
    ! grep -Fq 'anywhere above it' "$reviews_file" &&
    ! grep -Fq 'merge adds' "$reviews_file"; then
   pass 'rule 3.5 states the admission rule, gives the table precedence, and keeps no superseded wording'
 else
-  fail 'reviews skill must state the admission rule and "the row wins", and must not say "never blocks the next task", "anywhere above it", or "merge adds"'
+  fail 'reviews skill must state the admission rule, "One batch is open per line at a time", "the only work the line accepts is what rules a batch" and "the row wins", and must not say "never blocks the next task", "anywhere above it", or "merge adds"'
 fi
 
 resource_inventory=config/managed-resources.txt
+active_inventory=config/managed-skills.txt
 resource_failures=0
+skill_symlinks=$(find .agents/skills -type l)
+if [ -n "$skill_symlinks" ]; then
+  printf 'symbolic links exist under .agents/skills, which installation would preserve:\n%s\n' \
+    "$skill_symlinks" >&2
+  resource_failures=$((resource_failures + 1))
+fi
 if [ -f "$resource_inventory" ] && [ ! -L "$resource_inventory" ] && [ -s "$resource_inventory" ]; then
   if [ "$(LC_ALL=C sort "$resource_inventory")" != "$(cat "$resource_inventory")" ]; then
     printf '%s is not sorted\n' "$resource_inventory" >&2
@@ -376,13 +393,21 @@ if [ -f "$resource_inventory" ] && [ ! -L "$resource_inventory" ] && [ -s "$reso
       "$resource_inventory" "$invalid_resource_paths" >&2
     resource_failures=$((resource_failures + 1))
   fi
-  while IFS= read -r resource_path
+  managed_resource_paths=$(cat "$resource_inventory")
+  for resource_path in $managed_resource_paths
   do
     if [ ! -f "$resource_path" ] || [ -L "$resource_path" ]; then
       printf '%s lists %s, which is not a regular file\n' "$resource_inventory" "$resource_path" >&2
       resource_failures=$((resource_failures + 1))
     fi
-  done < "$resource_inventory"
+    resource_owner=${resource_path#.agents/skills/}
+    resource_owner=${resource_owner%%/*}
+    if ! grep -Fxq "$resource_owner" "$active_inventory"; then
+      printf '%s lists %s, whose skill %s is not in %s\n' \
+        "$resource_inventory" "$resource_path" "$resource_owner" "$active_inventory" >&2
+      resource_failures=$((resource_failures + 1))
+    fi
+  done
   if [ "$(cat "$resource_inventory")" != "$roster_file" ]; then
     printf '%s must list exactly %s\n' "$resource_inventory" "$roster_file" >&2
     resource_failures=$((resource_failures + 1))
@@ -392,7 +417,7 @@ else
   resource_failures=$((resource_failures + 1))
 fi
 if [ "$resource_failures" -eq 0 ]; then
-  pass 'the nested-resource inventory lists exactly the roster reference, as a sorted set of real files'
+  pass 'the nested-resource inventory lists exactly the roster reference, as a sorted set of real files owned by active skills, with no symlink under .agents/skills'
 else
   fail "$resource_failures nested-resource inventory check(s) failed"
 fi

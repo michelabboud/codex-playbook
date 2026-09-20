@@ -69,9 +69,14 @@ Three files are authoritative:
   nested file inside those packages that an installation depends on — today,
   the roster reference the reviews and subagents skills both read. The installer
   consumes it during source preflight and refuses, before any backup or
-  destination write, when a listed file is missing or is not a regular file;
+  destination write, when a listed file is missing or is not a regular file,
+  when any symbolic link exists inside an active skill's source directory, or
+  when a listed resource belongs to a skill that is not active;
   `tests/rulebook_test.sh` holds it to a sorted, unique set of real files under
-  a managed skill. Whole-directory copying makes a bundled file free to install
+  an active skill, with no symbolic link anywhere under `.agents/skills/`.
+  The symlink refusal covers the whole package, not only the listed leaf:
+  `cp -pR` preserves a link, so a symlinked intermediate directory would let an
+  installed skill resolve a rulebook file outside its own package. Whole-directory copying makes a bundled file free to install
   and copies its absence just as faithfully, which is the defect this inventory
   closes.
 - `config/rule-manifest.tsv` maps the canonical 50 rule IDs to their owners.

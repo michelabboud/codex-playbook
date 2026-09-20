@@ -142,6 +142,21 @@ called, and withholding its review helps nobody.) Because prose had now failed
 twice at exactly this boundary, rule 3.5 carries a **normative table of worked
 cases**, and where the prose and a row disagree, the row wins.
 
+*Completed before 0.1.4 was published.* A third independent review, of that repair,
+judged every row correct and found the defect in the rows that were missing: the
+rule never said what *starting* a batch means, nor that one batch is open at a
+time — so at a count of two, a coordinator could admit N+2 and N+3 on the same
+count and exceed three ranges while obeying every word. **One batch is open per
+line at a time**; a batch starts at the first dispatch of a task the plan
+allocates to it, and admission is checked again when it closes. Batches that must
+run in parallel run on separate lines, and the merge rule bounds what comes back.
+And one exception that was always meant and never written: **at three, the line
+still accepts the fixes that rule a batch** — otherwise the count could never
+come down. Everything else waits, including a merge whose union stays at three
+(the merge result is new work) and a later task that was already running when
+the third batch closed: it may finish, and its result is kept, not accepted,
+until a ruling reopens admission.
+
 ### Why the count follows ancestry
 
 Counting per worktree is almost right and leaks in two places. A branch started
@@ -216,8 +231,11 @@ order of value:
 
 1. **Enumerate excluded paths; do not describe them.** "Read nothing outside
    your scratch directory" is ambiguous about whose.
-2. **No sibling reviewers and no programme material anywhere above a reviewer's
-   directory.** Two sibling reviewers are one `ls ..` apart.
+2. **A dedicated parent per reviewer, holding only that reviewer's material, within
+   the task-managed workspace** — two sibling reviewers are one `ls ..` apart.
+   Judge it by what the reviewer can actually reach, not by the layout, and record
+   in the review header when the runtime cannot provide it. ("Nothing anywhere
+   above it" was the first wording; no filesystem can satisfy that.)
 3. **A cold-read note written to disk after the brief and the material under
    review, and before anything else is opened**, with
    only the findings in that note counted as independent corroboration. This one

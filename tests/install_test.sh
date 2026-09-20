@@ -1008,6 +1008,112 @@ run_symlinked_nested_resource_refusal_test() {
     'symlinked nested resource'
 }
 
+run_symlinked_resource_directory_refusal_test() {
+  case_root="$test_root/symlinked-resource-directory"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$home/.agents/skills"
+  fixture_root="$case_root/source"
+  external_root="$case_root/outside-the-skill"
+  seed_untouched_destination "$skill_root" "$codex_home"
+  build_complete_source_fixture "$fixture_root"
+  mkdir -p "$external_root"
+  cp "$repo_root/.agents/skills/$nested_roster" "$external_root/roster.md"
+  rm -R "$fixture_root/.agents/skills/codex-playbook-subagents/references"
+  ln -s "$external_root" \
+    "$fixture_root/.agents/skills/codex-playbook-subagents/references"
+
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$fixture_root/scripts/install.sh" --replace-agents > "$case_root/install.log" 2>&1; then
+    fail 'install refuses a resource directory that is a symlink out of the skill'
+  else
+    pass 'install refuses a resource directory that is a symlink out of the skill'
+  fi
+  assert_contains 'contains a symbolic link' "$case_root/install.log" \
+    'the refusal names the symbolic link'
+  assert_contains 'codex-playbook-subagents' "$case_root/install.log" \
+    'the refusal names the skill holding the symbolic link'
+  assert_untouched_destination "$skill_root" "$codex_home" \
+    'symlinked resource directory'
+}
+
+run_symlink_inside_active_skill_refusal_test() {
+  case_root="$test_root/symlink-inside-active-skill"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$home/.agents/skills"
+  fixture_root="$case_root/source"
+  seed_untouched_destination "$skill_root" "$codex_home"
+  build_complete_source_fixture "$fixture_root"
+  ln -s SKILL.md "$fixture_root/.agents/skills/codex-playbook-writing/SHORTCUT.md"
+
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$fixture_root/scripts/install.sh" --replace-agents > "$case_root/install.log" 2>&1; then
+    fail 'install refuses a symbolic link anywhere inside an active skill'
+  else
+    pass 'install refuses a symbolic link anywhere inside an active skill'
+  fi
+  assert_contains 'contains a symbolic link' "$case_root/install.log" \
+    'the refusal names the symbolic link'
+  assert_contains 'codex-playbook-writing' "$case_root/install.log" \
+    'the refusal names the skill holding the symbolic link'
+  assert_untouched_destination "$skill_root" "$codex_home" \
+    'symbolic link inside an active skill'
+}
+
+run_unterminated_resource_inventory_refusal_test() {
+  case_root="$test_root/unterminated-resource-inventory"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$home/.agents/skills"
+  fixture_root="$case_root/source"
+  seed_untouched_destination "$skill_root" "$codex_home"
+  build_complete_source_fixture "$fixture_root"
+  printf '.agents/skills/%s' "$nested_roster" \
+    > "$fixture_root/config/managed-resources.txt"
+  rm "$fixture_root/.agents/skills/$nested_roster"
+
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$fixture_root/scripts/install.sh" --replace-agents > "$case_root/install.log" 2>&1; then
+    fail 'install refuses a missing resource named on an unterminated last inventory line'
+  else
+    pass 'install refuses a missing resource named on an unterminated last inventory line'
+  fi
+  assert_contains "$nested_roster" "$case_root/install.log" \
+    'the refusal names the resource on the unterminated last line'
+  assert_untouched_destination "$skill_root" "$codex_home" \
+    'unterminated resource inventory'
+}
+
+run_inactive_resource_owner_refusal_test() {
+  case_root="$test_root/inactive-resource-owner"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$home/.agents/skills"
+  fixture_root="$case_root/source"
+  inactive_resource='.agents/skills/codex-playbook-release/references/roster.md'
+  seed_untouched_destination "$skill_root" "$codex_home"
+  build_complete_source_fixture "$fixture_root"
+  mkdir -p "$fixture_root/.agents/skills/codex-playbook-release/references"
+  cp "$repo_root/.agents/skills/$nested_roster" \
+    "$fixture_root/$inactive_resource"
+  printf '%s\n.agents/skills/%s\n' "$inactive_resource" "$nested_roster" \
+    > "$fixture_root/config/managed-resources.txt"
+
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$fixture_root/scripts/install.sh" --replace-agents > "$case_root/install.log" 2>&1; then
+    fail 'install refuses a resource whose owning skill is not active'
+  else
+    pass 'install refuses a resource whose owning skill is not active'
+  fi
+  assert_contains 'which is not an active skill' "$case_root/install.log" \
+    'the refusal says the owning skill is not active'
+  assert_contains "$inactive_resource" "$case_root/install.log" \
+    'the refusal names the resource with the inactive owner'
+  assert_untouched_destination "$skill_root" "$codex_home" \
+    'inactive resource owner'
+}
+
 run_first_install_and_restore_test
 run_refusal_test
 run_shadowed_agents_refusal_test
@@ -1034,5 +1140,9 @@ run_nested_reference_replacement_and_restore_test
 run_nested_reference_rollback_test
 run_missing_nested_resource_refusal_test
 run_symlinked_nested_resource_refusal_test
+run_symlinked_resource_directory_refusal_test
+run_symlink_inside_active_skill_refusal_test
+run_unterminated_resource_inventory_refusal_test
+run_inactive_resource_owner_refusal_test
 
 printf '\nAll %s installer lifecycle assertions passed.\n' "$passes"
