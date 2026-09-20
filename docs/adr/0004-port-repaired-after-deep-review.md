@@ -44,6 +44,26 @@ two were this port's own. The candidate was never pushed.
   already manages skills, and the next nested file costs one line.
 - **Keeping keyword assertions and adding more keywords.** Same failure, more words.
 
+## Completed before publication — after the re-review (2026-09-20)
+
+This record was never published in its first form. A re-review of the repair failed it again
+(`docs/reviews/2026-09-20-sol-0.1.4-re-review-validation.md`), and the decision is completed
+here rather than in a fifth record for the same change:
+
+- **Rule 3.5, following the source:** one batch is open per line at a time; a batch starts at
+  the first dispatch of a task the plan allocates to it; admission is checked again when it
+  closes. At three, the line accepts only the fixes that rule a batch. The table has sixteen
+  rows, not twelve.
+- **The preflight refuses any symlink inside an active skill's source directory**, not only a
+  symlinked leaf: `cp -pR` preserves links, git stores them, and an installed skill must not
+  resolve a rulebook file outside its package. Every listed resource's owning skill must be an
+  active skill. The inventory is iterated the way the script iterates its other inventories,
+  so an unterminated last line is read.
+- **The worked-cases test compares the table row for row against a canonical copy under
+  `tests/`.** One phrase per row passed a row that also said the opposite. Rejected: generating
+  the rule and its carriers from one dataset — a build step for a rulebook whose contract is
+  that the Markdown *is* the source.
+
 ## Consequences
 
 - One more inventory file, validated by the rulebook tests and consumed by the installer.
