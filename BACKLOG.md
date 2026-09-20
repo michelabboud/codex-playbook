@@ -3,10 +3,10 @@
 New work belongs here only when it is valuable, out-of-scope for the current
 approved phase, and described concretely enough to become a future plan.
 
-- **2026-09-20 · measurement · open** — the ceiling of two (rule 3.5) rests on
-  one friendly programme in the source's evidence, a behaviour-preserving
-  refactor. Record how often a line reached the ceiling on real feature work
-  before treating the number as settled.
+- **2026-09-20 · measurement · open** — the admission rule (two closed batches)
+  in rule 3.5 rests on one friendly programme in the source's evidence, a
+  behaviour-preserving refactor. Record how often a line reached the ceiling on
+  real feature work before treating the number as settled.
 - **2026-09-20 · measurement · open** — "mechanical review on Standard, never
   Fast" was measured on two Claude models. Take the same nine-defect comparison
   on the Codex configurations actually bound, and record it in the roster

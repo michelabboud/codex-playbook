@@ -4,10 +4,10 @@
 The rules are self-contained; this guide is for the reader who asks "why is it
 done this way?" and for anyone about to change a number. Written 2026-09-20.*
 
-*This guide is ported from source 0.1.14 of the Claude Code Playbook. Its
-"corrected in 0.1.14" notes are the history of the source rulebook, kept
-because they explain why the rules read as they do; the evidence it cites was
-gathered on the source's own programme, not on Codex.*
+*This guide is ported from source 0.1.15 of the Claude Code Playbook. Its
+"corrected in 0.1.14" and "corrected again in 0.1.15" notes are the history of
+the source rulebook, kept because they explain why the rules read as they do;
+the evidence it cites was gathered on the source's own programme, not on Codex.*
 
 ## The problem
 
@@ -130,9 +130,17 @@ the ceiling of one rejected above: any slow review halts the line.)
 And batch N+1's deep review examines code built on
 unreviewed batch N, so a blocker in N can make parts of that second review moot
 after it has been paid for. Both are bounded, and both are cheaper than a halted
-line. There is no third *closed* slot: when batch N+2 closes with two still
-unruled, the line waits. A third batch queued for review is no longer a
-pipeline, it is unreviewed development.
+line. *Corrected again in 0.1.15.* The 0.1.14 text said "at most two closed, unruled
+batches" and then let batch N+2 close with two still unruled — three closed, its
+own invariant broken at the boundary. A second independent review caught it. The
+ceiling is an **admission rule**: *a new batch starts only while at most two
+closed batches are unruled.* When N+2 closes there are three closed and unruled;
+all three reviews run, and nothing new starts until a ruling brings the count
+back to two. (The alternative offered — N+2 may be built but may not *close* —
+was not taken: a batch whose last task has landed is closed whatever it is
+called, and withholding its review helps nobody.) Because prose had now failed
+twice at exactly this boundary, rule 3.5 carries a **normative table of worked
+cases**, and where the prose and a row disagree, the row wins.
 
 ### Why the count follows ancestry
 
@@ -246,6 +254,6 @@ nothing was reworked.
 **That is the friendliest case there is.** The tasks were nearly independent and
 "correct" meant "unchanged". It shows the mechanics work; it does not show that a
 ceiling of two is right for feature work with heavy dependencies. That is why
-the reviews skill's closing paragraph asks every close-out to record how often the ceiling
-was reached — the number is a starting point with a measurement attached, not a
-finding.
+the reviews skill's closing paragraph asks every close-out to record how often
+the ceiling was reached — the number is a starting point with a measurement
+attached, not a finding.

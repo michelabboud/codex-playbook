@@ -1,19 +1,24 @@
 # Plan
 
-## Task — Non-blocking review pipeline (parity with source 0.1.13 → 0.1.14)
+## Task — Non-blocking review pipeline (parity with source 0.1.13 → 0.1.15)
 
 **Status:** Running — approved 2026-09-20 (the owner's "go"; ceiling reading (a), two closed batches plus the one being built). Revision 1 was
 reviewed by Astra the same day (*proceed with changes*; eleven findings, all confirmed).
+The first candidate then **failed** its deep review (Sol; eight findings, all confirmed, six blocking)
+and was never published; the ceiling became an admission rule and the source was corrected again to 0.1.15.
 One logical task, not a phase: it closes once, as 0.1.4.
 
 **Plan:** `docs/plans/2026-09-20-non-blocking-review-pipeline-port-plan.md`
-**Review:** `docs/reviews/2026-09-20-astra-pipeline-port-plan-opinion.md` · `…-cold-read.md` · `…-validation.md`
+**Review:** `docs/reviews/2026-09-20-astra-pipeline-port-plan-opinion.md` · `…-cold-read.md` · `…-validation.md` · `docs/reviews/2026-09-20-sol-0.1.4-deep-review.md` · `…-validation.md`
 
 - [x] Owner's go, including the ceiling decision (plan §0) — 2026-09-20.
 - [x] Source corrected first (`claude-code-playbook` 0.1.14, `checkpoint/0.1.14`) — 2026-09-20.
 - [x] ADR 0003 written at decision time — 2026-09-20.
 - [x] Contract locked with failing tests (50 canonical IDs, single-owner roster, accounting wording) — 2026-09-20.
 - [x] Rules 3.1, 3.3, 3.5 and the roster reference written; manifest, matrix, page, docs synchronized — 2026-09-20.
+- [x] First candidate deep-reviewed and failed; ADR 0004 written at decision time; source corrected again to 0.1.15 — 2026-09-20.
+- [x] Repaired contract locked with failing tests (worked cases row by row, nested-resource inventory, installer preflight refusals) — 2026-09-20.
+- [x] Repair implemented: admission rule and worked cases, the stated ownership boundary, `config/managed-resources.txt` and its preflight — 2026-09-20.
 - [ ] Deep review run the way the new rule says; findings ruled.
 - [ ] 0.1.4 verified, tagged `checkpoint/0.1.4`, pushed.
 

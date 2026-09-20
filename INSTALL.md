@@ -16,6 +16,7 @@ replaced.
 |---|---|
 | `AGENTS.md` | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
 | Sixteen names from `config/managed-skills.txt` | `$HOME/.agents/skills/<name>/` |
+| Every nested file listed in `config/managed-resources.txt` | inside its skill's destination directory |
 | Recovery checkpoint | `${CODEX_HOME:-$HOME/.codex}/backups/codex-playbook-preinstall-*` |
 
 `CODEX_HOME` controls Codex configuration and the global `AGENTS.md`. It does
@@ -23,6 +24,13 @@ not relocate user-scoped `$HOME/.agents/skills`. It must be an absolute,
 normalized path with no `.` or `..` components, and it must not equal or sit
 inside any managed skill directory. Install and restore reject either ambiguity
 before creating a checkpoint.
+
+A skill package is installed whole, so its nested files travel with it.
+`config/managed-resources.txt` names the ones an installation actually depends
+on, and source preflight refuses — before any backup or destination write — when
+one of them is missing from the checkout or is not a regular file. An incomplete
+checkout therefore fails loudly instead of installing a skill that points at
+nothing.
 
 The installer never modifies `config.toml`, authentication, session history,
 plugins, unrelated skills, or another file. It recognizes the two obsolete

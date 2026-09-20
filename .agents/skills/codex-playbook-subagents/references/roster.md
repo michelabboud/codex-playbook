@@ -2,21 +2,31 @@
 
 *One owner. `codex-playbook-subagents` reads this file from its own `references/` directory;
 `codex-playbook-reviews` reads it by relative path from its own directory. It holds definitions
-only — never a numbered rule, never authority, never procedure. **No product names live here:**
-model names change several times a year, so the law names responsibilities, and the operator
-binds them to what the runtime actually offers (see "The binding", below).*
+only — never a numbered rule, never authority, never procedure.*
 
-## Tiers — what a configuration is trusted with
+***The boundary.** Numbered rules own the **assignments**: which tier does which work (rule 8.1)
+and which review runs on which tier (rule 3.1). This file owns the **selection** — what makes a
+configuration a Top, a Strong, a Standard or a Fast one — the optional second family, the
+operator's binding, and the evidence. It does not restate who does what.*
+
+***No model product identifiers in the tier assignments.** Model names change several times a
+year, so the tiers are defined by capability and the operator binds them to what the runtime
+actually offers ("The binding", below). Clients and model families are named here only where
+that is the fact being recorded — Codex's settings, and the provenance of a measurement.*
+
+## Tiers — how a configuration is selected
 
 A tier is a **responsibility**, filled by a *configuration*: a model **and** a reasoning effort.
 Codex treats the two as separate settings, so the binding records both.
 
-| Tier | Selection | Trusted with |
-|---|---|---|
-| **Top** | the strongest available reasoning configuration | Planning, design, architecture, hard reasoning, and **high deep** review. Never down-tiered. |
-| **Strong** | a strong reasoning configuration, genuinely above Standard | **Deep** review. The escalation step between Standard and Top. |
-| **Standard** | a reliable general configuration at sufficient reasoning effort | Multi-file implementation, integration work, and **every mechanical review**. |
-| **Fast** | the fastest configuration demonstrably capable of the exact task | Mechanical, fully-specified work that is *not* review: renames, formatting, single-file edits to spec, doc transforms. |
+| Tier | Selection |
+|---|---|
+| **Top** | the strongest available reasoning configuration |
+| **Strong** | a strong reasoning configuration, genuinely above Standard |
+| **Standard** | a reliable general configuration at sufficient reasoning effort |
+| **Fast** | the fastest configuration demonstrably capable of the exact task |
+
+What each tier is trusted with is rule 8.1; which review each tier runs is rule 3.1.
 
 **Escalation ladder:** Fast → Standard → Strong → Top, one tier at a time (rule 8.1) — always to
 the next *genuinely stronger* configuration. Strong and Top may be two models, or one model at
@@ -30,16 +40,6 @@ dual-blind pair, because two instances of one model share the same blind spots. 
 Where none is reachable, the pair is two **fresh same-family sessions**, and the review header
 records that limitation; where even that is unavailable, report the missing gate rather than
 silently substituting.
-
-## Kinds of review — what each one closes, and who runs it
-
-| Kind | Closes | Runs on | While it runs, development… |
-|---|---|---|---|
-| **Mechanical** | a task | Standard — never Fast (see the measurement) | never waits |
-| **Deep** | a batch; or a single task in a risk class (rule 3.2) | Strong | keeps going, up to the ceiling (rule 3.5) |
-| **High deep** | a milestone; a release | Top, two independent passes | waits (rule 3.5) |
-
-A kind of review is defined by **what it closes**, never by the configuration that runs it today.
 
 ## The binding — yours, dated, and outside the managed packages
 

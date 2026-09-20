@@ -276,13 +276,20 @@ fi
 
 grep -rlF -- '| **Top** |' AGENTS.md .agents/skills > "$test_root/top-row-files" || true
 standard_row_files=$(grep -rlF --include=SKILL.md -- '| **Standard** |' .agents/skills || true)
+roster_assignment_lines=$(
+  {
+    grep -Fn 'Trusted with' "$roster_file" || true
+    grep -En '^#+ .*Kinds of review' "$roster_file" || true
+  }
+)
 if [ "$(cat "$test_root/top-row-files")" = "$roster_file" ] &&
-   [ -z "$standard_row_files" ]; then
-  pass 'the tier table has one owner: the roster reference, never a SKILL.md'
+   [ -z "$standard_row_files" ] &&
+   [ -z "$roster_assignment_lines" ]; then
+  pass 'the tier selection table lives only in the roster reference, which restates no assignment'
 else
-  printf 'Top row found in:\n%s\nStandard row found in a SKILL.md:\n%s\n' \
-    "$(cat "$test_root/top-row-files")" "$standard_row_files" >&2
-  fail 'the roster tier table must live only in the roster reference'
+  printf 'Top row found in:\n%s\nStandard row found in a SKILL.md:\n%s\nAssignments restated in the roster:\n%s\n' \
+    "$(cat "$test_root/top-row-files")" "$standard_row_files" "$roster_assignment_lines" >&2
+  fail 'the tier selection table must live only in the roster reference, which must restate no assignment'
 fi
 
 if grep -Fq '../codex-playbook-subagents/references/roster.md' "$reviews_file" &&
@@ -292,13 +299,102 @@ else
   fail 'reviews and subagents skills must both point to references/roster.md'
 fi
 
-if grep -Fq 'union' "$reviews_file" &&
-   grep -Fq 'plus the one being built' "$reviews_file" &&
-   grep -Fq 'mechanical included' "$reviews_file" &&
-   ! grep -Fq 'merge adds' "$reviews_file"; then
-  pass 'rule 3.5 accounting: union, the one being built, mechanical included; no "merge adds"'
+rule_35="$test_root/rule-3-5"
+awk '
+  /^3\.5 \*\*/ { inside = 1; print; next }
+  inside && ($0 == "" || $0 ~ /^[[:space:]]/) { print; next }
+  inside { exit }
+' "$reviews_file" > "$rule_35"
+
+cat > "$test_root/expected-case-phrases" <<'EOF'
+1	Keep building
+2	N+2 may start
+3	No new batch starts
+4	N+3 may start
+5	two, not three
+6	The merge waits
+7	starts at one
+8	Ancestry does not show it
+9	ruled for X only
+10	The gate does not start
+11	Stop the line
+12	not merged into the candidate
+EOF
+
+cut -f1 "$test_root/expected-case-phrases" > "$test_root/expected-case-numbers"
+grep -Eo '^[[:space:]]*\| [0-9]+ \|' "$rule_35" |
+  grep -Eo '[0-9]+' > "$test_root/actual-case-numbers" || true
+
+worked_case_failures=0
+if ! cmp -s "$test_root/expected-case-numbers" "$test_root/actual-case-numbers"; then
+  printf 'Rule 3.5 worked-case rows found:\n%s\n' \
+    "$(cat "$test_root/actual-case-numbers")" >&2
+  worked_case_failures=$((worked_case_failures + 1))
+fi
+while IFS="$tab" read -r case_number case_phrase
+do
+  case_row=$(grep -E "^[[:space:]]*\| $case_number \|" "$rule_35" || true)
+  if ! printf '%s\n' "$case_row" | grep -Fq "$case_phrase"; then
+    printf 'Rule 3.5 worked case %s does not say "%s"\n' "$case_number" "$case_phrase" >&2
+    worked_case_failures=$((worked_case_failures + 1))
+  fi
+done < "$test_root/expected-case-phrases"
+if [ "$worked_case_failures" -eq 0 ]; then
+  pass 'rule 3.5 carries the twelve worked cases, in order, each saying what it must'
 else
-  fail 'reviews skill accounting wording is missing union, "plus the one being built", or "mechanical included", or still says "merge adds"'
+  fail "$worked_case_failures rule 3.5 worked-case contract check(s) failed"
+fi
+
+if grep -Fq 'a new batch starts only while at most two closed batches are unruled' "$reviews_file" &&
+   grep -Fq 'the row wins' "$reviews_file" &&
+   ! grep -Fq 'never blocks the next task' "$reviews_file" &&
+   ! grep -Fq 'anywhere above it' "$reviews_file" &&
+   ! grep -Fq 'merge adds' "$reviews_file"; then
+  pass 'rule 3.5 states the admission rule, gives the table precedence, and keeps no superseded wording'
+else
+  fail 'reviews skill must state the admission rule and "the row wins", and must not say "never blocks the next task", "anywhere above it", or "merge adds"'
+fi
+
+resource_inventory=config/managed-resources.txt
+resource_failures=0
+if [ -f "$resource_inventory" ] && [ ! -L "$resource_inventory" ] && [ -s "$resource_inventory" ]; then
+  if [ "$(LC_ALL=C sort "$resource_inventory")" != "$(cat "$resource_inventory")" ]; then
+    printf '%s is not sorted\n' "$resource_inventory" >&2
+    resource_failures=$((resource_failures + 1))
+  fi
+  resource_duplicates=$(LC_ALL=C sort "$resource_inventory" | uniq -d)
+  if [ -n "$resource_duplicates" ]; then
+    printf '%s lists a path twice:\n%s\n' "$resource_inventory" "$resource_duplicates" >&2
+    resource_failures=$((resource_failures + 1))
+  fi
+  invalid_resource_paths=$(
+    grep -Env '^\.agents/skills/codex-playbook-[a-z]+(-[a-z]+)*(/[A-Za-z0-9_-]+)*/[A-Za-z0-9_-]+(\.[A-Za-z0-9]+)+$' \
+      "$resource_inventory" || true
+  )
+  if [ -n "$invalid_resource_paths" ]; then
+    printf '%s holds a path that is absolute, escaping, or outside a managed skill:\n%s\n' \
+      "$resource_inventory" "$invalid_resource_paths" >&2
+    resource_failures=$((resource_failures + 1))
+  fi
+  while IFS= read -r resource_path
+  do
+    if [ ! -f "$resource_path" ] || [ -L "$resource_path" ]; then
+      printf '%s lists %s, which is not a regular file\n' "$resource_inventory" "$resource_path" >&2
+      resource_failures=$((resource_failures + 1))
+    fi
+  done < "$resource_inventory"
+  if [ "$(cat "$resource_inventory")" != "$roster_file" ]; then
+    printf '%s must list exactly %s\n' "$resource_inventory" "$roster_file" >&2
+    resource_failures=$((resource_failures + 1))
+  fi
+else
+  printf '%s is missing, empty, or not a regular file\n' "$resource_inventory" >&2
+  resource_failures=$((resource_failures + 1))
+fi
+if [ "$resource_failures" -eq 0 ]; then
+  pass 'the nested-resource inventory lists exactly the roster reference, as a sorted set of real files'
+else
+  fail "$resource_failures nested-resource inventory check(s) failed"
 fi
 
 old_tier_names=$(grep -Fn -e 'the deep tier' -e 'the standard tier' -e 'the fast tier' \

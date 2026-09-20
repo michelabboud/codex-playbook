@@ -928,6 +928,86 @@ run_nested_reference_rollback_test() {
   assert_absent "$skill_root/codex-playbook-writing"     'rollback removes the partially installed later skill'
 }
 
+build_complete_source_fixture() {
+  fixture_root=$1
+  mkdir -p "$fixture_root/scripts" "$fixture_root/config" "$fixture_root/.agents/skills"
+  cp "$repo_root/AGENTS.md" "$fixture_root/AGENTS.md"
+  cp "$repo_root/VERSION" "$fixture_root/VERSION"
+  cp "$repo_root/scripts/install.sh" "$fixture_root/scripts/install.sh"
+  cp "$repo_root/scripts/restore.sh" "$fixture_root/scripts/restore.sh"
+  chmod +x "$fixture_root/scripts/install.sh" "$fixture_root/scripts/restore.sh"
+  cp -pR "$repo_root/config/." "$fixture_root/config/"
+  for skill_name in $active_skill_names
+  do
+    cp -pR "$repo_root/.agents/skills/$skill_name"       "$fixture_root/.agents/skills/$skill_name"
+  done
+}
+
+seed_untouched_destination() {
+  skill_root=$1
+  codex_home=$2
+  mkdir -p "$skill_root/codex-playbook-subagents/references" "$codex_home"
+  printf 'keep rules\n' > "$codex_home/AGENTS.md"
+  printf 'keep subagents\n' > "$skill_root/codex-playbook-subagents/SKILL.md"
+  printf 'keep roster\n' > "$skill_root/$nested_roster"
+}
+
+assert_untouched_destination() {
+  skill_root=$1
+  codex_home=$2
+  label_prefix=$3
+  assert_absent "$codex_home/backups"     "$label_prefix: refused before any backup exists"
+  assert_contains 'keep rules' "$codex_home/AGENTS.md"     "$label_prefix: global rules unchanged"
+  assert_contains 'keep subagents'     "$skill_root/codex-playbook-subagents/SKILL.md"     "$label_prefix: managed skill unchanged"
+  assert_contains 'keep roster' "$skill_root/$nested_roster"     "$label_prefix: installed nested reference unchanged"
+}
+
+run_missing_nested_resource_refusal_test() {
+  case_root="$test_root/missing-nested-resource"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$home/.agents/skills"
+  fixture_root="$case_root/source"
+  seed_untouched_destination "$skill_root" "$codex_home"
+  build_complete_source_fixture "$fixture_root"
+  rm "$fixture_root/.agents/skills/$nested_roster"
+
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$fixture_root/scripts/install.sh" --replace-agents > "$case_root/install.log" 2>&1; then
+    fail 'install refuses a source missing a required nested resource'
+  else
+    pass 'install refuses a source missing a required nested resource'
+  fi
+  assert_contains "$nested_roster" "$case_root/install.log" \
+    'the refusal names the missing nested resource'
+  assert_untouched_destination "$skill_root" "$codex_home" \
+    'missing nested resource'
+}
+
+run_symlinked_nested_resource_refusal_test() {
+  case_root="$test_root/symlinked-nested-resource"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$home/.agents/skills"
+  fixture_root="$case_root/source"
+  seed_untouched_destination "$skill_root" "$codex_home"
+  build_complete_source_fixture "$fixture_root"
+  rm "$fixture_root/.agents/skills/$nested_roster"
+  ln -s "$repo_root/.agents/skills/$nested_roster" \
+    "$fixture_root/.agents/skills/$nested_roster"
+
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$fixture_root/scripts/install.sh" --replace-agents > "$case_root/install.log" 2>&1; then
+    fail 'install refuses a nested resource that is a symlink'
+  else
+    pass 'install refuses a nested resource that is a symlink'
+  fi
+  assert_contains "$nested_roster" "$case_root/install.log" \
+    'the refusal names the unsafe nested resource'
+  assert_untouched_destination "$skill_root" "$codex_home" \
+    'symlinked nested resource'
+}
+
 run_first_install_and_restore_test
 run_refusal_test
 run_shadowed_agents_refusal_test
@@ -952,5 +1032,7 @@ run_untrusted_restore_test
 run_nested_reference_upgrade_test
 run_nested_reference_replacement_and_restore_test
 run_nested_reference_rollback_test
+run_missing_nested_resource_refusal_test
+run_symlinked_nested_resource_refusal_test
 
 printf '\nAll %s installer lifecycle assertions passed.\n' "$passes"

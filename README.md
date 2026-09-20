@@ -33,17 +33,20 @@ sits waiting for is a stall, so the rulebook pipelines them:
 | Kind | Closes | While it runs, development… |
 |---|---|---|
 | **Mechanical** | every task | never waits |
-| **Deep** | every batch of 3–10 tasks | keeps going — at most **two closed** unreviewed batches under a line's tip, plus the one being built; counted by git ancestry as a set, against a ledger the coordinator keeps |
+| **Deep** | every batch of 3–10 tasks | keeps going — a new batch starts only while at most **two closed** batches are unreviewed; counted by git ancestry as a set, against a ledger the coordinator keeps; twelve worked cases are part of the rule |
 | **High deep** | a milestone or a release | waits — it may revise the plan, every lower review is settled first, and the wait works the queue of minor findings |
 
 What makes that safe is mechanics, not optimism: **a review's input is a commit,
 never a working tree**; the reviewer reads git objects only; the brief defines
 what counts as blocking; a blocker stops the line, whichever kind of review found
 it. The rules are 3.3 and 3.5 in the `codex-playbook-reviews` skill; the reasoning
-and the evidence are in `docs/guides/non-blocking-review-pipeline.md`; the decision
-is ADR 0003. The roster of tiers — Top · Strong · Standard · Fast — names
-capabilities, never products, and has one owner:
-`.agents/skills/codex-playbook-subagents/references/roster.md`.
+and the evidence are in `docs/guides/non-blocking-review-pipeline.md`; the decisions
+are ADR 0003 and ADR 0004.
+
+The roster of tiers — Top · Strong · Standard · Fast — defines each tier by capability and
+carries no model product identifiers; it has one owner:
+`.agents/skills/codex-playbook-subagents/references/roster.md`. The rules own who does what;
+the roster owns what each tier is.
 
 ## Why it is modular
 
@@ -122,6 +125,7 @@ and the update source.
 AGENTS.md                 lean global authority and trigger router
 .agents/skills/           sixteen complete on-demand rule sections
 config/managed-skills.txt authoritative installed-skill inventory
+config/managed-resources.txt  nested files an installation depends on
 config/rule-manifest.tsv  authoritative 50-rule ownership map
 INSTALL.md                backup-first install and recovery procedure
 scripts/install.sh        format-2 transactional installer

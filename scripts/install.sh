@@ -19,22 +19,27 @@ die() {
   exit 1
 }
 
+skill_name_pattern='^codex-playbook-[a-z]+(-[a-z]+)*$'
+resource_path_pattern='^\.agents/skills/codex-playbook-[a-z]+(-[a-z]+)*(/[A-Za-z0-9_-]+)*/[A-Za-z0-9_-]+(\.[A-Za-z0-9]+)+$'
+
 validate_inventory() {
   inventory_path=$1
   inventory_label=$2
+  inventory_pattern=$3
+  inventory_entry=$4
 
   [ -f "$inventory_path" ] && [ ! -L "$inventory_path" ] ||
     die "$inventory_label inventory is missing or unsafe."
   [ -s "$inventory_path" ] ||
     die "$inventory_label inventory is empty."
 
-  invalid_inventory_lines=$(grep -Env '^codex-playbook-[a-z]+(-[a-z]+)*$' "$inventory_path" || true)
+  invalid_inventory_lines=$(grep -Env "$inventory_pattern" "$inventory_path" || true)
   [ -z "$invalid_inventory_lines" ] ||
-    die "$inventory_label inventory contains an invalid skill name."
+    die "$inventory_label inventory contains an invalid $inventory_entry."
 
   inventory_duplicates=$(LC_ALL=C sort "$inventory_path" | uniq -d)
   [ -z "$inventory_duplicates" ] ||
-    die "$inventory_label inventory contains duplicate skill names."
+    die "$inventory_label inventory contains duplicate ${inventory_entry}s."
 
   sorted_inventory=$(LC_ALL=C sort "$inventory_path")
   current_inventory=$(cat "$inventory_path")
@@ -104,6 +109,7 @@ agents_source="$repo_root/AGENTS.md"
 agents_target="$codex_home/AGENTS.md"
 active_inventory="$repo_root/config/managed-skills.txt"
 retired_inventory="$repo_root/config/retired-skills.txt"
+resource_inventory="$repo_root/config/managed-resources.txt"
 agents_stage=''
 staging_root=''
 previous_root=''
@@ -171,8 +177,9 @@ case "$skills_root" in
   *) die 'HOME must be an absolute path.' ;;
 esac
 
-validate_inventory "$active_inventory" 'Active skill'
-validate_inventory "$retired_inventory" 'Retired skill'
+validate_inventory "$active_inventory" 'Active skill' "$skill_name_pattern" 'skill name'
+validate_inventory "$retired_inventory" 'Retired skill' "$skill_name_pattern" 'skill name'
+validate_inventory "$resource_inventory" 'Managed resource' "$resource_path_pattern" 'resource path'
 
 active_skill_names=$(cat "$active_inventory")
 retired_skill_names=$(cat "$retired_inventory")
@@ -208,6 +215,13 @@ do
   [ -f "$skill_source/SKILL.md" ] && [ ! -L "$skill_source/SKILL.md" ] ||
     die "The source skill $skill_name has no regular SKILL.md."
 done
+
+while IFS= read -r resource_path
+do
+  resource_source="$repo_root/$resource_path"
+  [ -f "$resource_source" ] && [ ! -L "$resource_source" ] ||
+    die "The source resource $resource_path is missing or is not a regular file."
+done < "$resource_inventory"
 
 override_target="$codex_home/AGENTS.override.md"
 if [ -L "$override_target" ] || { [ -e "$override_target" ] && [ ! -f "$override_target" ]; }; then

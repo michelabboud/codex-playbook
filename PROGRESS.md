@@ -10,18 +10,27 @@ the former standalone repository is preserved at
 `nice-michel/codex-playbook-archive`.
 
 **0.1.4 (2026-09-20, in review):** the non-blocking review pipeline is ported
-from source 0.1.14, making rule 3.5 the fiftieth rule. Rules 3.1, 3.3 and 3.4
-moved to the source's wording, rule 8.1's tier roster now has a single owner in
-`.agents/skills/codex-playbook-subagents/references/roster.md`, and the
-installer lifecycle tests cover that nested file through install, upgrade,
-rollback and restore. The rulebook contract test covers 50 canonical rule IDs
-and the installer suite runs 294 assertions. **Unverified:** whether every Codex
-client follows a relative reference from the reviews skill into the subagents
-skill's directory (the fresh-session load is still owed); what context isolation real
-reviewer launches provide on this client; the Codex behaviour of the
-"Standard, never Fast" mechanical-review floor, which was measured on two Claude
-models; and the ceiling of two, which rests on one refactor programme. The deep
-review of this change has not yet run and the checkpoint tag is not yet pushed.
+from source 0.1.15, making rule 3.5 the fiftieth rule. The first candidate of
+this change was given a deep review before publication and **failed it** — eight
+findings, all confirmed, six blocking — so the source was corrected again and
+the port follows it: the ceiling is an admission rule (a new batch starts only
+while at most two closed batches are unruled) and rule 3.5 now carries a
+normative table of twelve worked cases that wins over its own prose. Rules 3.1,
+3.3 and 3.4 moved to the source's wording, rule 8.1's tier selection now has a
+single owner in
+`.agents/skills/codex-playbook-subagents/references/roster.md` with the
+boundary stated — rules own the assignments, the roster owns the selection — and
+`config/managed-resources.txt` makes the installer refuse an incomplete source
+before any backup or destination write. The installer lifecycle tests cover that
+nested file through install, upgrade, rollback, restore, and the two refusals.
+The rulebook contract test covers 50 canonical rule IDs and the installer suite
+runs 306 assertions. **Unverified:** whether every Codex client follows a
+relative reference from the reviews skill into the subagents skill's directory
+(the fresh-session load is still owed); what context isolation real reviewer
+launches provide on this client; the Codex behaviour of the "Standard, never
+Fast" mechanical-review floor, which was measured on two Claude models; and the
+ceiling of two, which rests on one refactor programme. The repaired candidate's
+own review has not yet run and the checkpoint tag is not yet pushed.
 
 Phase 2 rebuilt the first public version as a faithful Codex adaptation of all
 49 Claude Code Playbook rules. A lean global router now loads sixteen subject

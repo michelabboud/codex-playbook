@@ -60,11 +60,20 @@ to execute an approved action; it cannot add a reason to stop or ask.
 
 ## Source-fidelity contract
 
-Two files are authoritative:
+Three files are authoritative:
 
 - `config/managed-skills.txt` lists the exact sixteen active skill packages.
   Install, restore, tests, and verification read this file rather than
   duplicating shell lists.
+- `config/managed-resources.txt` lists the repository-relative path of every
+  nested file inside those packages that an installation depends on — today,
+  the roster reference the reviews and subagents skills both read. The installer
+  consumes it during source preflight and refuses, before any backup or
+  destination write, when a listed file is missing or is not a regular file;
+  `tests/rulebook_test.sh` holds it to a sorted, unique set of real files under
+  a managed skill. Whole-directory copying makes a bundled file free to install
+  and copies its absence just as faithfully, which is the defect this inventory
+  closes.
 - `config/rule-manifest.tsv` maps the canonical 50 rule IDs to their owners.
   Rule 11.1 is the declared exception with three platform implementations.
 
