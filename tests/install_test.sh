@@ -1342,13 +1342,51 @@ run_local_layer_survives_lifecycle_test() {
   assert_mode "$expected_mode" "$local_file" '--replace-agents leaves the local file mode'
   assert_mtime "$expected_mtime" "$local_file" '--replace-agents leaves the local file mtime'
 
-  HOME="$home" CODEX_HOME="$codex_home" \
-    "$repo_root/scripts/restore.sh" "$backup_dir" > "$case_root/restore.log"
+  cp "$codex_home/AGENTS.md" "$case_root/expected-active-agents.md"
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$repo_root/scripts/restore.sh" "$backup_dir" > "$case_root/restore.log" 2>&1; then
+    fail 'restore refuses a local layer whose Overrides would go stale'
+  else
+    pass 'restore refuses a local layer whose Overrides would go stale'
+  fi
+  assert_contains 'does not match the checkpoint text' "$case_root/restore.log" \
+    'restore explains that the local layer is stale against the checkpoint'
+  assert_file_equal "$case_root/expected-active-agents.md" "$codex_home/AGENTS.md" \
+    'stale-local-layer restore refusal leaves the active AGENTS.md untouched'
 
   assert_file_equal "$case_root/expected-local.md" "$local_file" \
-    'restore leaves the local file byte-identical'
-  assert_mode "$expected_mode" "$local_file" 'restore leaves the local file mode'
-  assert_mtime "$expected_mtime" "$local_file" 'restore leaves the local file mtime'
+    'restore refusal leaves the local file byte-identical'
+  assert_mode "$expected_mode" "$local_file" 'restore refusal leaves the local file mode'
+  assert_mtime "$expected_mtime" "$local_file" 'restore refusal leaves the local file mtime'
+}
+
+run_restore_rejects_stale_local_layer_test() {
+  case_root="$test_root/restore-stale-local-layer"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$home/.agents/skills"
+  mkdir -p "$home" "$codex_home"
+
+  HOME="$home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/install.sh" > "$case_root/install.log"
+  backup_dir=$(reported_path 'Recovery checkpoint' "$case_root/install.log")
+  printf 'a phrase only the installed router carries\n' >> "$codex_home/AGENTS.md"
+  cat > "$codex_home/$local_layer_name" <<'EOF'
+- **Override — written against the active router.** Keep the local decision.
+  **Dead words:** `a phrase only the installed router carries` (in `AGENTS.md`)
+EOF
+  cp "$codex_home/AGENTS.md" "$case_root/expected-active-agents.md"
+
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$repo_root/scripts/restore.sh" "$backup_dir" > "$case_root/restore.log" 2>&1; then
+    fail 'restore refuses a local Override that is stale against the checkpoint'
+  else
+    pass 'restore refuses a local Override that is stale against the checkpoint'
+  fi
+  assert_contains 'does not match the checkpoint text' "$case_root/restore.log" \
+    'restore explains that the local layer is stale against the checkpoint'
+  assert_file_equal "$case_root/expected-active-agents.md" "$codex_home/AGENTS.md" \
+    'stale-local-layer restore refusal leaves the active AGENTS.md untouched'
 }
 
 run_first_install_and_restore_test
@@ -1388,5 +1426,6 @@ run_local_layer_checked_against_source_test
 run_local_layer_agents_checked_against_source_test
 run_local_layer_is_never_created_test
 run_local_layer_survives_lifecycle_test
+run_restore_rejects_stale_local_layer_test
 
 printf '\nAll %s installer lifecycle assertions passed.\n' "$passes"

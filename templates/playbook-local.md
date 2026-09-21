@@ -10,9 +10,10 @@ force as it stands: every example sits inside a fenced code block, which the
 checker ignores and which binds nobody. An empty file and an absent file both
 mean nothing is customized.*
 
-*Force: `AGENTS.md`, "The local layer" — where an entry here changes a rule, the
-entry wins over the playbook's wording. It never adds authority the approval
-table does not have, except by adding a row in so many words.*
+*Force: `AGENTS.md`, "The local layer". A Fill only supplies an open value; an
+Add is non-authorizing guidance or a stricter constraint; an Override changes a
+named rule within that boundary. No local entry may expand authority, remove an
+approval, relax a protection, change precedence, or override that boundary.*
 
 *Written against playbook version 0.1.6.*
 
@@ -22,8 +23,9 @@ table does not have, except by adding a row in so many words.*
 
 - A **Fill** supplies a value a rule leaves open, or binds one of its generic
   terms to the thing you actually have. It contradicts nothing.
-- An **Add** is a rule or note the playbook does not have. Its own sections are
-  numbered `L1`, `L2`, and onward, numbers the playbook never uses.
+- An **Add** is non-authorizing guidance or a stricter constraint the playbook
+  does not have. Its own sections are numbered `L1`, `L2`, and onward, numbers
+  the playbook never uses.
 - An **Override** changes what a named rule says. It names the rule, says what is
   different in whole sentences, and quotes, on a `**Dead words:**` line, the
   playbook's exact words that no longer apply, each with the file they are in.
@@ -37,8 +39,9 @@ shape would make this page carry live entries, which a template never does.*
 `scripts/check-local.sh` reads every `**Dead words:**` line and searches the
 named file for each quoted phrase as a fixed string. Found: the override still
 bites on the text it was written against. Not found: the playbook rewrote that
-rule, the override is **stale**, and the installer refuses the update until you
-re-read the rule and rewrite the entry. There is no flag to install past it.
+rule, the override is **stale** and suspended: the installer or restore refuses
+the change until you re-read the rule and rewrite the entry. There is no flag to
+continue past it; if its scope is unclear, apply the stricter constraint.
 
 ### The grammar of a Dead-words line
 

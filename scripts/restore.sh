@@ -236,6 +236,14 @@ do
   fi
 done
 
+# A restore changes the managed text beneath the user's standing local layer.
+# Validate that layer against the checkpoint, before creating a pre-restore
+# checkpoint or touching any managed destination. A stale Override is suspended
+# until its owner rewrites it; restoring past it would silently make it inert.
+"$repo_root/scripts/check-local.sh" "$codex_home/playbook-local.md" \
+  "$checkpoint" "$checkpoint" ||
+  die "The local layer at $codex_home/playbook-local.md does not match the checkpoint text this restore would install. Re-read the rules named above and rewrite those entries; there is no flag to restore past this."
+
 agents_target="$codex_home/AGENTS.md"
 if [ -L "$agents_target" ]; then
   die 'Refusing to replace a symlinked global AGENTS.md.'

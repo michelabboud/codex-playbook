@@ -281,6 +281,34 @@ line_has_bare_marker() {
   return 1
 }
 
+# Refuse a Markdown-shaped entry a person could reasonably read as a Fill, Add,
+# or Override but that the canonical grammar does not recognize. Code spans are
+# removed first, so prose can safely discuss the grammar.
+line_has_unrecognized_entry_marker() {
+  entry_out=''
+  entry_rest=$1
+  while :
+  do
+    case "$entry_rest" in
+      *"$backtick"*"$backtick"*)
+        entry_out=$entry_out${entry_rest%%"$backtick"*}
+        entry_rest=${entry_rest#*"$backtick"}
+        entry_rest=${entry_rest#*"$backtick"}
+        ;;
+      *) break ;;
+    esac
+  done
+  entry_out=$entry_out$entry_rest
+  strip_leading_blanks "$entry_out"
+  case "$trim_value" in
+    [0-9]*.\ \*\*Override*|[0-9]*.\ \*\*Fill*|[0-9]*.\ \*\*Add*|\
+    \>\ \*\*Override*|\>\ \*\*Fill*|\>\ \*\*Add*|\
+    \#*\ \*\*Override*|\#*\ \*\*Fill*|\#*\ \*\*Add*|\
+    \*\*\*Override*|\*\*\*Fill*|\*\*\*Add*) return 0 ;;
+  esac
+  return 1
+}
+
 # Is the absence of this path something we actually observed, or something we
 # merely failed to see? POSIX `test` cannot tell the two apart: [ ! -e PATH ] is
 # false both when nothing is there and when a directory along the way may not be
@@ -494,9 +522,11 @@ parse_dead_words() {
   done
 }
 
-case "${1:-}" in
-  -h|--help) usage; exit 0 ;;
-esac
+if [ "$#" -eq 1 ]; then
+  case "${1:-}" in
+    -h|--help) usage; exit 0 ;;
+  esac
+fi
 
 if [ "$#" -ne 3 ]; then
   printf 'ERROR: exactly three arguments are required.\n' >&2
@@ -527,6 +557,14 @@ fi
 
 if [ ! -r "$local_file" ]; then
   printf 'ERROR: the local layer at %s cannot be read.\n' "$local_file" >&2
+  exit 2
+fi
+
+# Command substitution and shell variables cannot represent NUL. Scan the
+# original byte stream before the read loop so a NUL cannot be erased into an
+# apparently valid local layer.
+if ! LC_ALL=C tr -d '\000' < "$local_file" | cmp -s "$local_file" -; then
+  printf 'ERROR: the local layer at %s contains a NUL byte, or its binary-safety scan failed.\n' "$local_file" >&2
   exit 2
 fi
 
@@ -562,7 +600,13 @@ do
   # line and at the next heading. Neither line is itself a marker line, so both
   # fall through to the checks below afterwards.
   case "$stripped_line" in
-    '#'*) report_pending_override ;;
+    '#'* )
+      report_pending_override
+      if line_has_unrecognized_entry_marker "$raw_line"; then
+        report_error "$line_number" \
+          'looks like a Fill, Add, or Override but is not in the canonical entry shape (optional - or * bullet, then **Override**, **Fill**, or **Add**); refusing a silently ignored entry'
+      fi
+      ;;
     *)
       strip_list_bullet "$stripped_line"
       case "$trim_value" in
@@ -580,6 +624,10 @@ do
     *)
       # Not an entry. The bare marker anywhere else on the line is an error,
       # never a silently skipped entry; inside a code span it is prose.
+      if line_has_unrecognized_entry_marker "$raw_line"; then
+        report_error "$line_number" \
+          'looks like a Fill, Add, or Override but is not in the canonical entry shape (optional - or * bullet, then **Override**, **Fill**, or **Add**); refusing a silently ignored entry'
+      fi
       if line_has_bare_marker "$raw_line"; then
         report_error "$line_number" \
           "the $marker marker is not at the start of this line, so an entry here would be skipped: give the entry a line of its own, or put the marker inside a code span when the line is prose about it"

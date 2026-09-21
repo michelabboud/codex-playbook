@@ -1035,6 +1035,39 @@ run_shared_vectors_test() {
   fi
 }
 
+run_fail_open_boundary_tests() {
+  make_case fail-open-boundaries
+
+  printf '**Override — binary words.**\n**Dead words:** `prefix\000suffix` (in `AGENTS.md`)\n' \
+    > "$local_file"
+  printf 'prefixsuffix\n' > "$agents_root/AGENTS.md"
+  run_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'a NUL byte in a local file is refused'
+  assert_output_contains 'NUL' 'a NUL refusal says why'
+
+  help_root="$case_root/help-path"
+  mkdir -p "$help_root"
+  printf 'anything\n' > "$help_root/-h"
+  set +e
+  (cd "$help_root" && "$check_local" -h "$agents_root" "$skills_root") > "$case_root/help.out" 2>&1
+  check_status=$?
+  set -e
+  assert_status 2 'a local file literally named -h is not parsed as help'
+
+  for shape in numbered blockquote heading italicbold
+  do
+    case "$shape" in
+      numbered)   entry='1. **Override — numbered list.**' ;;
+      blockquote) entry='> **Override — block quote.**' ;;
+      heading)    entry='## **Override — heading.**' ;;
+      italicbold) entry='***Override — italic bold.***' ;;
+    esac
+    printf '%s\n' "$entry" > "$local_file"
+    run_check "$local_file" "$agents_root" "$skills_root"
+    assert_status 2 "an unrecognized $shape Override is refused"
+  done
+}
+
 run_absent_local_file_test
 run_fresh_test
 run_fresh_two_files_in_one_item_test
@@ -1071,5 +1104,6 @@ run_marker_after_code_span_test
 run_unsearchable_named_file_test
 run_glob_in_named_file_tests
 run_shared_vectors_test
+run_fail_open_boundary_tests
 
 printf '\nAll %s local-layer staleness assertions passed.\n' "$passes"
