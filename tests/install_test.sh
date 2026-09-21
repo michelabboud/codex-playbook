@@ -1165,16 +1165,29 @@ run_inactive_resource_owner_refusal_test() {
 
 local_layer_name=playbook-local.md
 
-write_fresh_local_layer() {
-  cat > "$1" <<'EOF'
-# LOCAL — my local layer
+section_digest() {
+  awk '
+    /^# / { started = 1 }
+    started { sub(/\r$/, ""); sub(/[ \t]+$/, ""); print }
+  ' "$1" | sha256sum | awk '{print $1}'
+}
 
-- **Fill — the registry home.** Mine lives elsewhere.
-- **Override — mechanical review.** Whatever I decided instead.
-  **Dead words:** `Standard tier` (in `codex-playbook-reviews/SKILL.md`)
-- **Override — the version line.** Whatever I decided instead.
-  **Dead words:** `This rulebook is version` (in `AGENTS.md`)
-EOF
+write_fresh_local_layer() {
+  agents_digest=$(section_digest "$repo_root/AGENTS.md")
+  reviews_digest=$(section_digest "$repo_root/.agents/skills/codex-playbook-reviews/SKILL.md")
+  {
+    printf '%s\n' '# LOCAL — my local layer' '' \
+      '- **Fill — the registry home.** Mine lives elsewhere.' \
+      '- **Override — mechanical review.** Whatever I decided instead.' \
+      '  **Anchor:** `# 3 · Code reviews — rules 3.1–3.5` (in `codex-playbook-reviews/SKILL.md`)'
+    printf '  **Rule digest:** `sha256:%s`\n' "$reviews_digest"
+    printf '%s\n' \
+      '  **Dead words:** `Mechanical review runs on the Standard tier` (in `codex-playbook-reviews/SKILL.md`)' \
+      '- **Override — the version line.** Whatever I decided instead.' \
+      '  **Anchor:** `# My Global Rules — Codex` (in `AGENTS.md`)'
+    printf '  **Rule digest:** `sha256:%s`\n' "$agents_digest"
+    printf '%s\n' '  **Dead words:** `This rulebook is version` (in `AGENTS.md`)'
+  } > "$1"
 }
 
 run_stale_local_layer_refusal_test() {
@@ -1183,10 +1196,13 @@ run_stale_local_layer_refusal_test() {
   codex_home="$case_root/codex"
   skill_root="$home/.agents/skills"
   seed_untouched_destination "$skill_root" "$codex_home"
-  cat > "$codex_home/$local_layer_name" <<'EOF'
-- **Override — a rule this playbook rewrote.** Whatever I decided instead.
-  **Dead words:** `a sentence this playbook no longer carries` (in `AGENTS.md`)
-EOF
+  agents_digest=$(section_digest "$repo_root/AGENTS.md")
+  {
+    printf '%s\n' '- **Override — a rule this playbook rewrote.** Whatever I decided instead.' \
+      '  **Anchor:** `# My Global Rules — Codex` (in `AGENTS.md`)'
+    printf '  **Rule digest:** `sha256:%s`\n' "$agents_digest"
+    printf '%s\n' '  **Dead words:** `a sentence this playbook no longer carries` (in `AGENTS.md`)'
+  } > "$codex_home/$local_layer_name"
   cp "$codex_home/$local_layer_name" "$case_root/expected-local.md"
 
   if HOME="$home" CODEX_HOME="$codex_home" \
@@ -1197,7 +1213,7 @@ EOF
   fi
   assert_contains 'a sentence this playbook no longer carries' "$case_root/install.log" \
     'the stale refusal quotes the words that are gone'
-  assert_contains "$codex_home/$local_layer_name:2:" "$case_root/install.log" \
+  assert_contains "$codex_home/$local_layer_name:4:" "$case_root/install.log" \
     'the stale refusal reports the entry as file:line'
   assert_untouched_destination "$skill_root" "$codex_home" 'stale local layer'
   assert_file_equal "$case_root/expected-local.md" "$codex_home/$local_layer_name" \
@@ -1210,10 +1226,13 @@ run_unparsable_local_layer_refusal_test() {
   codex_home="$case_root/codex"
   skill_root="$home/.agents/skills"
   seed_untouched_destination "$skill_root" "$codex_home"
-  cat > "$codex_home/$local_layer_name" <<'EOF'
-- **Override — an entry I mistyped.** Whatever I decided instead.
-  **Dead words:** Standard tier (in codex-playbook-reviews/SKILL.md)
-EOF
+  reviews_digest=$(section_digest "$repo_root/.agents/skills/codex-playbook-reviews/SKILL.md")
+  {
+    printf '%s\n' '- **Override — an entry I mistyped.** Whatever I decided instead.' \
+      '  **Anchor:** `# 3 · Code reviews — rules 3.1–3.5` (in `codex-playbook-reviews/SKILL.md`)'
+    printf '  **Rule digest:** `sha256:%s`\n' "$reviews_digest"
+    printf '%s\n' '  **Dead words:** Standard tier (in codex-playbook-reviews/SKILL.md)'
+  } > "$codex_home/$local_layer_name"
   cp "$codex_home/$local_layer_name" "$case_root/expected-local.md"
 
   if HOME="$home" CODEX_HOME="$codex_home" \
@@ -1224,7 +1243,7 @@ EOF
   fi
   assert_contains 'does not parse' "$case_root/install.log" \
     'the unparsable refusal says the line does not parse'
-  assert_contains "$codex_home/$local_layer_name:2:" "$case_root/install.log" \
+  assert_contains "$codex_home/$local_layer_name:4:" "$case_root/install.log" \
     'the unparsable refusal reports the line as file:line'
   assert_untouched_destination "$skill_root" "$codex_home" 'unparsable local layer'
   assert_file_equal "$case_root/expected-local.md" "$codex_home/$local_layer_name" \
@@ -1239,10 +1258,13 @@ run_local_layer_checked_against_source_test() {
   seed_untouched_destination "$skill_root" "$codex_home"
   printf 'a phrase only the installed copy carries\n' \
     >> "$skill_root/codex-playbook-subagents/SKILL.md"
-  cat > "$codex_home/$local_layer_name" <<'EOF'
-- **Override — written against the installed copy.** Whatever I decided instead.
-  **Dead words:** `a phrase only the installed copy carries` (in `codex-playbook-subagents/SKILL.md`)
-EOF
+  subagents_digest=$(section_digest "$repo_root/.agents/skills/codex-playbook-subagents/SKILL.md")
+  {
+    printf '%s\n' '- **Override — written against the installed copy.** Whatever I decided instead.' \
+      '  **Anchor:** `# 8 · Subagents & model tiering — rule 8.1` (in `codex-playbook-subagents/SKILL.md`)'
+    printf '  **Rule digest:** `sha256:%s`\n' "$subagents_digest"
+    printf '%s\n' '  **Dead words:** `a phrase only the installed copy carries` (in `codex-playbook-subagents/SKILL.md`)'
+  } > "$codex_home/$local_layer_name"
 
   if HOME="$home" CODEX_HOME="$codex_home" \
       "$repo_root/scripts/install.sh" --replace-agents > "$case_root/install.log" 2>&1; then
@@ -1265,10 +1287,13 @@ run_local_layer_agents_checked_against_source_test() {
   # router, so a preflight that read the installed AGENTS.md would find it and
   # install a stale override.
   printf 'a phrase only the installed router carries\n' >> "$codex_home/AGENTS.md"
-  cat > "$codex_home/$local_layer_name" <<'EOF'
-- **Override — written against the installed router.** Whatever I decided instead.
-  **Dead words:** `a phrase only the installed router carries` (in `AGENTS.md`)
-EOF
+  agents_digest=$(section_digest "$repo_root/AGENTS.md")
+  {
+    printf '%s\n' '- **Override — written against the installed router.** Whatever I decided instead.' \
+      '  **Anchor:** `# My Global Rules — Codex` (in `AGENTS.md`)'
+    printf '  **Rule digest:** `sha256:%s`\n' "$agents_digest"
+    printf '%s\n' '  **Dead words:** `a phrase only the installed router carries` (in `AGENTS.md`)'
+  } > "$codex_home/$local_layer_name"
 
   if HOME="$home" CODEX_HOME="$codex_home" \
       "$repo_root/scripts/install.sh" --replace-agents > "$case_root/install.log" 2>&1; then
@@ -1371,10 +1396,13 @@ run_restore_rejects_stale_local_layer_test() {
     "$repo_root/scripts/install.sh" > "$case_root/install.log"
   backup_dir=$(reported_path 'Recovery checkpoint' "$case_root/install.log")
   printf 'a phrase only the installed router carries\n' >> "$codex_home/AGENTS.md"
-  cat > "$codex_home/$local_layer_name" <<'EOF'
-- **Override — written against the active router.** Keep the local decision.
-  **Dead words:** `a phrase only the installed router carries` (in `AGENTS.md`)
-EOF
+  agents_digest=$(section_digest "$codex_home/AGENTS.md")
+  {
+    printf '%s\n' '- **Override — written against the active router.** Keep the local decision.' \
+      '  **Anchor:** `# My Global Rules — Codex` (in `AGENTS.md`)'
+    printf '  **Rule digest:** `sha256:%s`\n' "$agents_digest"
+    printf '%s\n' '  **Dead words:** `a phrase only the installed router carries` (in `AGENTS.md`)'
+  } > "$codex_home/$local_layer_name"
   cp "$codex_home/AGENTS.md" "$case_root/expected-active-agents.md"
 
   if HOME="$home" CODEX_HOME="$codex_home" \

@@ -43,7 +43,10 @@ inside a code span. Lines inside a fenced code block are ignored, so a file may
 quote this grammar without the example binding anyone; a fence left open at the
 end of the file is an error.
 
-An Override entry owes a Dead-words line. Outside a fenced code block, an entry
+An Override entry owes a section verifier: **Anchor:** names one literal Markdown
+heading and file, **Rule digest:** gives that normalized section's SHA-256, and
+its **Dead words:** quote has at least 16 non-whitespace bytes and occurs exactly
+once in that section. Outside a fenced code block, an entry
 line is one that -- after any indentation and an optional "- " or "* " bullet --
 begins with **Fill, **Add or **Override; a heading is a line beginning with #.
 An **Override entry with no valid Dead-words line before the next entry line,
@@ -54,7 +57,7 @@ line with no Override before it is still parsed and searched.
 Exit status:
   0  every override still matches the playbook text, or there is no local file
   1  at least one override is stale: its quoted words are gone
-  2  usage error, an unparsable "Dead words:" line, a bare marker that is not
+  2  usage error, an unparsable verifier or "Dead words:" line, a bare marker that is not
      at the start of its line, an Override with no Dead-words line, an over-long
      line, an unclosed fenced code block, a named file that carries a glob
      character, does not exist, is not a regular file, or escapes its root, or a
@@ -76,6 +79,8 @@ backtick='`'
 tab=$(printf '\t')
 carriage_return=$(printf '\r')
 marker='**Dead words:**'
+anchor_marker='**Anchor:**'
+digest_marker='**Rule digest:**'
 separator=' · '
 
 # A local-layer line longer than this, in bytes, is refused rather than
@@ -112,6 +117,28 @@ fence_line=0
 # nothing checked and "every override still matches" on the console. The window
 # closes at the next entry line, the next heading, or the end of the file.
 pending_override_line=0
+pending_anchor_heading=''
+pending_anchor_name=''
+pending_anchor_path=''
+pending_digest=''
+active_anchor_name=''
+active_section_file=''
+
+# Every live Override is bound to one Markdown section.  The small private
+# directory holds only normalized section text and one quoted phrase while an
+# item is being checked; it is never placed beside the local layer or managed
+# text.  `mktemp`, `awk`, and one of sha256sum/shasum/openssl are therefore
+# prerequisites for an Override (a checker that cannot make the proof refuses
+# it rather than silently falling back to a phrase search).
+scratch_dir=''
+section_file=''
+words_file=''
+
+cleanup_scratch() {
+  if [ -n "$scratch_dir" ]; then
+    rm -rf -- "$scratch_dir"
+  fi
+}
 
 report_error() {
   printf '%s:%s: error: %s\n' "$local_file" "$1" "$2" >&2
@@ -137,8 +164,12 @@ note_stop() {
 report_pending_override() {
   if [ "$pending_override_line" -ne 0 ]; then
     report_error "$pending_override_line" \
-      "this Override entry carries no valid $marker line before the next entry, the next heading, or the end of the file: an Override must quote the playbook words it replaces, and a marker spelled any other way is not the marker"
+      "this Override entry carries no complete verifier before the next entry, the next heading, or the end of the file: an Override must carry $anchor_marker, $digest_marker, and a valid $marker line"
     pending_override_line=0
+    pending_anchor_heading=''
+    pending_anchor_name=''
+    pending_anchor_path=''
+    pending_digest=''
   fi
 }
 
@@ -445,12 +476,155 @@ resolve_named_file() {
   resolved_path=$walk_path
 }
 
+# Parse `## A section` (in `AGENTS.md`).  The heading is intentionally the
+# literal Markdown heading from the managed file: a rule number can be moved or
+# repeated, while the bounded section and its digest are the object an Override
+# actually relies on.
+parse_anchor() {
+  anchor_line=$1
+  anchor_text=$2
+  take_code_span "$anchor_text" || { note_stop "$anchor_text"; return 1; }
+  pending_anchor_heading=$span_value
+  anchor_text=$span_rest
+  case "$pending_anchor_heading" in
+    '# '*|'## '*|'### '*|'#### '*|'##### '*|'###### '*) ;;
+    *) note_stop "anchor must be a Markdown heading: $pending_anchor_heading"; return 1 ;;
+  esac
+  case "$anchor_text" in
+    ' (in '*) anchor_text=${anchor_text#' (in '} ;;
+    *) note_stop "$anchor_text"; return 1 ;;
+  esac
+  take_code_span "$anchor_text" || { note_stop "$anchor_text"; return 1; }
+  pending_anchor_name=$span_value
+  anchor_text=$span_rest
+  case "$anchor_text" in
+    ')') ;;
+    *) note_stop "$anchor_text"; return 1 ;;
+  esac
+  resolve_named_file "$anchor_line" "$pending_anchor_name" || return 1
+  pending_anchor_path=$resolved_path
+
+  # An ambiguous heading is not an anchor.  Count whole, fixed-string lines so
+  # no regexp interpretation can turn punctuation in a heading into a match.
+  set +e
+  anchor_count=$(grep -F -x -c -e "$pending_anchor_heading" -- "$pending_anchor_path")
+  anchor_status=$?
+  set -e
+  if [ "$anchor_status" -ne 0 ]; then
+    note_stop "could not count the anchored heading in $pending_anchor_path"
+    return 1
+  fi
+  if [ "$anchor_count" -ne 1 ]; then
+    note_stop "anchored heading must occur exactly once in $pending_anchor_name; found $anchor_count"
+    return 1
+  fi
+
+  printf '%s\n' "$pending_anchor_heading" > "$scratch_dir/heading"
+  set +e
+  awk '
+    NR == FNR { wanted = $0; next }
+    {
+      line = $0
+      sub(/\r$/, "", line)
+      plain = line
+      sub(/^[ \t]*/, "", plain)
+      if (!started && line == wanted) {
+        started = 1
+        level = 0
+        while (substr(plain, level + 1, 1) == "#") level++
+      }
+      if (started) {
+        if (line != wanted && plain ~ /^#+[ \t]/) {
+          next_level = 0
+          while (substr(plain, next_level + 1, 1) == "#") next_level++
+          if (next_level <= level) exit
+        }
+        sub(/[ \t]+$/, "", line)
+        print line
+      }
+    }
+    END { if (!started) exit 1 }
+  ' "$scratch_dir/heading" "$pending_anchor_path" > "$section_file"
+  anchor_status=$?
+  set -e
+  if [ "$anchor_status" -ne 0 ] || [ ! -s "$section_file" ]; then
+    note_stop "could not extract the anchored section from $pending_anchor_name"
+    return 1
+  fi
+  return 0
+}
+
+parse_digest() {
+  digest_text=$1
+  take_code_span "$digest_text" || { note_stop "$digest_text"; return 1; }
+  pending_digest=$span_value
+  case "$span_rest" in '') ;; *) note_stop "$span_rest"; return 1 ;; esac
+  case "$pending_digest" in sha256:*) ;; *) note_stop "expected sha256: followed by 64 lowercase hexadecimal characters"; return 1 ;; esac
+  digest_hex=${pending_digest#sha256:}
+  case "$digest_hex" in *[!0-9a-f]*|'') note_stop "expected sha256: followed by 64 lowercase hexadecimal characters"; return 1 ;; esac
+  [ "${#digest_hex}" -eq 64 ] || { note_stop "expected sha256: followed by 64 lowercase hexadecimal characters"; return 1; }
+}
+
+section_digest() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    computed_digest=$(sha256sum "$section_file" | awk '{print $1}')
+  elif command -v shasum >/dev/null 2>&1; then
+    computed_digest=$(shasum -a 256 "$section_file" | awk '{print $1}')
+  elif command -v openssl >/dev/null 2>&1; then
+    computed_digest=$(openssl dgst -sha256 "$section_file" | awk '{print $NF}')
+  else
+    report_error "$pending_override_line" \
+      'cannot calculate the required SHA-256 rule digest (need sha256sum, shasum, or openssl)'
+    return 1
+  fi
+  case "$computed_digest" in *[!0-9a-f]*|'') report_error "$pending_override_line" 'could not calculate a SHA-256 rule digest'; return 1 ;; esac
+  [ "${#computed_digest}" -eq 64 ] || { report_error "$pending_override_line" 'could not calculate a SHA-256 rule digest'; return 1; }
+  if [ "sha256:$computed_digest" != "$pending_digest" ]; then
+    report_stale "$pending_override_line" \
+      "section digest $pending_digest (current sha256:$computed_digest)" "$pending_anchor_path"
+  fi
+}
+
+nonblank_bytes() {
+  printf '%s' "$1" | tr -d '[:space:]' | wc -c | tr -d ' '
+}
+
+section_occurrences() {
+  printf '%s\n' "$1" > "$words_file"
+  awk 'NR == FNR { needle = $0; next }
+       { rest = $0; while ((at = index(rest, needle)) != 0) { count++; rest = substr(rest, at + length(needle)) } }
+       END { print count + 0 }' "$words_file" "$section_file"
+}
+
 # Searches one file for one item's words. Always returns 0: a miss is a
 # finding, not a control-flow failure.
 check_item() {
   item_line=$1
   item_words=$2
   item_name=$3
+
+  if [ -n "$active_anchor_name" ]; then
+    if [ "$item_name" != "$active_anchor_name" ]; then
+      report_error "$item_line" \
+        "an Override's Dead words must name its anchored file $active_anchor_name, not $item_name"
+      return 0
+    fi
+    item_nonblank=$(nonblank_bytes "$item_words")
+    if [ "$item_nonblank" -lt 16 ]; then
+      report_error "$item_line" \
+        "an Override's quoted words have $item_nonblank non-whitespace bytes; the minimum anchor is 16"
+      return 0
+    fi
+    item_occurrences=$(section_occurrences "$item_words")
+    checked=$((checked + 1))
+    case "$item_occurrences" in
+      0) report_stale "$item_line" "$item_words" "$pending_anchor_path" ;;
+      1) ;;
+      *) report_error "$item_line" \
+           "an Override's quoted words occur $item_occurrences times in the anchored section; they must occur exactly once" ;;
+    esac
+    return 0
+  fi
 
   if ! resolve_named_file "$item_line" "$item_name"; then
     return 0
@@ -568,6 +742,14 @@ if ! LC_ALL=C tr -d '\000' < "$local_file" | cmp -s "$local_file" -; then
   exit 2
 fi
 
+scratch_dir=$(mktemp -d "${TMPDIR:-/tmp}/codex-playbook-check-local.XXXXXX") || {
+  printf 'ERROR: cannot create private scratch space for local-layer verification.\n' >&2
+  exit 2
+}
+section_file=$scratch_dir/section
+words_file=$scratch_dir/words
+trap cleanup_scratch EXIT HUP INT TERM
+
 line_number=0
 raw_line=''
 while IFS= read -r raw_line || [ -n "$raw_line" ]
@@ -596,6 +778,41 @@ do
     continue
   fi
 
+  # These two lines belong only to the Override currently being read.  They
+  # are not entry lines themselves, so they do not close its verifier window.
+  case "$stripped_line" in
+    "$anchor_marker"*)
+      if [ "$pending_override_line" -eq 0 ] || [ -n "$pending_anchor_path" ]; then
+        report_error "$line_number" "$anchor_marker is valid only once inside the Override it verifies"
+        continue
+      fi
+      anchor_text=${stripped_line#"$anchor_marker"}
+      case "$anchor_text" in
+        ' '*|"$tab"*) strip_leading_blanks "$anchor_text"; anchor_text=$trim_value ;;
+        *) report_error "$line_number" "$anchor_marker must continue with an anchored Markdown heading"; continue ;;
+      esac
+      if ! parse_anchor "$line_number" "$anchor_text"; then
+        report_error "$line_number" "$anchor_marker does not parse: ${parse_stopped_at:-<end of line>}"
+      fi
+      continue
+      ;;
+    "$digest_marker"*)
+      if [ "$pending_override_line" -eq 0 ] || [ -z "$pending_anchor_path" ] || [ -n "$pending_digest" ]; then
+        report_error "$line_number" "$digest_marker is valid once after a valid $anchor_marker inside the Override it verifies"
+        continue
+      fi
+      digest_text=${stripped_line#"$digest_marker"}
+      case "$digest_text" in
+        ' '*|"$tab"*) strip_leading_blanks "$digest_text"; digest_text=$trim_value ;;
+        *) report_error "$line_number" "$digest_marker must continue with a sha256 code span"; continue ;;
+      esac
+      if ! parse_digest "$digest_text"; then
+        report_error "$line_number" "$digest_marker does not parse: ${parse_stopped_at:-<end of line>}"
+      fi
+      continue
+      ;;
+  esac
+
   # An Override's window for its "Dead words:" line closes at the next entry
   # line and at the next heading. Neither line is itself a marker line, so both
   # fall through to the checks below afterwards.
@@ -614,6 +831,10 @@ do
         '**Override'*)
           report_pending_override
           pending_override_line=$line_number
+          pending_anchor_heading=''
+          pending_anchor_name=''
+          pending_anchor_path=''
+          pending_digest=''
           ;;
       esac
       ;;
@@ -657,6 +878,21 @@ do
     continue
   fi
 
+  if [ "$pending_override_line" -ne 0 ] && { [ -z "$pending_anchor_path" ] || [ -z "$pending_digest" ]; }; then
+    report_error "$pending_override_line" \
+      "this Override's $marker line has no complete verifier: add $anchor_marker and $digest_marker before it"
+    continue
+  fi
+
+  if [ "$pending_override_line" -ne 0 ]; then
+    active_anchor_name=$pending_anchor_name
+    active_section_file=$section_file
+    section_digest || :
+  else
+    active_anchor_name=''
+    active_section_file=''
+  fi
+
   if ! parse_dead_words "$line_number" "$item_text"; then
     report_error "$line_number" \
       "this \"Dead words:\" line does not parse: expected \`words\` (in \`file\`), items separated by \" · \"; stopped at: ${parse_stopped_at:-<end of line>}"
@@ -664,7 +900,15 @@ do
     # Only a line that parsed satisfies an Override. A line that did not is
     # reported at its own number, and the Override it should have carried is
     # reported at the Override's — one mistake, two places it shows.
-    pending_override_line=0
+    if [ "$pending_override_line" -ne 0 ]; then
+      pending_override_line=0
+      pending_anchor_heading=''
+      pending_anchor_name=''
+      pending_anchor_path=''
+      pending_digest=''
+      active_anchor_name=''
+      active_section_file=''
+    fi
   fi
 done < "$local_file"
 

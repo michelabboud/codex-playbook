@@ -27,25 +27,46 @@ approval, relax a protection, change precedence, or override that boundary.*
   does not have. Its own sections are numbered `L1`, `L2`, and onward, numbers
   the playbook never uses.
 - An **Override** changes what a named rule says. It names the rule, says what is
-  different in whole sentences, and quotes, on a `**Dead words:**` line, the
-  playbook's exact words that no longer apply, each with the file they are in.
+  different in whole sentences, and binds that change to one named Markdown
+  section: its literal heading, its normalized SHA-256 digest, and a quote from
+  that section that is at least 16 non-whitespace bytes and occurs exactly once.
 
 *These three bullets describe the kinds; they are deliberately not written in the
 shape of an entry. An entry line is one that begins — after any indentation and
 an optional `- ` or `* ` bullet — with `**Fill`, `**Add` or `**Override`, and an
-Override written that way owes a Dead-words line. Writing about the kinds in that
+Override written that way owes an Anchor, Rule digest, and Dead-words line. Writing about the kinds in that
 shape would make this page carry live entries, which a template never does.*
 
-`scripts/check-local.sh` reads every `**Dead words:**` line and searches the
-named file for each quoted phrase as a fixed string. Found: the override still
-bites on the text it was written against. Not found: the playbook rewrote that
-rule, the override is **stale** and suspended: the installer or restore refuses
-the change until you re-read the rule and rewrite the entry. There is no flag to
-continue past it; if its scope is unclear, apply the stricter constraint.
+`scripts/check-local.sh` reads every Override's three-line verifier. It extracts
+the one literal heading you named, normalizes that section (CRLF becomes LF and
+trailing blanks are ignored), hashes it, and then checks the quoted phrase as a
+fixed string inside that section. A changed digest or missing phrase makes the
+override **stale** and suspended; a short or non-unique phrase is refused. The
+stale report prints the current digest to copy after you re-read the rule. There
+is no flag to continue past it; if its scope is unclear, apply the stricter
+constraint.
 
-### The grammar of a Dead-words line
+### The Override verifier
 
-A script reads it, so its shape is fixed:
+A script reads it, so its shape is fixed. Immediately after the Override's own
+sentence, write these three lines in this order:
+
+```markdown
+**Anchor:** `## The literal section heading` (in `AGENTS.md`)
+**Rule digest:** `sha256:64-lowercase-hex-characters`
+**Dead words:** `at least sixteen non-whitespace bytes, unique in that section` (in `AGENTS.md`)
+```
+
+The Anchor heading must occur exactly once in its named managed file. The Rule
+digest covers that heading through the line before the next heading of equal or
+higher level, after CRLF-to-LF and trailing-blank normalization. `sha256sum`,
+`shasum -a 256`, or `openssl` supplies the digest; if none is available, the
+checker refuses the Override rather than guessing. The quoted words must name
+the same file as the Anchor. Standalone `**Dead words:**` lines remain useful as
+read-only compatibility probes and retain the grammar below; they grant no
+override authority.
+
+For that Dead-words line:
 
 - the line begins, after any indentation, with the marker `**Dead words:**` and
   at least one space or tab;
@@ -68,13 +89,11 @@ code span, the way this page does throughout. Lines inside a fenced code block
 are ignored entirely, which is why the worked examples below are inert; a fence
 left open at the end of the file is an error.
 
-**And an Override may not go without one.** An Override entry with no valid
-Dead-words line before the next entry line, the next heading, or the end of the
-file is an error too. That is what makes a mistyped marker — lower case, the
-colon outside the bold, the bold left off — a refusal rather than a silent pass:
-were it only prose, the Override would install with nothing checked. A Fill and
-an Add owe no such line, and a Dead-words line that stands alone is still read
-and searched.
+**And an Override may not go without all three.** An Override entry with no
+valid Anchor, Rule digest, and Dead-words line before the next entry line, the
+next heading, or the end of the file is an error. That is what makes a mistyped
+marker a refusal rather than a silent pass: were it only prose, the Override
+would install with no freshness proof. A Fill and an Add owe no verifier.
 
 It is the same grammar, byte for byte, as the Claude edition's local layer, so
 one entry can be carried between the two editions unchanged.
@@ -103,15 +122,19 @@ own words, and your own file:
 - **Add — this section number is mine.** The playbook never uses `L` numbers, so
   an `L` section can never collide with a rule an update introduces.
 
-## Overrides, each with its Dead words
+## Overrides, each with a section verifier
 
 - **Override — the version line of `AGENTS.md`.** My installation records its
   version somewhere else, so the sentence that states it in `AGENTS.md` does
   not apply here.
-  **Dead words:** `This rulebook is version` (in `AGENTS.md`)
+  **Anchor:** `# My Global Rules — Codex` (in `AGENTS.md`)
+  **Rule digest:** `sha256:0000000000000000000000000000000000000000000000000000000000000000`
+  **Dead words:** `This rulebook is version 0.1.6` (in `AGENTS.md`)
 - **Override — the tier that runs mechanical review.** Here mechanical review
   runs on whatever lane has allowance that day.
-  **Dead words:** `Standard tier` (in `codex-playbook-reviews/SKILL.md`)
+  **Anchor:** `# 3 · Code reviews — rules 3.1–3.5` (in `codex-playbook-reviews/SKILL.md`)
+  **Rule digest:** `sha256:0000000000000000000000000000000000000000000000000000000000000000`
+  **Dead words:** `Mechanical per task, on the Standard tier` (in `codex-playbook-reviews/SKILL.md`)
 ```
 
 Check your file at any time, against a checkout, without installing anything:

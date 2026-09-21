@@ -33,6 +33,12 @@ finding, five of five confirmed by the coordinator.
 - [ ] `checkpoint/0.1.6` tagged and pushed — **only after** the Claude edition's
   `checkpoint/0.1.16` exists, as the parity matrix records.
 
+**Repair round 2 — 2026-09-21.** Sol's deep review found ten blockers. The
+authority boundary, parser fail-closed cases, restoration preflight, and Claude
+guide contradictions are repaired in local commits. The remaining rule-section
+anchor contract is now implemented and recorded in ADR 0006; all changes remain
+local pending Sol's focused re-review.
+
 ## Task — Non-blocking review pipeline (parity with source 0.1.13 → 0.1.15)
 
 **Status:** Complete — 2026-09-20, published as `checkpoint/0.1.4` — approved 2026-09-20 (the owner's "go"; ceiling reading (a), two closed batches plus the one being built). Revision 1 was

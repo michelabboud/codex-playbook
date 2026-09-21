@@ -92,7 +92,7 @@ The installer executes this order:
    `VERSION`, and the restore and local-layer-check commands.
 2. Run `scripts/check-local.sh` against the local layer and **the text this run
    would install** — before `umask`, before any directory is created, before any
-   backup. A stale override, an unparsable `**Dead words:**` line, a bare marker
+   backup. A stale override, an unparsable Anchor, Rule digest, or `**Dead words:**` line, a bare marker
    that is not at the start of its line, an `**Override**` with no valid
    Dead-words line, a named file that is missing, carries a glob character, or
    escapes its root, or a local file that exists and cannot be read refuses the
@@ -175,9 +175,10 @@ the empty sections at its foot, using the examples as a shape.
 
 An entry is a **Fill** (a value a rule leaves open), an **Add** (a rule the
 playbook lacks, in your own `L1`, `L2` sections), or an **Override** (a named
-rule changed, quoting on a `**Dead words:**` line the playbook's exact words that
-no longer apply, each with the file they are in). `templates/playbook-local.md`
-carries the full grammar of that line and a worked example of each kind.
+rule changed, binding it to one literal Markdown section heading, its normalized
+SHA-256 digest, and a unique quote of at least 16 non-whitespace bytes from that
+section). `templates/playbook-local.md` carries the full grammar and a worked
+example of each kind.
 
 The check fails closed. The marker is only ever the first thing on its line: a
 line that carries it anywhere else is refused rather than skipped, so an entry
@@ -194,8 +195,8 @@ Check it at any time against a checkout, without installing anything:
 
 Exit 0 is fresh, 1 is stale with every finding reported as `file:line`, and 2 is
 a usage error, an unparsable line, a bare marker that is not at the start of its
-line, an **Override** with no valid `**Dead words:**` line before the next entry
-or heading, a line longer than 4,096 bytes, an unclosed fenced code block, a
+line, an **Override** with no valid Anchor, Rule digest, and `**Dead words:**`
+line before the next entry or heading, a line longer than 4,096 bytes, an unclosed fenced code block, a
 named file that carries a glob character (`*`, `?`, `[`) or is missing or escapes
 its root, or a local file that exists and cannot be read as a regular file —
 including one inside a directory nobody may search, which is never reported as an

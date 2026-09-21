@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Harden local Overrides: every live Override now binds to one unique Markdown
+  section, its normalized SHA-256 digest, and a unique quote of at least 16
+  non-whitespace bytes. Ambiguous or incomplete evidence refuses installation.
+
 All notable changes are recorded here. Dates are absolute.
 
 ## 0.1.6 — 2026-09-21

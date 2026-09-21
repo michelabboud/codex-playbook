@@ -27,11 +27,74 @@ fail() {
 check_status=0
 check_output=''
 
-run_check() {
+run_raw_check() {
   set +e
   check_output=$("$check_local" "$@" 2>&1)
   check_status=$?
   set -e
+}
+
+# Existing scenarios describe the semantic outcome they care about.  Their
+# fixture writer adds the v2 verifier to every canonical Override so those
+# scenarios continue to exercise their stated behaviour rather than an old
+# syntax.  Dedicated cases below call run_raw_check to prove that an omitted or
+# broken verifier is refused.
+add_override_verifiers() {
+  verifier_file=$1
+  verifier_agents=$2
+  verifier_skills=$3
+  [ -f "$verifier_file" ] || return 0
+  grep -Fq '**Override' "$verifier_file" || return 0
+  grep -Fq '**Anchor:**' "$verifier_file" && return 0
+
+  verifier_map=$verifier_file.v2-map
+  verifier_source=$verifier_agents/AGENTS.md
+  verifier_heading=$(sed -n '1p' "$verifier_source")
+  verifier_hash=$(sed 's/\r$//; s/[ \t]*$//' "$verifier_source" | sha256sum | awk '{print $1}')
+  printf 'AGENTS.md\t%s\t%s\n' "$verifier_heading" "$verifier_hash" > "$verifier_map"
+  find "$verifier_skills" -type f -name SKILL.md | while IFS= read -r verifier_source; do
+    verifier_name=${verifier_source#"$verifier_skills/"}
+    verifier_heading=$(sed -n '1p' "$verifier_source")
+    verifier_hash=$(sed 's/\r$//; s/[ \t]*$//' "$verifier_source" | sha256sum | awk '{print $1}')
+    printf '%s\t%s\t%s\n' "$verifier_name" "$verifier_heading" "$verifier_hash"
+  done >> "$verifier_map"
+  awk -F '\t' '
+    NR == FNR { anchor[$1] = "  **Anchor:** `" $2 "` (in `" $1 "`)"; digest[$1] = "  **Rule digest:** `sha256:" $3 "`"; next }
+    function emit_pending() { if (pending != "") { print pending; pending = "" } }
+    {
+      line = $0
+      if (pending != "") {
+        if (line ~ /^[ \t]*\*\*Dead words:\*\*/) {
+          name = line
+          sub(/^.*\(in `/, "", name)
+          sub(/`.*/, "", name)
+          print pending
+          if (anchor[name] != "") { print anchor[name]; print digest[name] }
+          print line
+          pending = ""
+          next
+        }
+        if (line ~ /^[ \t]*#|^[ \t]*(- |\* )?\*\*(Fill|Add|Override)/) {
+          emit_pending()
+        } else {
+          pending = pending "\n" line
+          next
+        }
+      }
+      if (line ~ /\*\*Override/) { pending = line; next }
+      print line
+    }
+    END { emit_pending() }
+  ' "$verifier_map" "$verifier_file" > "$verifier_file.v2"
+  mv "$verifier_file.v2" "$verifier_file"
+  rm -f -- "$verifier_map"
+}
+
+run_check() {
+  if [ "$#" -ge 3 ]; then
+    add_override_verifiers "$1" "$2" "$3"
+  fi
+  run_raw_check "$@"
 }
 
 assert_status() {
@@ -111,7 +174,7 @@ run_fresh_test() {
 # LOCAL
 
 - **Override — mechanical review.** Whatever I want instead.
-  **Dead words:** `Standard tier` (in `codex-playbook-reviews/SKILL.md`)
+  **Dead words:** `Mechanical review runs on the Standard tier` (in `codex-playbook-reviews/SKILL.md`)
 - **Override — the version line.** Whatever I want instead.
   **Dead words:** `This rulebook is version` (in `AGENTS.md`)
 EOF
@@ -126,8 +189,7 @@ EOF
 run_fresh_two_files_in_one_item_test() {
   make_case fresh-two-files
   cat > "$local_file" <<'EOF'
-- **Override — one phrase, two files.** Whatever I want instead.
-  **Dead words:** `Standard tier` (in `AGENTS.md` and `codex-playbook-reviews/SKILL.md`)
+**Dead words:** `Mechanical review runs on the Standard tier` (in `AGENTS.md` and `codex-playbook-reviews/SKILL.md`)
 EOF
 
   run_check "$local_file" "$agents_root" "$skills_root"
@@ -147,7 +209,7 @@ EOF
 
   run_check "$local_file" "$agents_root" "$skills_root"
   assert_status 1 'a stale override fails with exit 1'
-  assert_output_contains "$local_file:4:" \
+  assert_output_contains "$local_file:6:" \
     'a stale override is reported as file:line'
   assert_output_contains 'a sentence the playbook no longer carries' \
     'a stale override quotes the words that were sought'
@@ -158,8 +220,7 @@ EOF
 run_stale_one_of_two_files_test() {
   make_case stale-one-of-two
   cat > "$local_file" <<'EOF'
-- **Override — one phrase, two files.** Whatever I want instead.
-  **Dead words:** `An option named -n` (in `codex-playbook-reviews/SKILL.md` and `AGENTS.md`)
+**Dead words:** `An option named -n` (in `codex-playbook-reviews/SKILL.md` and `AGENTS.md`)
 EOF
 
   run_check "$local_file" "$agents_root" "$skills_root"
@@ -203,7 +264,7 @@ EOF
 
   cat > "$local_file" <<'EOF'
 - **Override — a regex that would match but a literal that does not.** Whatever.
-  **Dead words:** `.*Standard.*` (in `AGENTS.md`)
+  **Dead words:** `.*Standard tier.*` (in `AGENTS.md`)
 EOF
 
   run_check "$local_file" "$agents_root" "$skills_root"
@@ -214,12 +275,11 @@ run_unparsable_tests() {
   make_case unparsable
 
   cat > "$local_file" <<'EOF'
-- **Override — no code span at all.**
   **Dead words:** Standard tier (in AGENTS.md)
 EOF
   run_check "$local_file" "$agents_root" "$skills_root"
   assert_status 2 'a Dead words line without code spans is an error'
-  assert_output_contains "$local_file:2:" \
+  assert_output_contains "$local_file:1:" \
     'the unparsable line is reported as file:line'
 
   cat > "$local_file" <<'EOF'
@@ -455,7 +515,7 @@ EOF
 ~~~
 **Dead words:** `a sentence the playbook no longer carries` (in `AGENTS.md`)
 ~~~
-  **Dead words:** `Standard tier` (in `AGENTS.md`)
+  **Dead words:** `Mechanical review runs on the Standard tier` (in `AGENTS.md`)
 EOF
   run_check "$local_file" "$agents_root" "$skills_root"
   assert_status 0 'a tilde fence opens and closes a block too'
@@ -631,7 +691,7 @@ run_absent_local_file_behind_searchable_parent_test() {
 run_symlinked_local_file_test() {
   make_case symlinked-local-file
   cat > "$case_root/real-local.md" <<'EOF'
-  **Dead words:** `Standard tier` (in `AGENTS.md`)
+  **Dead words:** `Mechanical review runs on the Standard tier` (in `AGENTS.md`)
 EOF
   ln -s "$case_root/real-local.md" "$local_file"
 
@@ -652,7 +712,7 @@ run_override_owes_dead_words_tests() {
 # LOCAL
 
 - **Override — mechanical review.** Whatever I want instead.
-  **Dead words:** `Standard tier` (in `AGENTS.md`)
+  **Dead words:** `Mechanical review runs on the Standard tier` (in `AGENTS.md`)
 EOF
   run_check "$local_file" "$agents_root" "$skills_root"
   assert_status 0 'case 1: an Override followed by a valid Dead-words line parses normally'
@@ -669,8 +729,8 @@ EOF
   assert_status 2 'case 2: an Override whose marker is mistyped in lower case is an error'
   assert_output_contains "$local_file:3:" \
     'case 2: the unsatisfied Override is reported at its own line, not the mistyped one'
-  assert_output_contains 'carries no valid' \
-    'case 2: the error says the Override carries no valid Dead-words line'
+  assert_output_contains 'no complete verifier' \
+    'case 2: the error says the Override carries no complete verifier'
   assert_output_lacks 'every override still matches' \
     'case 2: a mistyped marker never reports that every override matches'
 
@@ -689,7 +749,7 @@ EOF
 
 ## A later section
 
-  **Dead words:** `Standard tier` (in `AGENTS.md`)
+  **Dead words:** `Mechanical review runs on the Standard tier` (in `AGENTS.md`)
 EOF
   run_check "$local_file" "$agents_root" "$skills_root"
   assert_status 2 'case 4: a heading closes the Override window, so the later Dead-words line belongs to nothing'
@@ -701,7 +761,7 @@ EOF
   cat > "$local_file" <<'EOF'
 - **Override — mechanical review.** Whatever I want instead.
 - **Fill — something else.** A value of my own.
-  **Dead words:** `Standard tier` (in `AGENTS.md`)
+  **Dead words:** `Mechanical review runs on the Standard tier` (in `AGENTS.md`)
 EOF
   run_check "$local_file" "$agents_root" "$skills_root"
   assert_status 2 'case 5: the next entry line closes the Override window'
@@ -722,7 +782,7 @@ EOF
 
   cat > "$local_file" <<'EOF'
 - **Override — mechanical review.** Whatever I want instead.
-  **Dead words:** `Standard tier` (in `AGENTS.md`)
+  **Dead words:** `Mechanical review runs on the Standard tier` (in `AGENTS.md`)
 - **Override — the version line.** Whatever I want instead.
   **Dead words:** `This rulebook is version` (in `AGENTS.md`)
 EOF
@@ -1068,6 +1128,46 @@ run_fail_open_boundary_tests() {
   done
 }
 
+run_section_anchor_tests() {
+  make_case section-anchor
+  cat > "$local_file" <<'EOF'
+- **Override — mechanical review.** Keep the local constraint.
+  **Dead words:** `Mechanical review runs on the Standard tier` (in `codex-playbook-reviews/SKILL.md`)
+EOF
+  run_raw_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'an Override without a section anchor and digest is refused'
+  assert_output_contains 'no complete verifier' 'the missing verifier refusal explains the required proof'
+
+  add_override_verifiers "$local_file" "$agents_root" "$skills_root"
+  run_raw_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 0 'a unique sixteen-byte quote with a matching section digest passes'
+
+  printf 'A harmless editorial change.\n' >> "$skills_root/codex-playbook-reviews/SKILL.md"
+  run_raw_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 1 'a rewritten anchored section makes an Override stale'
+
+  make_case section-anchor-duplicate
+  printf 'Mechanical review runs on the Standard tier, again.\n' >> "$skills_root/codex-playbook-reviews/SKILL.md"
+  cat > "$local_file" <<'EOF'
+- **Override — mechanical review.** Keep the local constraint.
+  **Dead words:** `Mechanical review runs on the Standard tier` (in `codex-playbook-reviews/SKILL.md`)
+EOF
+  add_override_verifiers "$local_file" "$agents_root" "$skills_root"
+  run_raw_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'a quote that occurs twice inside its anchored section is refused'
+  assert_output_contains 'must occur exactly once' 'the duplicate quote refusal names the uniqueness rule'
+
+  make_case section-anchor-short
+  cat > "$local_file" <<'EOF'
+- **Override — mechanical review.** Keep the local constraint.
+  **Dead words:** `Standard tier` (in `codex-playbook-reviews/SKILL.md`)
+EOF
+  add_override_verifiers "$local_file" "$agents_root" "$skills_root"
+  run_raw_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'a quote shorter than sixteen non-whitespace bytes is refused'
+  assert_output_contains 'minimum anchor is 16' 'the short quote refusal names the minimum'
+}
+
 run_absent_local_file_test
 run_fresh_test
 run_fresh_two_files_in_one_item_test
@@ -1105,5 +1205,6 @@ run_unsearchable_named_file_test
 run_glob_in_named_file_tests
 run_shared_vectors_test
 run_fail_open_boundary_tests
+run_section_anchor_tests
 
 printf '\nAll %s local-layer staleness assertions passed.\n' "$passes"
