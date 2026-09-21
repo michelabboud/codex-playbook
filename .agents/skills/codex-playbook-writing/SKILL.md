@@ -5,7 +5,7 @@ description: Apply Codex Playbook writing rules 12.1-12.4 before every user-faci
 
 # 12 · Writing to me — rules 12.1–12.4
 
-*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries apply only within the non-authorizing, never-weaken boundary in (`AGENTS.md`, "The local layer").*
 
 *Read before composing any reply to me. Adapted from **ayghri/i-have-adhd** (MIT, https://github.com/ayghri/i-have-adhd, `skills/i-have-adhd/SKILL.md`, main @ `6f1f982d0a47`, taken 2026-09-14 on my own word); the parts we took and the parts we refused are both recorded here. These shape the **reply**. They never shape the **record** — the close-out report (rule 6.2), tapes, ADRs, handoffs and BACKLOG keep their full form; the archive is for the archaeologists.*
 

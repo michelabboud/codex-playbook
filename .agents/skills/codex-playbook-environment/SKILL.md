@@ -5,7 +5,7 @@ description: Apply Codex Playbook environment rules 9.1-9.6 before claiming port
 
 # 9 · Environment & operations — rules 9.1–9.6
 
-*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries apply only within the non-authorizing, never-weaken boundary in (`AGENTS.md`, "The local layer").*
 
 *Read before claiming a port, touching a container, adding a datastore, handling logs or secrets, or leaving anything running.*
 

@@ -128,12 +128,10 @@ grammar and a worked example of each kind — inside a fenced code block, so the
 copy you make binds you to nothing until you write an entry of your own.
 
 `scripts/check-local.sh` searches each named file for each quoted phrase as a
-fixed string. Found: the override still bites on the text it was written
-against. Not found: the playbook rewrote that rule, the override is stale, and
-the installer refuses the update — naming the entry's `file:line` and the words
-— until you re-read the rule and rewrite the entry. The check runs in source
-preflight, before any directory is created and before any backup, against the
-text the run would install. There is no flag to install past it.
+fixed string. A stale Override is suspended: installation and restoration refuse
+to change managed text until its owner re-reads the rule and rewrites the entry.
+The check runs before any backup or managed mutation, against the text the run
+would install or restore. There is no flag to continue past it.
 
 It fails closed. A `**Dead words:**` marker that is not the first thing on its
 line is an error, never an entry quietly passed over, so no override can be

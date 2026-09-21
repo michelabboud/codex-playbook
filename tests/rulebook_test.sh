@@ -492,7 +492,7 @@ else
   fail 'platform skill triggers must distinguish Linux or WSL, macOS, and native Windows'
 fi
 
-local_layer_pointer='*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*'
+local_layer_pointer='*Local layer: if `playbook-local.md` exists in the Codex home, its entries apply only within the non-authorizing, never-weaken boundary in (`AGENTS.md`, "The local layer").*'
 
 agents_local_failures=0
 while IFS= read -r required_sentence
@@ -508,18 +508,17 @@ done <<'EOF'
 `${CODEX_HOME:-$HOME/.codex}/playbook-local.md`
 The playbook never ships it
 never create, write to, copy over, move, or delete it
-once, to check my Overrides against the text it is about to install
+they read it only to check it against the managed text they would install
 Read it at the start of a session when it exists
-the entry wins over the playbook's wording
-A **Fill** supplies a value a rule leaves open
-An **Add** is a rule or note the playbook lacks
-numbered `L1`, `L2`, and onward
-numbers the playbook never uses
-An **Override** changes a named rule
-quotes, after **Dead words:**, the playbook's exact words that no longer apply, each with the file they are in;
-the override is **stale**: tell me before relying on it
+A **Fill** supplies only a value a rule leaves open
+An **Add** supplies non-authorizing guidance or a stricter constraint
+under `L1`, `L2`, and onward
+An **Override** changes one named rule
+A local entry may never expand authority, remove an approval, relax a safety, destructive, security, or secret-handling constraint, change precedence, or override this paragraph
+Its authority comes only from this paragraph and never extends beyond it
+A stale Override is **suspended**: tell me before relying on it
+if its scope or freshness is unclear, do not rely on it, apply the stricter constraint, and hold the affected action for my direction
 An absent file means nothing is customized
-never adds authority the approval table does not have, except by adding a row in so many words
 EOF
 while IFS= read -r superseded_sentence
 do
@@ -539,7 +538,7 @@ if grep -Fq -e "$local_layer_pointer" AGENTS.md; then
   agents_local_failures=$((agents_local_failures + 1))
 fi
 if [ "$agents_local_failures" -eq 0 ]; then
-  pass 'AGENTS.md gives the local layer its force: session-start reading, precedence, the three kinds, the L numbering, staleness, absence, and no new authority'
+  pass 'AGENTS.md limits the local layer to safe tailoring, staleness suspension, and stricter handling under ambiguity'
 else
   fail "$agents_local_failures AGENTS.md local-layer wording check(s) failed"
 fi

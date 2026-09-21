@@ -5,7 +5,7 @@ description: Apply Codex Playbook repository rules 5.1-5.3 when creating a repos
 
 # 5 · Repository structure — rules 5.1–5.3
 
-*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries apply only within the non-authorizing, never-weaken boundary in (`AGENTS.md`, "The local layer").*
 
 *Read when creating a repo, on the first task that touches an existing one, and whenever you add a document.*
 

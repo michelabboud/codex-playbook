@@ -5,7 +5,7 @@ description: Apply Codex Playbook workflow rules 6.1-6.4 before version allocati
 
 # 6 · Task & phase workflow — rules 6.1–6.4
 
-*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries apply only within the non-authorizing, never-weaken boundary in (`AGENTS.md`, "The local layer").*
 
 *Read before the first `VERSION`, commit, or tag operation of a task, and before any phase release. This is mechanics; it adds no gate the approval table doesn't have.*
 

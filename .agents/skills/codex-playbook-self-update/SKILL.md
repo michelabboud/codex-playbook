@@ -5,7 +5,7 @@ description: Check and safely update an installed Codex Playbook when the owner 
 
 # Self-update procedure
 
-*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries apply only within the non-authorizing, never-weaken boundary in (`AGENTS.md`, "The local layer").*
 
 Use this procedure only when the owner asks for an update check or when the
 installed playbook looks wrong, missing, internally inconsistent, or older than

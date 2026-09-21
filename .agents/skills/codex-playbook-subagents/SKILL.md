@@ -5,7 +5,7 @@ description: Apply Codex Playbook subagent rule 8.1 before dispatching agents or
 
 # 8 · Subagents & model tiering — rule 8.1
 
-*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries apply only within the non-authorizing, never-weaken boundary in (`AGENTS.md`, "The local layer").*
 
 *Read before dispatching any subagent or planning a fan-out.*
 

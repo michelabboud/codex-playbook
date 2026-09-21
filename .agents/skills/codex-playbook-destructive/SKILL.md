@@ -5,7 +5,7 @@ description: Apply Codex Playbook destructive-action rules 10.1-10.2 before dele
 
 # 10 · Destructive actions — rules 10.1–10.2
 
-*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries apply only within the non-authorizing, never-weaken boundary in (`AGENTS.md`, "The local layer").*
 
 *Read BEFORE any delete, overwrite, truncation, purge, destructive migration, or history rewrite — including "cleanup". The quarantine procedure is `$HOME/.agents/skills/codex-playbook-quarantine/SKILL.md`.*
 

@@ -5,7 +5,7 @@ description: Apply Codex Playbook review rules 3.1-3.5 when a task lands, a batc
 
 # 3 · Code reviews — rules 3.1–3.5
 
-*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries apply only within the non-authorizing, never-weaken boundary in (`AGENTS.md`, "The local layer").*
 
 *Read when a task lands, at a batch boundary, before a milestone or release, and before dispatching any reviewer. What a review may NOT do is in the classification table and rule 7.4 (read, report, never fix); this file is what a review MUST do, who does it, and when. The record is the persisted review with its CONFIRMED / REFUTED / UNVERIFIED header. **This skill names roles, never models.***
 

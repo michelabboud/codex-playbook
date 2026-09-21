@@ -5,7 +5,7 @@ description: Apply Codex Playbook testing rules 2.1-2.3 when writing tests, fixi
 
 # 2 · Testing & verification — rules 2.1–2.3
 
-*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries apply only within the non-authorizing, never-weaken boundary in (`AGENTS.md`, "The local layer").*
 
 *Read before writing tests, and again before you claim anything passes.*
 

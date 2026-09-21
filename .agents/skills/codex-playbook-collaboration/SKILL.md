@@ -5,7 +5,7 @@ description: Apply Codex Playbook planning, autonomy, defect-triage, context, an
 
 # 7 · Planning, autonomy & handoffs — rules 7.1–7.7
 
-*Local layer: if `playbook-local.md` exists in the Codex home, its entries for this skill win over the wording here (`AGENTS.md`, "The local layer").*
+*Local layer: if `playbook-local.md` exists in the Codex home, its entries apply only within the non-authorizing, never-weaken boundary in (`AGENTS.md`, "The local layer").*
 
 *Read when a plan needs approving, when you're weighing whether to ask me something, when you find a defect, or before a session boundary.*
 

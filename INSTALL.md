@@ -23,8 +23,8 @@ One path in that directory is **not** a destination:
 `${CODEX_HOME:-$HOME/.codex}/playbook-local.md`, the local layer, belongs to
 you. The playbook never ships it, and neither `scripts/install.sh` nor
 `scripts/restore.sh` creates, writes to, copies over, moves, or deletes it.
-Installation reads it once, during source preflight, to check it, and has no
-other contact with it at all.
+Installation and restoration read it only during their compatibility preflight,
+to check it against the managed text they would activate.
 
 `CODEX_HOME` controls Codex configuration and the global `AGENTS.md`. It does
 not relocate user-scoped `$HOME/.agents/skills`. It must be an absolute,
@@ -143,11 +143,11 @@ Your customizations live in one file the playbook never ships and no script
 writes to: `${CODEX_HOME:-$HOME/.codex}/playbook-local.md`. Installation reads
 it, once, during source preflight, to check your Overrides against the text it is
 about to install — that is the only contact either script has with it, and it
-never creates, writes to, copies over, moves, or deletes it. `AGENTS.md`
-gives it its force in the paragraph headed "The local layer": read it at the
-start of a session when it exists, and where an entry there changes a rule, the
-entry wins over the playbook's wording. An absent file means nothing is
-customized.
+never creates, writes to, copies over, moves, or deletes it. `AGENTS.md` gives
+it its limited force: it may fill an open value, add non-authorizing guidance,
+or tighten a constraint. It may never expand authority, remove approval, relax
+protection, change precedence, or override the local-layer boundary. An absent
+file means nothing is customized.
 
 Start from the template, which is documentation and is never installed by the
 script:
@@ -233,8 +233,11 @@ checkpoint_path=/absolute/path/printed/by/the/installer
 ```
 
 Restore accepts only a complete checkpoint directly under the managed backup
-directory. Before changing a destination it creates and verifies a separate
-`codex-playbook-prerestore-*` checkpoint of the current state. It stages the
+directory. Before creating a pre-restore checkpoint or changing a destination,
+it checks the local layer against the checkpoint text. A stale or unusable local
+entry refuses restore; the Override is suspended and the stricter constraint
+remains in force. It then creates and verifies a separate
+`codex-playbook-prerestore-*` checkpoint of the current state, stages the
 desired state, applies it transactionally, and reinstates the pre-restore state
 if staging, swapping, verification, or interruption fails.
 
