@@ -25,8 +25,8 @@ finding, five of five confirmed by the coordinator.
 - [x] 6 · The mechanical review's five findings repaired, with informational
   I1 and I2 — the parser scans code spans and fails closed, all 44 shared
   vectors run, the template ships no live entry, and finding 3's three
-  guarantees are asserted — 2026-09-21. Left **uncommitted** in the repair
-  lane's worktree; the report is `LANE-B2-REPORT.md`.
+  guarantees are asserted — 2026-09-21. The repair was subsequently committed
+  locally; its lane report is `LANE-B2-REPORT.md`.
 - [ ] Focused mechanical re-check of the repair, at the depth of the review
   that found the defect.
 - [ ] Deep review of tasks 2 and 3, then of the batch; findings ruled.
@@ -38,6 +38,15 @@ authority boundary, parser fail-closed cases, restoration preflight, and Claude
 guide contradictions are repaired in local commits. The remaining rule-section
 anchor contract is now implemented and recorded in ADR 0006; all changes remain
 local pending Sol's focused re-review.
+
+**Repair round 3 — 2026-09-23.** A pinned-source focused diagnostic on
+`358ab65` returned FAIL; its four findings are recorded in
+`docs/reviews/2026-09-23-local-layer-focused-diagnostic.md`. The restore loader
+gap and the BOM, CRLF-heading, and overlapping-quote defects have regression
+tests and local fixes. This is still the original unruled local-layer batch,
+not a new model-routing batch. A focused deep re-review of the fix commit at
+the required tier, the outstanding mechanical re-check, and the original
+task-grain/batch reviews are still owed before publication.
 
 ## Task — Non-blocking review pipeline (parity with source 0.1.13 → 0.1.15)
 

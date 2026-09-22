@@ -5,6 +5,10 @@
 - Harden local Overrides: every live Override now binds to one unique Markdown
   section, its normalized SHA-256 digest, and a unique quote of at least 16
   non-whitespace bytes. Ambiguous or incomplete evidence refuses installation.
+- Restore now refuses a checkpoint whose global router would leave a preserved
+  local file unread, including a Fill-only file with no quoted Override. The
+  checker refuses a UTF-8 BOM, counts overlapping quotes as ambiguous, and
+  normalizes CRLF before counting anchored headings.
 
 All notable changes are recorded here. Dates are absolute.
 
@@ -24,8 +28,8 @@ All notable changes are recorded here. Dates are absolute.
   a **Fill**, an **Add** under its own `L1`, `L2` sections, or an **Override**
   quoting after `**Dead words:**` the playbook's exact words that no longer
   apply, each with the file they are in. An absent file means nothing is
-  customized, and the local layer adds no authority the approval table does not
-  have except by adding a row in so many words.
+  customized. The local layer cannot expand authority, remove an approval, or
+  weaken the security and destructive-action boundary.
 - **One pointer line opens the body of every managed skill**, because a skill
   loads long after the session began and cannot rely on the session-start read.
 - **`scripts/check-local.sh`** — POSIX `sh`, no new dependency. It scans every
@@ -44,9 +48,8 @@ All notable changes are recorded here. Dates are absolute.
 - **The installer runs that check in source preflight** — before `umask`, before
   any directory is created, before any backup — against the text the run would
   install, not the text already installed. Non-zero refuses the installation and
-  there is no flag to pass it. The installer gained no write path; `restore.sh`
-  gained no code at all, because the surest way not to touch a file is not to
-  name it.
+  there is no flag to pass it. Neither installer nor restore writes the local
+  file; restore reads it to check compatibility with its checkpoint.
 - **`templates/playbook-local.md`** — the grammar of a Dead-words line and a
   worked example of each kind. It is documentation: no inventory names it and
   the installer never copies it. **It ships with no entry in force:** every
@@ -57,7 +60,7 @@ All notable changes are recorded here. Dates are absolute.
   begins, after any indentation and an optional bullet, with `**Fill`, `**Add` or
   `**Override` is an entry, so the template writes *about* the three kinds in
   another shape.
-- **`tests/check_local_test.sh`** — 193 assertions covering fresh, stale, one
+- **`tests/check_local_test.sh`** — 214 assertions covering fresh, stale, one
   file of two gone, unparsable lines, a missing named file, each path escape,
   words beginning with a dash, regex metacharacters searched literally, a quoted
   phrase containing the item separator, a backslash inside the quoted words, CRLF
@@ -66,7 +69,8 @@ All notable changes are recorded here. Dates are absolute.
   an Override without its Dead-words line in each of six shapes, a glob character
   in a named file, a named file that cannot be searched, a local file that cannot
   be read, fenced code blocks including a tilde fence, a longer fence and one
-  left open, the line-length bound, and all 47 shared conformance vectors.
+  left open, the line-length bound, BOM refusal, CRLF section headings,
+  overlapping quotes, and all 47 shared conformance vectors.
 - **`tests/fixtures/dead-words-vectors.tsv`** — 47 conformance vectors for the
   Dead-words grammar, carried byte-identical by both editions and run by both.
   The test pins the file's SHA-256, so an edit on either side is a failing test

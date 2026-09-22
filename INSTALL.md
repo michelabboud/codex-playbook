@@ -237,7 +237,12 @@ Restore accepts only a complete checkpoint directly under the managed backup
 directory. Before creating a pre-restore checkpoint or changing a destination,
 it checks the local layer against the checkpoint text. A stale or unusable local
 entry refuses restore; the Override is suspended and the stricter constraint
-remains in force. It then creates and verifies a separate
+remains in force. If the local file exists, even if it contains only Fill or Add
+entries, restore also requires the checkpoint's `AGENTS.md` to retain the
+current local-layer loading and authority paragraph. An older checkpoint that
+does not load that file is refused before any destination changes; matching
+quoted words alone would not keep a local entry active. It then creates and
+verifies a separate
 `codex-playbook-prerestore-*` checkpoint of the current state, stages the
 desired state, applies it transactionally, and reinstates the pre-restore state
 if staging, swapping, verification, or interruption fails.
@@ -249,10 +254,12 @@ There is no uninstall command in this playbook; removing it means deleting the
 managed destinations yourself, and the local file is not one of them.
 
 Format-2 checkpoints carry their own managed inventory. Format-1 checkpoints
-from Codex Playbook v0.1.0 remain supported: restoring one reinstates its three
-historical skills, removes the fifteen new-only skills, and preserves unrelated
-skills. The pre-restore format-2 checkpoint can then restore the newer state
-exactly.
+from Codex Playbook v0.1.0 remain supported when no local layer exists:
+restoring one reinstates its three historical skills, removes the fifteen
+new-only skills, and preserves unrelated skills. With a local layer present,
+restore refuses that older, local-layer-unaware router. The pre-restore
+format-2 checkpoint can restore the newer state exactly after a permitted
+restore.
 
 ## Updating
 

@@ -1417,6 +1417,69 @@ run_restore_rejects_stale_local_layer_test() {
     'stale-local-layer restore refusal leaves the active AGENTS.md untouched'
 }
 
+run_restore_rejects_unaware_router_test() {
+  case_root="$test_root/restore-unaware-router"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  mkdir -p "$home" "$codex_home"
+
+  # A pre-local-layer router can retain an unchanged anchored section. A
+  # quote/digest check alone then passes even though that router never loads
+  # the preserved local file.
+  sed '/^\*\*The local layer:\*\*/d' "$repo_root/AGENTS.md" > "$codex_home/AGENTS.md"
+  HOME="$home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/install.sh" --replace-agents > "$case_root/install.log"
+  backup_dir=$(reported_path 'Recovery checkpoint' "$case_root/install.log")
+  section_hash=$(awk '
+    /^## Classify the Request Before Acting$/ { active = 1 }
+    active && /^## / && $0 != "## Classify the Request Before Acting" { exit }
+    active { sub(/\r$/, ""); sub(/[ \t]+$/, ""); print }
+  ' "$backup_dir/AGENTS.md" | sha256sum | awk '{print $1}')
+  local_file="$codex_home/$local_layer_name"
+  {
+    printf '%s\n' '- **Override — unchanged section.** Keep my local decision.' \
+      '  **Anchor:** `## Classify the Request Before Acting` (in `AGENTS.md`)'
+    printf '  **Rule digest:** `sha256:%s`\n' "$section_hash"
+    printf '%s\n' '  **Dead words:** `Review, explain, diagnose, assess, compare` (in `AGENTS.md`)'
+  } > "$local_file"
+  HOME="$home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/check-local.sh" "$local_file" "$backup_dir" "$backup_dir" \
+    > "$case_root/preflight.log"
+  cp "$codex_home/AGENTS.md" "$case_root/active-before.md"
+  cp "$local_file" "$case_root/local-before.md"
+
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$repo_root/scripts/restore.sh" "$backup_dir" > "$case_root/restore.log" 2>&1; then
+    fail 'restore refuses a checkpoint that does not load a valid local Override'
+  else
+    pass 'restore refuses a checkpoint that does not load a valid local Override'
+  fi
+  assert_contains 'does not load the local layer' "$case_root/restore.log" \
+    'restore explains why matching words are not enough'
+  assert_file_equal "$case_root/active-before.md" "$codex_home/AGENTS.md" \
+    'unaware-router refusal preserves active global rules'
+  assert_file_equal "$case_root/local-before.md" "$local_file" \
+    'unaware-router refusal preserves the local file'
+  if find "$codex_home/backups" -mindepth 1 -maxdepth 1 -type d \
+      -name 'codex-playbook-prerestore-*' -print | grep -q .; then
+    fail 'unaware-router refusal happened before pre-restore checkpoint creation'
+  else
+    pass 'unaware-router refusal happened before pre-restore checkpoint creation'
+  fi
+
+  printf '%s\n' '- **Fill — workspace.** My value.' > "$local_file"
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$repo_root/scripts/restore.sh" "$backup_dir" > "$case_root/fill-restore.log" 2>&1; then
+    fail 'restore refuses an unaware checkpoint even for a Fill-only local file'
+  else
+    pass 'restore refuses an unaware checkpoint even for a Fill-only local file'
+  fi
+  assert_contains 'does not load the local layer' "$case_root/fill-restore.log" \
+    'Fill-only refusal explains the missing loader'
+  assert_file_equal "$case_root/active-before.md" "$codex_home/AGENTS.md" \
+    'Fill-only refusal preserves active global rules'
+}
+
 run_first_install_and_restore_test
 run_refusal_test
 run_shadowed_agents_refusal_test
@@ -1455,5 +1518,6 @@ run_local_layer_agents_checked_against_source_test
 run_local_layer_is_never_created_test
 run_local_layer_survives_lifecycle_test
 run_restore_rejects_stale_local_layer_test
+run_restore_rejects_unaware_router_test
 
 printf '\nAll %s installer lifecycle assertions passed.\n' "$passes"

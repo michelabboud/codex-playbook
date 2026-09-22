@@ -244,6 +244,36 @@ done
   "$checkpoint" "$checkpoint" ||
   die "The local layer at $codex_home/playbook-local.md does not match the checkpoint text this restore would install. Re-read the rules named above and rewrite those entries; there is no flag to restore past this."
 
+# A Fill or Add has no Dead-words verifier. Even an Override can bind to an
+# unchanged section of an older router, so quote/digest freshness alone cannot
+# prove that the restored AGENTS.md would tell Codex to load the local file.
+# Require the currently supported local-layer authority paragraph, in its
+# governing section, whenever a local file exists. An older checkpoint can be
+# restored only after the owner separately decides how to preserve/deactivate
+# that local file; this script never changes it.
+if [ -e "$codex_home/playbook-local.md" ] || [ -L "$codex_home/playbook-local.md" ]; then
+  [ "$agents_state" = present ] ||
+    die 'The checkpoint does not load the local layer: it has no AGENTS.md. No destination was changed.'
+  awk '
+    NR == FNR {
+      if ($0 == "## Authority") in_authority = 1
+      else if ($0 ~ /^## /) in_authority = 0
+      if (in_authority && $0 ~ /^\*\*The local layer:\*\*/) {
+        expected = $0
+        source_count++
+      }
+      next
+    }
+    {
+      if ($0 == "## Authority") in_authority = 1
+      else if ($0 ~ /^## /) in_authority = 0
+      if (in_authority && $0 == expected) checkpoint_count++
+    }
+    END { exit !(source_count == 1 && checkpoint_count == 1) }
+  ' "$repo_root/AGENTS.md" "$checkpoint/AGENTS.md" ||
+    die 'The checkpoint does not load the local layer with the current authority boundary. No destination was changed.'
+fi
+
 agents_target="$codex_home/AGENTS.md"
 if [ -L "$agents_target" ]; then
   die 'Refusing to replace a symlinked global AGENTS.md.'

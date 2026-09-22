@@ -17,7 +17,7 @@ Each live Override carries three adjacent verifier lines: `**Anchor:**` names a
 literal Markdown heading and managed file, `**Rule digest:**` records the
 SHA-256 of the normalized bounded section, and `**Dead words:**` supplies a
 quote of at least 16 non-whitespace bytes that occurs exactly once in that
-section. The checker refuses an ambiguous heading, a short or repeated quote,
+section, including overlapping occurrences. The checker refuses an ambiguous heading, a short or repeated quote,
 or a malformed verifier; a missing quote or changed digest makes the Override
 stale and therefore suspended. Normalization converts CRLF to LF and ignores
 trailing blanks, so line-ending and editor-only whitespace changes do not create

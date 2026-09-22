@@ -1166,6 +1166,39 @@ EOF
   run_raw_check "$local_file" "$agents_root" "$skills_root"
   assert_status 2 'a quote shorter than sixteen non-whitespace bytes is refused'
   assert_output_contains 'minimum anchor is 16' 'the short quote refusal names the minimum'
+
+  make_case section-anchor-overlap
+  printf '# Repeat\n%s\n' 'aaaaaaaaaaaaaaaaa' > "$agents_root/AGENTS.md"
+  printf '%s\n' '- **Override — overlapping quote.** Keep the local constraint.' \
+    '  **Dead words:** `aaaaaaaaaaaaaaaa` (in `AGENTS.md`)' > "$local_file"
+  add_override_verifiers "$local_file" "$agents_root" "$skills_root"
+  run_raw_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'overlapping copies of a quoted anchor are not unique'
+  assert_output_contains 'must occur exactly once' 'overlapping quote refusal explains ambiguity'
+
+  make_case section-anchor-crlf
+  printf '# CRLF heading\r\nUnique quoted words in this section.\r\n' > "$agents_root/AGENTS.md"
+  crlf_digest=$(sed 's/\r$//; s/[ \t]*$//' "$agents_root/AGENTS.md" | sha256sum | awk '{print $1}')
+  {
+    printf '%s\n' '- **Override — CRLF heading.** Keep the local constraint.' \
+      '  **Anchor:** `# CRLF heading` (in `AGENTS.md`)'
+    printf '  **Rule digest:** `sha256:%s`\n' "$crlf_digest"
+    printf '%s\n' '  **Dead words:** `Unique quoted words in this section.` (in `AGENTS.md`)'
+  } > "$local_file"
+  run_raw_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 0 'an anchored managed heading with CRLF is normalized before counting'
+}
+
+run_bom_entry_test() {
+  make_case bom-entry
+  printf '\357\273\277**Override — hidden entry.** Keep the local constraint.\n' > "$local_file"
+  run_raw_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'a BOM-prefixed entry cannot be silently ignored'
+  assert_output_contains 'BOM' 'BOM refusal explains the invalid leading bytes'
+
+  printf 'A normal line.\n  \357\273\277**Override — hidden entry.** Keep the local constraint.\n' > "$local_file"
+  run_raw_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 2 'an indented BOM on a later entry line cannot hide that entry'
 }
 
 run_absent_local_file_test
@@ -1206,5 +1239,6 @@ run_glob_in_named_file_tests
 run_shared_vectors_test
 run_fail_open_boundary_tests
 run_section_anchor_tests
+run_bom_entry_test
 
 printf '\nAll %s local-layer staleness assertions passed.\n' "$passes"

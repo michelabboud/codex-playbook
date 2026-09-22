@@ -59,7 +59,7 @@ Exit status:
   1  at least one override is stale: its quoted words are gone
   2  usage error, an unparsable verifier or "Dead words:" line, a bare marker that is not
      at the start of its line, an Override with no Dead-words line, an over-long
-     line, an unclosed fenced code block, a named file that carries a glob
+     line, a UTF-8 BOM, an unclosed fenced code block, a named file that carries a glob
      character, does not exist, is not a regular file, or escapes its root, or a
      local file that exists and cannot be read as a regular file -- including
      one behind a directory that cannot be searched, which is never reported as
@@ -78,6 +78,7 @@ export LC_ALL
 backtick='`'
 tab=$(printf '\t')
 carriage_return=$(printf '\r')
+utf8_bom=$(printf '\357\273\277')
 marker='**Dead words:**'
 anchor_marker='**Anchor:**'
 digest_marker='**Rule digest:**'
@@ -504,10 +505,15 @@ parse_anchor() {
   resolve_named_file "$anchor_line" "$pending_anchor_name" || return 1
   pending_anchor_path=$resolved_path
 
-  # An ambiguous heading is not an anchor.  Count whole, fixed-string lines so
-  # no regexp interpretation can turn punctuation in a heading into a match.
+  # An ambiguous heading is not an anchor. Normalize CRLF before counting, as
+  # section extraction and digesting do; compare strings, not regular expressions.
+  printf '%s\n' "$pending_anchor_heading" > "$scratch_dir/heading"
   set +e
-  anchor_count=$(grep -F -x -c -e "$pending_anchor_heading" -- "$pending_anchor_path")
+  anchor_count=$(awk '
+    NR == FNR { wanted = $0; next }
+    { line = $0; sub(/\r$/, "", line); if (line == wanted) count++ }
+    END { print count + 0 }
+  ' "$scratch_dir/heading" "$pending_anchor_path")
   anchor_status=$?
   set -e
   if [ "$anchor_status" -ne 0 ]; then
@@ -519,7 +525,6 @@ parse_anchor() {
     return 1
   fi
 
-  printf '%s\n' "$pending_anchor_heading" > "$scratch_dir/heading"
   set +e
   awk '
     NR == FNR { wanted = $0; next }
@@ -592,7 +597,7 @@ nonblank_bytes() {
 section_occurrences() {
   printf '%s\n' "$1" > "$words_file"
   awk 'NR == FNR { needle = $0; next }
-       { rest = $0; while ((at = index(rest, needle)) != 0) { count++; rest = substr(rest, at + length(needle)) } }
+       { rest = $0; while ((at = index(rest, needle)) != 0) { count++; rest = substr(rest, at + 1) } }
        END { print count + 0 }' "$words_file" "$section_file"
 }
 
@@ -756,6 +761,13 @@ while IFS= read -r raw_line || [ -n "$raw_line" ]
 do
   line_number=$((line_number + 1))
   raw_line=${raw_line%"$carriage_return"}
+
+  case "$raw_line" in
+    *"$utf8_bom"*)
+      report_error "$line_number" 'a UTF-8 BOM in the local layer is not supported; remove it before checking'
+      continue
+      ;;
+  esac
 
   if [ "${#raw_line}" -gt "$max_line_bytes" ]; then
     report_error "$line_number" \

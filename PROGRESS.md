@@ -2,7 +2,7 @@
 
 **Current version:** 0.1.6
 
-**Last updated:** 2026-09-21
+**Last updated:** 2026-09-23
 
 The canonical repository is now `michelabboud/codex-playbook`.
 `nice-michel/codex-playbook` is its fork for branches and pull requests, while
@@ -11,8 +11,8 @@ the former standalone repository is preserved at
 
 **0.1.6 (2026-09-21, held until published):** customizations now live in one local
 file the playbook never ships and no script writes to —
-`${CODEX_HOME:-$HOME/.codex}/playbook-local.md`; the installer reads it only to
-check it.
+`${CODEX_HOME:-$HOME/.codex}/playbook-local.md`; install and restore read it
+only to check compatibility with the incoming managed text.
 `AGENTS.md` gives it its force in a paragraph headed "The local layer" and every
 skill's body opens with one pointer line at it, because a skill loads long after
 the session began. `scripts/check-local.sh` reads every `**Dead words:**` entry
@@ -20,8 +20,9 @@ and searches the named file for each quoted phrase as a fixed string; the
 installer runs it in source preflight — before `umask`, before any directory is
 created, before any backup — against the text that run would install, and a
 stale, unparsable, or escaping entry refuses the installation with no flag to
-pass it. The installer gained no write path, and `restore.sh` gained no code at
-all: the local file is protected by never being named. `templates/playbook-local.md`
+pass it. Restore also checks the preserved local file against its checkpoint
+before changing managed destinations, and refuses a checkpoint whose router
+would not load it. Neither script writes the local file. `templates/playbook-local.md`
 carries the grammar and a worked example of each kind and is documentation, never
 installed — and it ships with **no entry in force**, its examples inert inside a
 fenced code block.
@@ -52,12 +53,22 @@ file is **replaced everywhere** by what is true — never shipped, never written
 read once to be checked — and a sweep in the suite fails on the old phrasing.
 And **five ways the check could fail open each gained an assertion**, every one
 written against the mutation that exposed it and proven to die on it. The suites
-now run 56 rulebook checks, 193 local-layer assertions, and
-383 installer lifecycle assertions. **Unverified:** no fresh Codex session has yet
+now run 56 rulebook checks, 214 local-layer assertions, and
+397 installer lifecycle assertions. **Unverified:** no fresh Codex session has yet
 been observed reading the local file at session start on this client — the
 mechanism is a sentence in `AGENTS.md` plus a pointer per skill, not anything the
 client enforces; and the scripts were executed under GNU coreutils and `dash`
 only, with BusyBox and BSD userlands assessed rather than run.
+
+**Focused diagnostic, 2026-09-23:** the repair at `358ab65` still failed. A
+historical checkpoint could leave the local file unread even when its Override
+quote and section digest matched; a BOM could hide an entry; CRLF heading
+counting and overlapping-quote uniqueness disagreed with ADR 0006. Findings
+and evidence are in
+`docs/reviews/2026-09-23-local-layer-focused-diagnostic.md`. Local repair and
+regressions are built and verified, but a pinned focused deep re-review and the
+original review obligations remain owed. No `checkpoint/0.1.6` tag or push has
+been made.
 
 **0.1.5 (2026-09-20):** the rule 3.5 wording contract now requires its positive phrases inside
 rule 3.5 itself while retaining the whole-skill sweep for superseded wording. The rulebook suite
