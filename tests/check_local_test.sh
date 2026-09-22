@@ -1114,13 +1114,15 @@ run_fail_open_boundary_tests() {
   set -e
   assert_status 2 'a local file literally named -h is not parsed as help'
 
-  for shape in numbered blockquote heading italicbold
+  for shape in numbered blockquote heading italicbold splitbold unicode_lookalike
   do
     case "$shape" in
       numbered)   entry='1. **Override — numbered list.**' ;;
       blockquote) entry='> **Override — block quote.**' ;;
       heading)    entry='## **Override — heading.**' ;;
       italicbold) entry='***Override — italic bold.***' ;;
+      splitbold)  entry='- **Over**ride — split emphasis.' ;;
+      unicode_lookalike) entry='- **Оverride — confusable first letter.**' ;;
     esac
     printf '%s\n' "$entry" > "$local_file"
     run_check "$local_file" "$agents_root" "$skills_root"

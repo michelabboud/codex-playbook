@@ -274,6 +274,14 @@ if [ -e "$codex_home/playbook-local.md" ] || [ -L "$codex_home/playbook-local.md
     die 'The checkpoint does not load the local layer with the current authority boundary. No destination was changed.'
 fi
 
+override_target="$codex_home/AGENTS.override.md"
+if [ -L "$override_target" ] || { [ -e "$override_target" ] && [ ! -f "$override_target" ]; }; then
+  die 'Refusing restore because the global AGENTS.override.md is unsafe.'
+fi
+if [ -s "$override_target" ]; then
+  die 'A non-empty global AGENTS.override.md would shadow the restored AGENTS.md and its local-layer instruction.'
+fi
+
 agents_target="$codex_home/AGENTS.md"
 if [ -L "$agents_target" ]; then
   die 'Refusing to replace a symlinked global AGENTS.md.'

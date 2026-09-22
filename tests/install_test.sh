@@ -1480,6 +1480,45 @@ run_restore_rejects_unaware_router_test() {
     'Fill-only refusal preserves active global rules'
 }
 
+run_restore_rejects_shadowed_router_test() {
+  case_root="$test_root/restore-shadowed-router"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  mkdir -p "$home" "$codex_home"
+  local_file="$codex_home/$local_layer_name"
+  printf '%s\n' '- **Fill — workspace.** My value.' > "$local_file"
+
+  HOME="$home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/install.sh" > "$case_root/first-install.log"
+  HOME="$home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/install.sh" --replace-agents > "$case_root/reinstall.log"
+  backup_dir=$(reported_path 'Recovery checkpoint' "$case_root/reinstall.log")
+  printf 'shadowing rules\n' > "$codex_home/AGENTS.override.md"
+  cp "$codex_home/AGENTS.md" "$case_root/active-before.md"
+  cp "$local_file" "$case_root/local-before.md"
+
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$repo_root/scripts/restore.sh" "$backup_dir" > "$case_root/restore.log" 2>&1; then
+    fail 'restore refuses a global override that shadows the local-layer router'
+  else
+    pass 'restore refuses a global override that shadows the local-layer router'
+  fi
+  assert_contains 'would shadow' "$case_root/restore.log" \
+    'restore explains the shadowing global override'
+  assert_file_equal "$case_root/active-before.md" "$codex_home/AGENTS.md" \
+    'shadowed-router refusal preserves active global rules'
+  assert_file_equal "$case_root/local-before.md" "$local_file" \
+    'shadowed-router refusal preserves the local file'
+  assert_contains 'shadowing rules' "$codex_home/AGENTS.override.md" \
+    'shadowed-router refusal preserves the global override'
+  if find "$codex_home/backups" -mindepth 1 -maxdepth 1 -type d \
+      -name 'codex-playbook-prerestore-*' -print | grep -q .; then
+    fail 'shadowed-router refusal happened before pre-restore checkpoint creation'
+  else
+    pass 'shadowed-router refusal happened before pre-restore checkpoint creation'
+  fi
+}
+
 run_first_install_and_restore_test
 run_refusal_test
 run_shadowed_agents_refusal_test
@@ -1519,5 +1558,6 @@ run_local_layer_is_never_created_test
 run_local_layer_survives_lifecycle_test
 run_restore_rejects_stale_local_layer_test
 run_restore_rejects_unaware_router_test
+run_restore_rejects_shadowed_router_test
 
 printf '\nAll %s installer lifecycle assertions passed.\n' "$passes"

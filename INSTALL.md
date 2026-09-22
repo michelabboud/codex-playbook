@@ -247,6 +247,11 @@ verifies a separate
 desired state, applies it transactionally, and reinstates the pre-restore state
 if staging, swapping, verification, or interruption fails.
 
+Restore also refuses an unsafe or non-empty global `AGENTS.override.md`, which
+would shadow the restored router and its local-layer instruction. This is the
+same preflight the installer applies, before any checkpoint or destination
+write.
+
 **Restore does not touch your local layer either.** A checkpoint never contains
 `playbook-local.md`, so there is nothing for a restore to put back over it: it
 stays exactly as you left it, whatever state the managed files are rolled to.

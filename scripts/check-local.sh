@@ -338,6 +338,30 @@ line_has_unrecognized_entry_marker() {
     \#*\ \*\*Override*|\#*\ \*\*Fill*|\#*\ \*\*Add*|\
     \*\*\*Override*|\*\*\*Fill*|\*\*\*Add*) return 0 ;;
   esac
+
+  # A bold lead-in followed by an em dash looks like an entry even when its
+  # first word is split across emphasis spans or contains a confusable Unicode
+  # letter. Reserve that shape for the canonical Fill/Add/Override tokens;
+  # otherwise the scanner could report zero checks for a visible Override.
+  entry_candidate=$trim_value
+  strip_list_bullet "$entry_candidate"
+  entry_candidate=$trim_value
+  case "$entry_candidate" in
+    '> '*) entry_candidate=${entry_candidate#'> '} ;;
+    [0-9]*'. '*) entry_candidate=${entry_candidate#*. } ;;
+  esac
+  while :; do
+    case "$entry_candidate" in
+      '# '*) entry_candidate=${entry_candidate#'# '}; break ;;
+      '#'* ) entry_candidate=${entry_candidate#'#'} ;;
+      *) break ;;
+    esac
+  done
+  strip_leading_blanks "$entry_candidate"
+  case "$trim_value" in
+    '**Fill'*|'**Add'*|'**Override'*) return 1 ;;
+    '*'*' — '*) return 0 ;;
+  esac
   return 1
 }
 

@@ -9,6 +9,11 @@
   local file unread, including a Fill-only file with no quoted Override. The
   checker refuses a UTF-8 BOM, counts overlapping quotes as ambiguous, and
   normalizes CRLF before counting anchored headings.
+- Restore refuses a global `AGENTS.override.md` that would shadow the router
+  and deactivate the preserved local layer, before creating a pre-restore
+  checkpoint or changing any destination.
+- The local-layer checker rejects split-bold and Unicode-lookalike entry
+  markers instead of silently treating them as ordinary prose.
 
 All notable changes are recorded here. Dates are absolute.
 

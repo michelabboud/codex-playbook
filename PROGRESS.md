@@ -53,8 +53,8 @@ file is **replaced everywhere** by what is true — never shipped, never written
 read once to be checked — and a sweep in the suite fails on the old phrasing.
 And **five ways the check could fail open each gained an assertion**, every one
 written against the mutation that exposed it and proven to die on it. The suites
-now run 56 rulebook checks, 215 local-layer assertions, and
-397 installer lifecycle assertions. **Unverified:** no fresh Codex session has yet
+now run 56 rulebook checks, 217 local-layer assertions, and
+403 installer lifecycle assertions. **Unverified:** no fresh Codex session has yet
 been observed reading the local file at session start on this client — the
 mechanism is a sentence in `AGENTS.md` plus a pointer per skill, not anything the
 client enforces; and the scripts were executed under GNU coreutils and `dash`
