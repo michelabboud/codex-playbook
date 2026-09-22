@@ -60,7 +60,7 @@ All notable changes are recorded here. Dates are absolute.
   begins, after any indentation and an optional bullet, with `**Fill`, `**Add` or
   `**Override` is an entry, so the template writes *about* the three kinds in
   another shape.
-- **`tests/check_local_test.sh`** — 214 assertions covering fresh, stale, one
+- **`tests/check_local_test.sh`** — 215 assertions covering fresh, stale, one
   file of two gone, unparsable lines, a missing named file, each path escape,
   words beginning with a dash, regex metacharacters searched literally, a quoted
   phrase containing the item separator, a backslash inside the quoted words, CRLF

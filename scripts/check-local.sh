@@ -511,7 +511,7 @@ parse_anchor() {
   set +e
   anchor_count=$(awk '
     NR == FNR { wanted = $0; next }
-    { line = $0; sub(/\r$/, "", line); if (line == wanted) count++ }
+    { line = $0; sub(/\r$/, "", line); sub(/[ \t]+$/, "", line); if (line == wanted) count++ }
     END { print count + 0 }
   ' "$scratch_dir/heading" "$pending_anchor_path")
   anchor_status=$?
@@ -531,6 +531,7 @@ parse_anchor() {
     {
       line = $0
       sub(/\r$/, "", line)
+      sub(/[ \t]+$/, "", line)
       plain = line
       sub(/^[ \t]*/, "", plain)
       if (!started && line == wanted) {
@@ -544,7 +545,6 @@ parse_anchor() {
           while (substr(plain, next_level + 1, 1) == "#") next_level++
           if (next_level <= level) exit
         }
-        sub(/[ \t]+$/, "", line)
         print line
       }
     }

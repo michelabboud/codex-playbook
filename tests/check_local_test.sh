@@ -1187,6 +1187,10 @@ EOF
   } > "$local_file"
   run_raw_check "$local_file" "$agents_root" "$skills_root"
   assert_status 0 'an anchored managed heading with CRLF is normalized before counting'
+
+  printf '# CRLF heading \t\r\nUnique quoted words in this section.\r\n' > "$agents_root/AGENTS.md"
+  run_raw_check "$local_file" "$agents_root" "$skills_root"
+  assert_status 0 'trailing heading blanks are normalized before counting and extraction'
 }
 
 run_bom_entry_test() {
