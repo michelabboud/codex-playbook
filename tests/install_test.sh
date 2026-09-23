@@ -1920,12 +1920,79 @@ EOF
   done
 }
 
+run_newline_checkout_test() {
+  operation=$1
+  newline='
+'
+  for invocation in absolute relative alias
+  do
+    case_root="$test_root/newline-checkout-$operation-$invocation"
+    home="$case_root/home"
+    codex_home="$case_root/codex"
+    skill_root="$home/.agents/skills"
+    sibling_checkout="$case_root/source"
+    newline_checkout="$sibling_checkout$newline"
+    build_complete_source_fixture "$sibling_checkout"
+    build_complete_source_fixture "$newline_checkout"
+    printf '\nSibling checkout must not be selected.\n' >> "$sibling_checkout/AGENTS.md"
+    ln -s "$newline_checkout" "$case_root/source-alias"
+    seed_original_managed_state "$skill_root" "$codex_home"
+    cp "$sibling_checkout/AGENTS.md" "$codex_home/AGENTS.md"
+    printf '%s\n' '- **Fill — workspace.** Preserve checkout-local data.' > \
+      "$codex_home/$local_layer_name"
+    if [ "$operation" = restore ]; then
+      HOME="$home" CODEX_HOME="$codex_home" \
+        "$repo_root/scripts/install.sh" --replace-agents > "$case_root/seed.log"
+      backup_dir=$(reported_path 'Recovery checkpoint' "$case_root/seed.log")
+      set -- "$backup_dir"
+    else
+      set -- --replace-agents
+    fi
+    cp "$codex_home/AGENTS.md" "$case_root/agents-before.md"
+    cp "$skill_root/codex-playbook-code/SKILL.md" "$case_root/skill-before.md"
+    cp "$codex_home/$local_layer_name" "$case_root/local-before.md"
+    case "$invocation" in
+      absolute) invoke_from="$case_root"; invoke_script="$newline_checkout/scripts/$operation.sh" ;;
+      relative) invoke_from="$newline_checkout"; invoke_script="./scripts/$operation.sh" ;;
+      alias) invoke_from="$case_root"; invoke_script="$case_root/source-alias/scripts/$operation.sh" ;;
+    esac
+    attempt_exit=0
+    (cd "$invoke_from" && HOME="$home" CODEX_HOME="$codex_home" \
+      "$invoke_script" "$@") > "$case_root/attempt.log" 2>&1 || attempt_exit=$?
+    if [ "$attempt_exit" -eq 0 ]; then
+      if cmp -s "$sibling_checkout/AGENTS.md" "$codex_home/AGENTS.md"; then
+        fail "$operation $invocation incorrectly selected the sibling checkout"
+      fi
+      fail "$operation $invocation accepts a newline-suffixed checkout"
+    fi
+    [ "$attempt_exit" -eq 1 ] || fail "$operation $invocation rejects unsafe checkout with exit 1"
+    assert_contains 'control character' "$case_root/attempt.log" \
+      "$operation $invocation rejects the checkout path encoding"
+    assert_file_equal "$case_root/agents-before.md" "$codex_home/AGENTS.md" \
+      "$operation $invocation preserves active rules"
+    assert_file_equal "$case_root/skill-before.md" "$skill_root/codex-playbook-code/SKILL.md" \
+      "$operation $invocation preserves active skills"
+    assert_file_equal "$case_root/local-before.md" "$codex_home/$local_layer_name" \
+      "$operation $invocation preserves local bytes"
+    if [ "$operation" = install ]; then
+      assert_absent "$codex_home/backups" "$operation $invocation refuses before checkpoint creation"
+    elif find "$codex_home/backups" -mindepth 1 -maxdepth 1 -type d \
+        -name 'codex-playbook-prerestore-*' -print | grep -q .; then
+      fail "$operation $invocation refuses before pre-restore checkpoint creation"
+    else
+      pass "$operation $invocation refuses before pre-restore checkpoint creation"
+    fi
+  done
+}
+
 case "${1:-}" in
   path-dotdot) run_ambiguous_home_local_link_test; exit ;;
   path-newline) run_newline_local_link_test; exit ;;
   rollback-local) run_local_layer_install_rollback_test; exit ;;
   rollback-incomplete) run_incomplete_install_rollback_test; exit ;;
   rollback-boundary) run_unsafe_agents_preflight_test; run_early_install_signal_test; exit ;;
+  checkout-install) run_newline_checkout_test install; exit ;;
+  checkout-restore) run_newline_checkout_test restore; exit ;;
   '') ;;
   *) fail 'unknown focused lifecycle case' ;;
 esac
@@ -1980,5 +2047,7 @@ run_local_layer_install_rollback_test
 run_incomplete_install_rollback_test
 run_unsafe_agents_preflight_test
 run_early_install_signal_test
+run_newline_checkout_test install
+run_newline_checkout_test restore
 
 printf '\nAll %s installer lifecycle assertions passed.\n' "$passes"

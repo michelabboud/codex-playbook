@@ -11,6 +11,12 @@ restore's strict router check. It also carries approved task-continuity,
 communication/Herdr, hygiene, and GPT-6 guidance. No tag or push follows from
 passing local tests alone; focused review is still required.
 
+The pinned `01c6e9a` re-review found a source-checkout path ambiguity. A
+newline-bearing checkout could be mistaken for its sibling by shell command
+substitution. Install and restore now validate their own invocation path before
+resolving the checkout root. The current local change has red-to-green tests;
+the next full run and GPT-6 Sol re-review remain publication gates.
+
 The canonical repository is now `michelabboud/codex-playbook`.
 `nice-michel/codex-playbook` is its fork for branches and pull requests, while
 the former standalone repository is preserved at

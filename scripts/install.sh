@@ -132,7 +132,10 @@ esac
 [ "$#" -le 1 ] || { usage >&2; exit 64; }
 [ -n "${HOME:-}" ] || die 'HOME is not set.'
 
-repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+# Check the invocation before dirname can strip bytes, then resolve physically
+# with the same byte-preserving validation used for destination paths.
+validate_path_encoding "$0"
+repo_root=$(physical_directory_for_check "$(dirname -- "$0")/..")
 codex_home=${CODEX_HOME:-"$HOME/.codex"}
 skills_root="$HOME/.agents/skills"
 agents_source="$repo_root/AGENTS.md"

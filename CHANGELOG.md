@@ -11,6 +11,8 @@
 - Repair review-found install safety gaps: reject ambiguous HOME and symlink
   target path encodings, and recover interrupted installation from exact
   originals without weakening deliberate restore's router check.
+- Reject newline-bearing checkout source paths before resolving the installer
+  or restore script's repository root; prevent sibling-checkout confusion.
 - Run a safe hygiene checkpoint after tasks, phases, and plans: measure disk and
   resources, verify worktree/feature-branch and generated-debug provenance
   before cleanup, and preserve logs, reports, and documents. Rotate and
