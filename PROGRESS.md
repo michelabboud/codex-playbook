@@ -4,18 +4,18 @@
 
 **Last updated:** 2026-09-23
 
-**Current hold:** independent review of `43a5580` failed on two path-resolution
-gaps and installer rollback compatibility. The current unpublished worktree
-repairs them with red-to-green lifecycle tests and preserves deliberate
-restore's strict router check. It also carries approved task-continuity,
-communication/Herdr, hygiene, and GPT-6 guidance. No tag or push follows from
-passing local tests alone; focused review is still required.
+**Current hold:** the candidate is reviewed and remains unpublished until the
+Claude source edition passes its own review and publishes first. Earlier
+independent reviews found path-resolution and rollback compatibility gaps;
+those were repaired with red-to-green lifecycle tests. The candidate carries
+approved task-continuity, communication/Herdr, hygiene, and GPT-6 guidance.
+The final GPT-6 Sol focused deep and mechanical reviews passed.
 
 The pinned `01c6e9a` re-review found a source-checkout path ambiguity. A
 newline-bearing checkout could be mistaken for its sibling by shell command
 substitution. Install and restore now validate their own invocation path before
-resolving the checkout root. The current local change has red-to-green tests;
-the next full run and GPT-6 Sol re-review remain publication gates.
+resolving the checkout root. The repair had red-to-green tests, a full passing
+verification run, and a passing GPT-6 Sol focused re-review.
 
 GPT-6 Sol's deep review of `fd2443f` found a further blocker: an external
 local-file target reached through a symlink inside a replaced skill leaves the
