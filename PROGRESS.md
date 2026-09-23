@@ -17,6 +17,12 @@ substitution. Install and restore now validate their own invocation path before
 resolving the checkout root. The current local change has red-to-green tests;
 the next full run and GPT-6 Sol re-review remain publication gates.
 
+GPT-6 Sol's deep review of `fd2443f` found a further blocker: an external
+local-file target reached through a symlink inside a replaced skill leaves the
+local layer dangling. A focused repair now checks every path hop, including
+directory symlinks, and has lifecycle regressions; the mechanical pass found
+no blocker. Source publication remains held pending a new focused deep review.
+
 The canonical repository is now `michelabboud/codex-playbook`.
 `nice-michel/codex-playbook` is its fork for branches and pull requests, while
 the former standalone repository is preserved at

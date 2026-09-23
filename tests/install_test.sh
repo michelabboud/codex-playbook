@@ -1985,6 +1985,104 @@ run_newline_checkout_test() {
   done
 }
 
+run_managed_intermediate_local_link_test() {
+  operation=$1
+  for link_kind in file directory aliased-directory codex-parent
+  do
+    case_root="$test_root/managed-intermediate-$operation-$link_kind"
+    home="$case_root/home"
+    codex_home="$case_root/codex"
+    skill_root="$home/.agents/skills"
+    external_dir="$case_root/dotfiles"
+    mkdir -p "$home" "$codex_home" "$external_dir"
+    if [ "$operation" = restore ]; then
+      HOME="$home" CODEX_HOME="$codex_home" "$repo_root/scripts/install.sh" > "$case_root/first.log"
+      HOME="$home" CODEX_HOME="$codex_home" "$repo_root/scripts/install.sh" > "$case_root/second.log"
+      backup_dir=$(reported_path 'Recovery checkpoint' "$case_root/second.log")
+      set -- "$backup_dir"
+    else
+      seed_original_managed_state "$skill_root" "$codex_home"
+      set -- --replace-agents
+    fi
+    printf '%s\n' '- **Fill — workspace.** Preserve externally stored local data.' > "$external_dir/local.md"
+    case "$link_kind" in
+      file)
+        ln -s "$external_dir/local.md" "$skill_root/codex-playbook-code/local-hop.md"
+        ln -s '../home/.agents/skills/codex-playbook-code/local-hop.md' "$external_dir/entry.md"
+        ln -s "$external_dir/entry.md" "$codex_home/$local_layer_name"
+        ;;
+      directory)
+        ln -s "$external_dir" "$skill_root/codex-playbook-code/dotfiles-hop"
+        ln -s "$skill_root/codex-playbook-code/dotfiles-hop/local.md" "$codex_home/$local_layer_name"
+        ;;
+      aliased-directory)
+        ln -s "$skill_root/codex-playbook-code" "$external_dir/managed-alias"
+        ln -s "$external_dir/local.md" "$skill_root/codex-playbook-code/local-hop.md"
+        ln -s "$external_dir/managed-alias/local-hop.md" "$codex_home/$local_layer_name"
+        ;;
+      codex-parent)
+        ln -s "$codex_home" "$skill_root/codex-playbook-code/codex-hop"
+        codex_home="$skill_root/codex-playbook-code/codex-hop"
+        cp "$external_dir/local.md" "$codex_home/$local_layer_name"
+        ;;
+    esac
+    cp "$codex_home/AGENTS.md" "$case_root/agents-before.md"
+    cp "$skill_root/codex-playbook-code/SKILL.md" "$case_root/skill-before.md"
+    cp "$codex_home/$local_layer_name" "$case_root/local-before.md"
+    attempt_exit=0
+    HOME="$home" CODEX_HOME="$codex_home" "$repo_root/scripts/$operation.sh" "$@" \
+      > "$case_root/attempt.log" 2>&1 || attempt_exit=$?
+    [ "$attempt_exit" -eq 1 ] || fail "$operation refuses a managed intermediate $link_kind link"
+    assert_contains 'managed destination' "$case_root/attempt.log" \
+      "$operation detects managed intermediate $link_kind dependency"
+    assert_file_equal "$case_root/agents-before.md" "$codex_home/AGENTS.md" \
+      "$operation $link_kind refusal preserves active rules"
+    assert_file_equal "$case_root/skill-before.md" "$skill_root/codex-playbook-code/SKILL.md" \
+      "$operation $link_kind refusal preserves active skills"
+    if [ "$link_kind" = codex-parent ]; then
+      [ ! -L "$codex_home/$local_layer_name" ] || fail "$operation preserves the regular local file"
+    else
+      [ -L "$codex_home/$local_layer_name" ] || fail "$operation preserves the local link"
+    fi
+    assert_file_equal "$case_root/local-before.md" "$codex_home/$local_layer_name" \
+      "$operation $link_kind refusal keeps the complete local link chain readable"
+    assert_file_equal "$case_root/local-before.md" "$external_dir/local.md" \
+      "$operation $link_kind refusal preserves external local data"
+    if [ "$operation" = install ]; then
+      assert_absent "$codex_home/backups" "$operation $link_kind refuses before checkpoint creation"
+    elif find "$codex_home/backups" -mindepth 1 -maxdepth 1 -type d \
+        -name 'codex-playbook-prerestore-*' -print | grep -q .; then
+      fail "$operation $link_kind refuses before pre-restore checkpoint creation"
+    else
+      pass "$operation $link_kind refuses before pre-restore checkpoint creation"
+    fi
+  done
+}
+
+run_external_local_chain_test() {
+  case_root="$test_root/external-local-chain"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  external_dir="$case_root/dotfiles with spaces"
+  mkdir -p "$home" "$codex_home" "$external_dir/nested"
+  printf '%s\n' '- **Fill — workspace.** Keep the external dotfile-manager chain.' > "$external_dir/local.md"
+  ln -s ../local.md "$external_dir/nested/entry.md"
+  ln -s nested "$external_dir/alias"
+  ln -s "$external_dir/alias/entry.md" "$codex_home/$local_layer_name"
+  cp "$codex_home/$local_layer_name" "$case_root/local-before.md"
+  HOME="$home" CODEX_HOME="$codex_home" "$repo_root/scripts/install.sh" > "$case_root/first.log"
+  assert_file_equal "$case_root/local-before.md" "$codex_home/$local_layer_name" \
+    'install preserves external directory and relative file symlink hops'
+  HOME="$home" CODEX_HOME="$codex_home" "$repo_root/scripts/install.sh" > "$case_root/second.log"
+  backup_dir=$(reported_path 'Recovery checkpoint' "$case_root/second.log")
+  HOME="$home" CODEX_HOME="$codex_home" "$repo_root/scripts/restore.sh" "$backup_dir" > "$case_root/restore.log"
+  assert_file_equal "$case_root/local-before.md" "$codex_home/$local_layer_name" \
+    'restore preserves external directory and relative file symlink hops'
+  [ -L "$external_dir/alias" ] && [ -L "$external_dir/nested/entry.md" ] &&
+    [ -L "$codex_home/$local_layer_name" ] || fail 'external chain retains all original symlinks'
+  pass 'external chain retains all original symlinks'
+}
+
 case "${1:-}" in
   path-dotdot) run_ambiguous_home_local_link_test; exit ;;
   path-newline) run_newline_local_link_test; exit ;;
@@ -1993,6 +2091,9 @@ case "${1:-}" in
   rollback-boundary) run_unsafe_agents_preflight_test; run_early_install_signal_test; exit ;;
   checkout-install) run_newline_checkout_test install; exit ;;
   checkout-restore) run_newline_checkout_test restore; exit ;;
+  intermediate-install) run_managed_intermediate_local_link_test install; exit ;;
+  intermediate-restore) run_managed_intermediate_local_link_test restore; exit ;;
+  external-chain) run_external_local_chain_test; exit ;;
   '') ;;
   *) fail 'unknown focused lifecycle case' ;;
 esac
@@ -2049,5 +2150,8 @@ run_unsafe_agents_preflight_test
 run_early_install_signal_test
 run_newline_checkout_test install
 run_newline_checkout_test restore
+run_managed_intermediate_local_link_test install
+run_managed_intermediate_local_link_test restore
+run_external_local_chain_test
 
 printf '\nAll %s installer lifecycle assertions passed.\n' "$passes"

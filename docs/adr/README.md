@@ -9,3 +9,4 @@
 | [0005](0005-the-local-layer.md) | Customizations live in one local file the installer never touches: `playbook-local.md`, three kinds of entry, and a mechanical staleness check that refuses the install | Accepted |
 | [0006](0006-verifiable-local-overrides.md) | Bind every local Override to a unique Markdown section, digest, and minimum-length quote | Accepted; supersedes ADR 0005's staleness-check portion |
 | [0007](0007-local-layer-restore-compatibility.md) | Preserve external local symlinks but refuse links into replaced destinations; restore only a checkpoint with the complete known active router | Accepted |
+| [0008](0008-local-layer-chain-and-transaction-rollback.md) | Guard every local-file path hop through managed destinations and use exact originals for install rollback | Accepted |

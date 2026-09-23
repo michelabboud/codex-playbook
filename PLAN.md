@@ -73,6 +73,13 @@ checkout. Both scripts now reject that path before source resolution; absolute,
 relative, and symlink-alias regressions were red before the repair and green
 after. A fresh GPT-6 Sol review is owed on the new pinned candidate.
 
+The GPT-6 Sol deep review of `fd2443f` failed: a local-file symlink chain can
+pass through a managed skill and end outside it, yet become dangling when the
+skill is replaced. The mechanical re-check passed with a minor changelog
+wording correction. A red-to-green chain-dependency repair for both install
+and restore is implemented locally. Its new pinned candidate needs focused
+Sol review.
+
 ## Task — Non-blocking review pipeline (parity with source 0.1.13 → 0.1.15)
 
 **Status:** Complete — 2026-09-20, published as `checkpoint/0.1.4` — approved 2026-09-20 (the owner's "go"; ceiling reading (a), two closed batches plus the one being built). Revision 1 was

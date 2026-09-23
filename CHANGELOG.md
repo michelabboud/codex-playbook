@@ -4,7 +4,7 @@
 
 - Coordinate approved plans with scoped subagents when available, record task
   ownership/communication and continue automatically to the next admitted task.
-  Document native Codex, API, Claude, and conditional Herdr communication modes.
+  Document native Codex, OpenAI API, and conditional Herdr communication modes.
 - Clarify the GPT-6 family map: Astra is flagship, Sol is the strong value
   workhorse, Luna is light, and no GPT-6 Terra exists. Label short-context
   prices and long-context caveats without lowering review requirements.
@@ -13,6 +13,8 @@
   originals without weakening deliberate restore's router check.
 - Reject newline-bearing checkout source paths before resolving the installer
   or restore script's repository root; prevent sibling-checkout confusion.
+- Reject local-file symlink chains that traverse a managed destination being
+  replaced, even when their final content target is external.
 - Run a safe hygiene checkpoint after tasks, phases, and plans: measure disk and
   resources, verify worktree/feature-branch and generated-debug provenance
   before cleanup, and preserve logs, reports, and documents. Rotate and

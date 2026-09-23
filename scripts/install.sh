@@ -96,29 +96,70 @@ canonical_path_for_check() {
   fi
 }
 
-resolve_local_link_target() {
-  link_path=$1
-  link_hops=0
-  while [ -L "$link_path" ]
+validate_local_link_step() {
+  case "$1" in
+    "${canonical_codex_home%/}/AGENTS.md")
+      die 'The local-file path traverses a managed destination that would be replaced.' ;;
+  esac
+  for link_skill_name in $link_managed_skill_names
   do
-    link_hops=$((link_hops + 1))
-    [ "$link_hops" -le 40 ] || die 'The local-file symlink chain is too deep to verify.'
-    link_value=$(readlink "$link_path" && printf '.') ||
-      die 'The local-file symlink target could not be read.'
-    link_value=${link_value%.}
-    link_value=${link_value%'
-'}
-    validate_path_encoding "$link_value"
-    case "$link_value" in
-      /*) link_path=$link_value ;;
-      *) link_path=$(dirname -- "$link_path")/$link_value ;;
+    case "$1" in
+      "${link_skills_root%/}/$link_skill_name"|"${link_skills_root%/}/$link_skill_name"/*)
+        die 'The local-file path traverses a managed destination that would be replaced.' ;;
     esac
-    link_parent=$(physical_directory_for_check "$(dirname -- "$link_path")") ||
-      die 'The local-file symlink target could not be resolved.'
-    link_path=$link_parent/$(basename -- "$link_path")
   done
-  [ -f "$link_path" ] || die 'The local-file symlink target is not a regular file.'
-  printf '%s\n' "$link_path"
+}
+
+resolve_local_link_target() {
+  link_pending=$1
+  link_managed_skill_names=$2
+  link_skills_root=$(canonical_path_for_check "$skills_root") || return 1
+  link_resolved=/
+  link_hops=0
+  validate_path_encoding "$link_pending"
+  # Resolve one component at a time and check it BEFORE following any symlink.
+  # A final external file is not enough: replacing a managed intermediate link
+  # or directory would break the user's local file even if its bytes survived.
+  # Resolving a whole parent with cd/pwd would hide those directory-link hops.
+  while [ -n "$link_pending" ]
+  do
+    link_component=${link_pending%%/*}
+    case "$link_pending" in
+      */*) link_pending=${link_pending#*/} ;;
+      *) link_pending='' ;;
+    esac
+    case "$link_component" in
+      ''|.) continue ;;
+      ..)
+        link_resolved=${link_resolved%/*}
+        [ -n "$link_resolved" ] || link_resolved=/
+        continue
+        ;;
+    esac
+    link_path="${link_resolved%/}/$link_component"
+    validate_local_link_step "$link_path"
+    if [ -L "$link_path" ]; then
+      link_hops=$((link_hops + 1))
+      [ "$link_hops" -le 40 ] || die 'The local-file symlink chain is too deep to verify.'
+      link_value=$(readlink "$link_path" && printf '.') ||
+        die 'The local-file symlink target could not be read.'
+      link_value=${link_value%.}
+      link_value=${link_value%'
+'}
+      validate_path_encoding "$link_value"
+      case "$link_value" in
+        /*) link_resolved=/ ;;
+      esac
+      link_pending="$link_value${link_pending:+/$link_pending}"
+    else
+      if [ -n "$link_pending" ] && [ ! -d "$link_path" ]; then
+        die 'The local-file symlink path contains a component that is not a directory.'
+      fi
+      link_resolved=$link_path
+    fi
+  done
+  [ -f "$link_resolved" ] || die 'The local-file symlink target is not a regular file.'
+  printf '%s\n' "$link_resolved"
 }
 
 replace_agents=0
@@ -364,8 +405,10 @@ done
   "$repo_root/.agents/skills" ||
   die "The local layer at $local_layer_target does not match the playbook text this run would install. Re-read the rules named above and rewrite those entries; there is no flag to install past this."
 
-if [ -L "$local_layer_target" ]; then
-  local_link_target=$(resolve_local_link_target "$local_layer_target")
+# Even a regular local file can depend on a managed directory symlink in its
+# parent path. Inspect the complete path whenever a local file exists.
+if [ -e "$local_layer_target" ] || [ -L "$local_layer_target" ]; then
+  local_link_target=$(resolve_local_link_target "$local_layer_target" "$managed_skill_names")
   case "$local_link_target" in
     "$canonical_codex_home/AGENTS.md")
       die 'The local-file symlink targets a managed destination that installation would replace.' ;;
