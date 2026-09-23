@@ -21,7 +21,11 @@ GPT-6 Sol's deep review of `fd2443f` found a further blocker: an external
 local-file target reached through a symlink inside a replaced skill leaves the
 local layer dangling. A focused repair now checks every path hop, including
 directory symlinks, and has lifecycle regressions; the mechanical pass found
-no blocker. Source publication remains held pending a new focused deep review.
+no blocker. Source publication remained held pending the re-review below.
+
+The fresh GPT-6 Sol deep re-review of `267dfb5` passed with no blocker. The
+candidate remains local until the Claude source edition has cleared review
+and published first.
 
 The canonical repository is now `michelabboud/codex-playbook`.
 `nice-michel/codex-playbook` is its fork for branches and pull requests, while

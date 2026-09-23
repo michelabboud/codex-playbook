@@ -77,8 +77,13 @@ The GPT-6 Sol deep review of `fd2443f` failed: a local-file symlink chain can
 pass through a managed skill and end outside it, yet become dangling when the
 skill is replaced. The mechanical re-check passed with a minor changelog
 wording correction. A red-to-green chain-dependency repair for both install
-and restore is implemented locally. Its new pinned candidate needs focused
-Sol review.
+and restore is implemented locally. Its pinned candidate was reviewed as
+recorded below.
+
+The fresh GPT-6 Sol focused deep re-review of `267dfb5` returned **PASS**;
+the base failed the new install/restore chain tests, while the pinned repair
+and full verification suite passed. Claude-first publication remains the
+sequencing gate; no Codex tag or push has happened yet.
 
 ## Task — Non-blocking review pipeline (parity with source 0.1.13 → 0.1.15)
 
