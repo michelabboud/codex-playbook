@@ -1,5 +1,13 @@
 # Progress
 
+**Source publication verified, 2026-09-23:** remote `main` and peeled
+`checkpoint/0.1.6` resolve to `a5d41bc`, after Claude's `checkpoint/0.1.16`
+was verified at `97938d0`. The tagged tree passed 56 rulebook, 217
+local-layer, and 673 installer lifecycle checks with direct exit 0. See
+`docs/reports/2026-09-23-local-layer-publication-receipt.md`. A live owner
+installation and native macOS acceptance remain unverified and were outside
+this two-playbook publication scope. Older gate notes below are historical.
+
 **Current version:** 0.1.6
 
 **Last updated:** 2026-09-23

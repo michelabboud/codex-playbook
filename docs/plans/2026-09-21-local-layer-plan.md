@@ -1,6 +1,6 @@
 # Plan — the local layer (0.1.6)
 
-- **Status:** approved 2026-09-21 (the owner's word in conversation). Decision record: [`docs/adr/0005-the-local-layer.md`](../adr/0005-the-local-layer.md). Source: `claude-code-playbook` 0.1.16, ADR 0004.
+- **Status:** source published 2026-09-23 as `checkpoint/0.1.6`, after Claude's `checkpoint/0.1.16`; private installation acceptance remains separate and was not performed under the two-playbook scope. Approved 2026-09-21 (the owner's word in conversation). Decision record: [`docs/adr/0005-the-local-layer.md`](../adr/0005-the-local-layer.md). Source: `claude-code-playbook` 0.1.16, ADR 0004.
 - **Goal:** a user installs and updates from this repository and keeps their customizations, with no merge.
 - **One batch, five tasks.** Tasks 2 and 3 touch the risk-class files (`scripts/`): deep review at task grain. The batch closes with a deep review on the Strong tier from the second model family; nothing is pushed before it is ruled.
 

@@ -1,5 +1,17 @@
 # Handoff
 
+**Published source, 2026-09-23:** remote `main` and the peeled annotated
+`checkpoint/0.1.6` tag both resolve to `a5d41bc46e9ef7f9fba58d041ebc10623306dfac`.
+The exact tagged tree passed 56 rulebook checks, 217 local-layer assertions,
+and 673 installer lifecycle assertions with direct exit 0. Managed and
+executable text remained unchanged from reviewed `267dfb5`. This is source
+publication only: no live installation, private-rule sync, native macOS
+acceptance, evidence cleanup, or other-repository change was performed. See
+`docs/reports/2026-09-23-local-layer-publication-receipt.md`. The remaining
+text is historical review and pre-publication handoff material.
+
+---
+
 **Publication gate, 2026-09-23:** the current candidate is committed and clean.
 The GPT-6 Sol mechanical review passed at `fd2443f`, and its deep review's
 symlink-chain blocker was repaired and passed a focused GPT-6 Sol re-review at
