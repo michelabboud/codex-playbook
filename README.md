@@ -48,6 +48,11 @@ carries no model product identifiers; it has one owner:
 `.agents/skills/codex-playbook-subagents/references/roster.md`. The rules own who does what;
 the roster owns what each tier is.
 
+For a dated, non-installed GPT-6 Sol/Luna binding suggestion and price/quality
+limits, see [the model selection note](docs/guides/gpt-6-model-selection-2026-09-23.md).
+Keep actual model-and-effort bindings outside the managed skills as the roster
+requires; this note does not lower the Standard review floor.
+
 ## Why it is modular
 
 Codex loads the applicable `AGENTS.md` chain into every session. It discovers

@@ -48,6 +48,16 @@ not a new model-routing batch. A focused deep re-review of the fix commit at
 the required tier, the outstanding mechanical re-check, and the original
 task-grain/batch reviews are still owed before publication.
 
+**Hygiene and GPT-6 routing, 2026-09-23.** The owner requested both additions
+while the local-layer batch remains held. The hygiene checkpoint preserves logs
+outside Git by default and commits reports, documents, and guides; a dated
+non-installed note evaluates Sol/Luna without changing the model-neutral
+managed roster or the mechanical-review floor. Review remains owed.
+
+**Repair round 4 — 2026-09-23.** The owner approved fail-closed local-symlink
+and checkpoint-router compatibility checks. They are implemented locally with
+red-to-green lifecycle regressions and remain held for focused re-review.
+
 ## Task — Non-blocking review pipeline (parity with source 0.1.13 → 0.1.15)
 
 **Status:** Complete — 2026-09-20, published as `checkpoint/0.1.4` — approved 2026-09-20 (the owner's "go"; ceiling reading (a), two closed batches plus the one being built). Revision 1 was

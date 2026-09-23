@@ -1519,6 +1519,147 @@ run_restore_rejects_shadowed_router_test() {
   fi
 }
 
+run_install_refuses_local_link_into_managed_destination_test() {
+  case_root="$test_root/install-local-link-into-skill"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$home/.agents/skills"
+  target_file="$skill_root/codex-playbook-code/user-local.md"
+  mkdir -p "$(dirname "$target_file")" "$codex_home"
+  printf '%s\n' '- **Fill — workspace.** Keep my value.' > "$target_file"
+  ln -s "$target_file" "$codex_home/$local_layer_name"
+
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$repo_root/scripts/install.sh" > "$case_root/install.log" 2>&1; then
+    fail 'install refuses a local-file link into a skill it would replace'
+  else
+    pass 'install refuses a local-file link into a skill it would replace'
+  fi
+  assert_contains 'managed destination' "$case_root/install.log" \
+    'install identifies the at-risk local-file link'
+  assert_contains 'Keep my value' "$target_file" \
+    'install refusal preserves the linked local content'
+  assert_absent "$codex_home/backups" \
+    'install refuses before creating a checkpoint or replacing destinations'
+
+  case_root="$test_root/install-external-local-link"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  mkdir -p "$home" "$codex_home" "$case_root/dotfiles"
+  printf '%s\n' '- **Fill — workspace.** External value.' > "$case_root/dotfiles/local.md"
+  ln -s "$case_root/dotfiles/local.md" "$codex_home/$local_layer_name"
+  HOME="$home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/install.sh" > "$case_root/install.log"
+  assert_contains 'External value' "$codex_home/$local_layer_name" \
+    'install accepts a local-file link outside managed destinations'
+  [ -L "$codex_home/$local_layer_name" ] ||
+    fail 'install preserves the external local-file symlink'
+  pass 'install preserves the external local-file symlink'
+}
+
+run_restore_refuses_local_link_into_managed_destination_test() {
+  case_root="$test_root/restore-local-link-into-skill"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$home/.agents/skills"
+  mkdir -p "$home" "$codex_home"
+  HOME="$home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/install.sh" > "$case_root/first-install.log"
+  HOME="$home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/install.sh" --replace-agents > "$case_root/reinstall.log"
+  backup_dir=$(reported_path 'Recovery checkpoint' "$case_root/reinstall.log")
+  target_file="$skill_root/codex-playbook-code/user-local.md"
+  printf '%s\n' '- **Fill — workspace.** Keep my restored value.' > "$target_file"
+  ln -s "$target_file" "$codex_home/$local_layer_name"
+  cp "$codex_home/AGENTS.md" "$case_root/active-before.md"
+
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$repo_root/scripts/restore.sh" "$backup_dir" > "$case_root/restore.log" 2>&1; then
+    fail 'restore refuses a local-file link into a skill it would replace'
+  else
+    pass 'restore refuses a local-file link into a skill it would replace'
+  fi
+  assert_contains 'managed destination' "$case_root/restore.log" \
+    'restore identifies the at-risk local-file link'
+  assert_contains 'Keep my restored value' "$target_file" \
+    'restore refusal preserves the linked local content'
+  assert_file_equal "$case_root/active-before.md" "$codex_home/AGENTS.md" \
+    'restore refusal preserves active global rules'
+  if find "$codex_home/backups" -mindepth 1 -maxdepth 1 -type d \
+      -name 'codex-playbook-prerestore-*' -print | grep -q .; then
+    fail 'at-risk local link refuses before pre-restore checkpoint creation'
+  else
+    pass 'at-risk local link refuses before pre-restore checkpoint creation'
+  fi
+}
+
+run_restore_preserves_external_local_link_test() {
+  case_root="$test_root/restore-external-local-link"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  mkdir -p "$home" "$codex_home" "$case_root/dotfiles"
+  printf '%s\n' '- **Fill — workspace.** External restore value.' > \
+    "$case_root/dotfiles/local.md"
+  ln -s "$case_root/dotfiles/local.md" "$codex_home/$local_layer_name"
+  HOME="$home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/install.sh" > "$case_root/first-install.log"
+  HOME="$home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/install.sh" --replace-agents > "$case_root/reinstall.log"
+  backup_dir=$(reported_path 'Recovery checkpoint' "$case_root/reinstall.log")
+
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$repo_root/scripts/restore.sh" "$backup_dir" > "$case_root/restore.log" 2>&1; then
+    pass 'restore accepts a local-file link outside managed destinations'
+  else
+    fail 'restore accepts a local-file link outside managed destinations'
+  fi
+  [ -L "$codex_home/$local_layer_name" ] ||
+    fail 'restore preserves the external local-file symlink'
+  pass 'restore preserves the external local-file symlink'
+  assert_contains 'External restore value' "$codex_home/$local_layer_name" \
+    'restore preserves the external local-file content'
+}
+
+run_restore_rejects_fenced_router_test() {
+  case_root="$test_root/restore-fenced-router"
+  home="$case_root/home"
+  codex_home="$case_root/codex"
+  mkdir -p "$home" "$codex_home"
+  paragraph=$(sed -n '/^\*\*The local layer:\*\*/p' "$repo_root/AGENTS.md")
+  awk -v paragraph="$paragraph" '
+    $0 == "## Authority" { print; print "```md"; print paragraph; print "```"; next }
+    /^\*\*The local layer:\*\*/ { next }
+    { print }
+  ' "$repo_root/AGENTS.md" > "$codex_home/AGENTS.md"
+  HOME="$home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/install.sh" --replace-agents > "$case_root/install.log"
+  backup_dir=$(reported_path 'Recovery checkpoint' "$case_root/install.log")
+  printf '%s\n' '- **Fill — workspace.** My value.' > "$codex_home/$local_layer_name"
+  cp "$codex_home/AGENTS.md" "$case_root/active-before.md"
+  HOME="$home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/check-local.sh" "$codex_home/$local_layer_name" \
+      "$backup_dir" "$backup_dir" > "$case_root/check.log"
+
+  if HOME="$home" CODEX_HOME="$codex_home" \
+      "$repo_root/scripts/restore.sh" "$backup_dir" > "$case_root/restore.log" 2>&1; then
+    fail 'restore refuses a router quoted only inside a fenced example'
+  else
+    pass 'restore refuses a router quoted only inside a fenced example'
+  fi
+  assert_contains 'known active local-layer router' "$case_root/restore.log" \
+    'restore explains the checkpoint compatibility requirement'
+  assert_file_equal "$case_root/active-before.md" "$codex_home/AGENTS.md" \
+    'fenced-router refusal preserves active global rules'
+  assert_contains 'My value' "$codex_home/$local_layer_name" \
+    'fenced-router refusal preserves the local file'
+  if find "$codex_home/backups" -mindepth 1 -maxdepth 1 -type d \
+      -name 'codex-playbook-prerestore-*' -print | grep -q .; then
+    fail 'fenced-router refusal happened before pre-restore checkpoint creation'
+  else
+    pass 'fenced-router refusal happened before pre-restore checkpoint creation'
+  fi
+}
+
 run_first_install_and_restore_test
 run_refusal_test
 run_shadowed_agents_refusal_test
@@ -1559,5 +1700,9 @@ run_local_layer_survives_lifecycle_test
 run_restore_rejects_stale_local_layer_test
 run_restore_rejects_unaware_router_test
 run_restore_rejects_shadowed_router_test
+run_install_refuses_local_link_into_managed_destination_test
+run_restore_refuses_local_link_into_managed_destination_test
+run_restore_preserves_external_local_link_test
+run_restore_rejects_fenced_router_test
 
 printf '\nAll %s installer lifecycle assertions passed.\n' "$passes"

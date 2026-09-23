@@ -70,6 +70,12 @@ regressions are built and verified, but a pinned focused deep re-review and the
 original review obligations remain owed. No `checkpoint/0.1.6` tag or push has
 been made.
 
+**Compatibility repair, 2026-09-23:** the owner approved refusing local-file
+symlinks that resolve inside managed destinations, preserving external
+dotfile-manager symlinks, and requiring a known complete active router for
+restore. Lifecycle regressions were red before repair and pass locally; no
+publication follows until focused review and the batch gates pass.
+
 **0.1.5 (2026-09-20):** the rule 3.5 wording contract now requires its positive phrases inside
 rule 3.5 itself while retaining the whole-skill sweep for superseded wording. The rulebook suite
 now runs 52 checks; rulebook and installer behaviour are unchanged.

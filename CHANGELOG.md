@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- Run a safe hygiene checkpoint after tasks, phases, and plans: measure disk and
+  resources, verify worktree/feature-branch and generated-debug provenance
+  before cleanup, and preserve logs, reports, and documents. Rotate and
+  compress only inactive logs; deletion requires explicit consent. Logs are
+  gitignored by default, while reports, documents, and guides are committed.
+- Add dated, non-installed GPT-6 Sol/Luna operator guidance with current API
+  token prices and explicit quality-measurement caveats. Managed tier selection
+  remains capability-based, and the Standard review floor is unchanged.
+- Install and restore refuse a local-file symlink into a managed destination
+  before mutation while preserving external dotfile-manager symlinks. Restore
+  accepts only a checkpoint with the complete known active router, not a
+  paragraph matching inside a fenced example.
 - Harden local Overrides: every live Override now binds to one unique Markdown
   section, its normalized SHA-256 digest, and a unique quote of at least 16
   non-whitespace bytes. Ambiguous or incomplete evidence refuses installation.

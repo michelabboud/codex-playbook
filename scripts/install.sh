@@ -91,6 +91,27 @@ canonical_path_for_check() {
   fi
 }
 
+resolve_local_link_target() {
+  link_path=$1
+  link_hops=0
+  while [ -L "$link_path" ]
+  do
+    link_hops=$((link_hops + 1))
+    [ "$link_hops" -le 40 ] || die 'The local-file symlink chain is too deep to verify.'
+    link_value=$(readlink "$link_path") ||
+      die 'The local-file symlink target could not be read.'
+    case "$link_value" in
+      /*) link_path=$link_value ;;
+      *) link_path=$(dirname -- "$link_path")/$link_value ;;
+    esac
+    link_parent=$(CDPATH= cd -- "$(dirname -- "$link_path")" && pwd -P) ||
+      die 'The local-file symlink target could not be resolved.'
+    link_path=$link_parent/$(basename -- "$link_path")
+  done
+  [ -f "$link_path" ] || die 'The local-file symlink target is not a regular file.'
+  printf '%s\n' "$link_path"
+}
+
 replace_agents=0
 case "${1:-}" in
   '') ;;
@@ -248,6 +269,22 @@ done
 "$repo_root/scripts/check-local.sh" "$local_layer_target" "$repo_root" \
   "$repo_root/.agents/skills" ||
   die "The local layer at $local_layer_target does not match the playbook text this run would install. Re-read the rules named above and rewrite those entries; there is no flag to install past this."
+
+if [ -L "$local_layer_target" ]; then
+  local_link_target=$(resolve_local_link_target "$local_layer_target")
+  case "$local_link_target" in
+    "$canonical_codex_home/AGENTS.md")
+      die 'The local-file symlink targets a managed destination that installation would replace.' ;;
+  esac
+  for skill_name in $managed_skill_names
+  do
+    canonical_skill_target=$(canonical_path_for_check "$skills_root/$skill_name")
+    case "$local_link_target" in
+      "$canonical_skill_target"|"$canonical_skill_target"/*)
+        die 'The local-file symlink targets a managed destination that installation would replace.' ;;
+    esac
+  done
+fi
 
 override_target="$codex_home/AGENTS.override.md"
 if [ -L "$override_target" ] || { [ -e "$override_target" ] && [ ! -f "$override_target" ]; }; then

@@ -60,6 +60,27 @@ canonical_path_for_check() {
   fi
 }
 
+resolve_local_link_target() {
+  link_path=$1
+  link_hops=0
+  while [ -L "$link_path" ]
+  do
+    link_hops=$((link_hops + 1))
+    [ "$link_hops" -le 40 ] || die 'The local-file symlink chain is too deep to verify.'
+    link_value=$(readlink "$link_path") ||
+      die 'The local-file symlink target could not be read.'
+    case "$link_value" in
+      /*) link_path=$link_value ;;
+      *) link_path=$(dirname -- "$link_path")/$link_value ;;
+    esac
+    link_parent=$(CDPATH= cd -- "$(dirname -- "$link_path")" && pwd -P) ||
+      die 'The local-file symlink target could not be resolved.'
+    link_path=$link_parent/$(basename -- "$link_path")
+  done
+  [ -f "$link_path" ] || die 'The local-file symlink target is not a regular file.'
+  printf '%s\n' "$link_path"
+}
+
 manifest_state_from() {
   state_manifest=$1
   key=$2
@@ -244,34 +265,33 @@ done
   "$checkpoint" "$checkpoint" ||
   die "The local layer at $codex_home/playbook-local.md does not match the checkpoint text this restore would install. Re-read the rules named above and rewrite those entries; there is no flag to restore past this."
 
+if [ -L "$codex_home/playbook-local.md" ]; then
+  local_link_target=$(resolve_local_link_target "$codex_home/playbook-local.md")
+  case "$local_link_target" in
+    "$canonical_codex_home/AGENTS.md")
+      die 'The local-file symlink targets a managed destination that restoration would replace.' ;;
+  esac
+  for skill_name in $transition_skill_names
+  do
+    canonical_skill_target=$(canonical_path_for_check "$skills_root/$skill_name")
+    case "$local_link_target" in
+      "$canonical_skill_target"|"$canonical_skill_target"/*)
+        die 'The local-file symlink targets a managed destination that restoration would replace.' ;;
+    esac
+  done
+fi
+
 # A Fill or Add has no Dead-words verifier. Even an Override can bind to an
-# unchanged section of an older router, so quote/digest freshness alone cannot
-# prove that the restored AGENTS.md would tell Codex to load the local file.
-# Require the currently supported local-layer authority paragraph, in its
-# governing section, whenever a local file exists. An older checkpoint can be
-# restored only after the owner separately decides how to preserve/deactivate
-# that local file; this script never changes it.
+# unchanged section of an older router, so freshness alone cannot prove that
+# restored instructions would load the local file. Accept only the complete
+# known active router shipped by this checkout: a matching paragraph inside a
+# fenced example is not an instruction. An older or tailored checkpoint waits
+# for an owner-led compatibility decision; this script never changes the local file.
 if [ -e "$codex_home/playbook-local.md" ] || [ -L "$codex_home/playbook-local.md" ]; then
   [ "$agents_state" = present ] ||
     die 'The checkpoint does not load the local layer: it has no AGENTS.md. No destination was changed.'
-  awk '
-    NR == FNR {
-      if ($0 == "## Authority") in_authority = 1
-      else if ($0 ~ /^## /) in_authority = 0
-      if (in_authority && $0 ~ /^\*\*The local layer:\*\*/) {
-        expected = $0
-        source_count++
-      }
-      next
-    }
-    {
-      if ($0 == "## Authority") in_authority = 1
-      else if ($0 ~ /^## /) in_authority = 0
-      if (in_authority && $0 == expected) checkpoint_count++
-    }
-    END { exit !(source_count == 1 && checkpoint_count == 1) }
-  ' "$repo_root/AGENTS.md" "$checkpoint/AGENTS.md" ||
-    die 'The checkpoint does not load the local layer with the current authority boundary. No destination was changed.'
+  cmp -s "$repo_root/AGENTS.md" "$checkpoint/AGENTS.md" ||
+    die 'The checkpoint does not load the local layer: it is not a known active local-layer router from this checkout. No destination was changed.'
 fi
 
 override_target="$codex_home/AGENTS.override.md"

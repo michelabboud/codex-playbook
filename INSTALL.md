@@ -238,11 +238,14 @@ directory. Before creating a pre-restore checkpoint or changing a destination,
 it checks the local layer against the checkpoint text. A stale or unusable local
 entry refuses restore; the Override is suspended and the stricter constraint
 remains in force. If the local file exists, even if it contains only Fill or Add
-entries, restore also requires the checkpoint's `AGENTS.md` to retain the
-current local-layer loading and authority paragraph. An older checkpoint that
-does not load that file is refused before any destination changes; matching
-quoted words alone would not keep a local entry active. It then creates and
-verifies a separate
+entries, restore also requires the checkpoint's complete `AGENTS.md` router to
+match this release's known active local-layer router byte for byte. An older
+checkpoint or a fenced example that merely quotes the loading paragraph is
+refused before any destination changes; matching words alone would not keep a
+local entry active. A local-file symlink is refused before checkpoint creation
+only if it resolves inside a managed destination that install or restore would
+replace; an external dotfile-manager symlink is preserved and checked normally.
+Restore then creates and verifies a separate
 `codex-playbook-prerestore-*` checkpoint of the current state, stages the
 desired state, applies it transactionally, and reinstates the pre-restore state
 if staging, swapping, verification, or interruption fails.
