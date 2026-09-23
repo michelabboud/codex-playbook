@@ -2,7 +2,7 @@
 
 ## Batch — The local layer (0.1.6)
 
-**Status:** Running — approved 2026-09-21 (the owner's word in conversation).
+**Status:** Review passed; publication candidate — approved 2026-09-21 (the owner's word in conversation).
 One batch of five tasks; tasks 2 and 3 touch `scripts/`, the risk-class files,
 and take a deep review at task grain. The batch closes with a deep review on the
 Strong tier from the second model family; nothing is pushed before it is ruled.
@@ -27,11 +27,16 @@ finding, five of five confirmed by the coordinator.
   vectors run, the template ships no live entry, and finding 3's three
   guarantees are asserted — 2026-09-21. The repair was subsequently committed
   locally; its lane report is `LANE-B2-REPORT.md`.
-- [ ] Focused mechanical re-check of the repair, at the depth of the review
-  that found the defect.
-- [ ] Deep review of tasks 2 and 3, then of the batch; findings ruled.
+- [x] Focused mechanical re-check of the repair, at the depth of the review
+  that found the defect — final mechanical PASS at `fd2443f`, recorded in
+  `docs/reviews/2026-09-23-gpt6-sol-symlink-chain-reviews.md`.
+- [x] Deep review of the risk-class installer/checker repair and batch; findings
+  ruled — the `fd2443f` deep FAIL was repaired, then focused deep PASS at
+  `267dfb5`, recorded in `docs/reviews/2026-09-23-gpt6-sol-chain-re-review-pass.md`.
 - [ ] `checkpoint/0.1.6` tagged and pushed — **only after** the Claude edition's
-  `checkpoint/0.1.16` exists, as the parity matrix records.
+  `checkpoint/0.1.16` exists, as the parity matrix records. That source tag
+  is now published at `97938d0`; verify this edition's exact final candidate
+  and remote refs before checking off publication.
 
 **Repair round 2 — 2026-09-21.** Sol's deep review found ten blockers. The
 authority boundary, parser fail-closed cases, restoration preflight, and Claude

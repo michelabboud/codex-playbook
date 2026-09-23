@@ -1,5 +1,18 @@
 # Handoff
 
+**Publication gate, 2026-09-23:** the current candidate is committed and clean.
+The GPT-6 Sol mechanical review passed at `fd2443f`, and its deep review's
+symlink-chain blocker was repaired and passed a focused GPT-6 Sol re-review at
+`267dfb5`. The later `2dcfd5a` commit changed only status documents and the
+review record. Claude's `checkpoint/0.1.16` is now published at `97938d0`;
+its remote `main` and peeled tag were checked directly. Run this edition's
+full verification on the final administrative candidate, compare executable
+and managed text with `267dfb5`, then tag and push `checkpoint/0.1.6` and
+verify its remote refs. No live installation or native macOS acceptance is
+claimed. The text below is historical seam tape, not the current hold.
+
+---
+
 **Held: 0.1.6, the local layer, is built, reviewed twice over, repaired, and not
 published.** The five tasks of `docs/plans/2026-09-21-local-layer-plan.md` are
 complete. Two rounds of repair sit uncommitted in this lane's worktree.

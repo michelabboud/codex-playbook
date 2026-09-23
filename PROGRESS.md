@@ -4,10 +4,12 @@
 
 **Last updated:** 2026-09-23
 
-**Current hold:** the candidate is reviewed and remains unpublished until the
-Claude source edition passes its own review and publishes first. Earlier
-independent reviews found path-resolution and rollback compatibility gaps;
-those were repaired with red-to-green lifecycle tests. The candidate carries
+**Current publication gate:** the candidate is reviewed and remains unpublished
+until its exact final tree passes verification and its remote refs are checked.
+Claude's `checkpoint/0.1.16` is now published at `97938d0`, satisfying the
+source-first dependency. Earlier independent reviews found path-resolution and
+rollback compatibility gaps; those were repaired with red-to-green lifecycle
+tests. The candidate carries
 approved task-continuity, communication/Herdr, hygiene, and GPT-6 guidance.
 The final GPT-6 Sol focused deep and mechanical reviews passed.
 
@@ -24,8 +26,8 @@ directory symlinks, and has lifecycle regressions; the mechanical pass found
 no blocker. Source publication remained held pending the re-review below.
 
 The fresh GPT-6 Sol deep re-review of `267dfb5` passed with no blocker. The
-candidate remains local until the Claude source edition has cleared review
-and published first.
+Claude source edition has now cleared review and published first; this
+candidate remains local pending its own final verification and source push.
 
 The canonical repository is now `michelabboud/codex-playbook`.
 `nice-michel/codex-playbook` is its fork for branches and pull requests, while

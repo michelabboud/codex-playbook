@@ -215,15 +215,16 @@ before publication, so 0.1.6 ships with them rather than fixing them later.
 - **A local-layer line is bounded at 4,096 bytes** (informational finding I2):
   the scanner's cost grows with the square of a line's length and had no bound.
   Measured here: 113 items at 3,742 bytes parse in 11 ms; unbounded, the review
-  measured 7.5 s for 3,000 items and 57 s for 12,000. This bound is this
-  edition's alone and is recorded in the parity matrix.
+  measured 7.5 s for 3,000 items and 57 s for 12,000. The source later
+  adopted the same local-layer line bound; the parity matrix records that
+  sequence.
 
 ### Publication
 
-- Held: `checkpoint/0.1.6` is not tagged until the Claude edition publishes
-  `checkpoint/0.1.16`, whose text this ports — the same ordering 0.1.4 kept. The
-  parity matrix names the source commit, now the one carrying the completed
-  Dead-words grammar and the shared vectors.
+- Claude published `checkpoint/0.1.16` before this edition's
+  `checkpoint/0.1.6`, preserving the ordering used for 0.1.4. The parity matrix
+  names the final published source commit and tag, as well as the historical
+  grammar and shared-vector development commits.
 - The batch's mechanical review returned FAIL with one blocking finding; all
   five findings were confirmed by the coordinator
   (`docs/reviews/2026-09-21-local-layer-mechanical-review-validation.md`) and
