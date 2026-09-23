@@ -2,12 +2,21 @@
 
 ## Unreleased
 
+- Coordinate approved plans with scoped subagents when available, record task
+  ownership/communication and continue automatically to the next admitted task.
+  Document native Codex, API, Claude, and conditional Herdr communication modes.
+- Clarify the GPT-6 family map: Astra is flagship, Sol is the strong value
+  workhorse, Luna is light, and no GPT-6 Terra exists. Label short-context
+  prices and long-context caveats without lowering review requirements.
+- Repair review-found install safety gaps: reject ambiguous HOME and symlink
+  target path encodings, and recover interrupted installation from exact
+  originals without weakening deliberate restore's router check.
 - Run a safe hygiene checkpoint after tasks, phases, and plans: measure disk and
   resources, verify worktree/feature-branch and generated-debug provenance
   before cleanup, and preserve logs, reports, and documents. Rotate and
   compress only inactive logs; deletion requires explicit consent. Logs are
   gitignored by default, while reports, documents, and guides are committed.
-- Add dated, non-installed GPT-6 Sol/Luna operator guidance with current API
+- Add dated, non-installed GPT-6 Astra/Sol/Luna operator guidance with current API
   token prices and explicit quality-measurement caveats. Managed tier selection
   remains capability-based, and the Standard review floor is unchanged.
 - Install and restore refuse a local-file symlink into a managed destination

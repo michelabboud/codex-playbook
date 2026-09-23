@@ -1660,6 +1660,276 @@ run_restore_rejects_fenced_router_test() {
   fi
 }
 
+run_ambiguous_home_local_link_test() {
+  for operation in install restore
+  do
+    case_root="$test_root/ambiguous-home-$operation"
+    home="$case_root/physical/home"
+    codex_home="$case_root/codex"
+    skill_root="$home/.agents/skills"
+    mkdir -p "$home/child" "$codex_home"
+    ln -s "$home/child" "$case_root/home-alias"
+    HOME="$home" CODEX_HOME="$codex_home" \
+      "$repo_root/scripts/install.sh" > "$case_root/first.log"
+    HOME="$home" CODEX_HOME="$codex_home" \
+      "$repo_root/scripts/install.sh" > "$case_root/second.log"
+    backup_dir=$(reported_path 'Recovery checkpoint' "$case_root/second.log")
+    printf '%s\n' '- **Fill — workspace.** Preserve the physical local file.' > \
+      "$skill_root/codex-playbook-code/local.md"
+    ln -s "$skill_root/codex-playbook-code/local.md" "$codex_home/$local_layer_name"
+    cp "$codex_home/$local_layer_name" "$case_root/local-before.md"
+    if [ "$operation" = install ]; then
+      set -- --replace-agents
+    else
+      set -- "$backup_dir"
+    fi
+    if HOME="$case_root/home-alias/.." CODEX_HOME="$codex_home" \
+        "$repo_root/scripts/$operation.sh" "$@" > "$case_root/attempt.log" 2>&1; then
+      fail "$operation refuses HOME symlink/.. that hides a managed local target"
+    fi
+    assert_file_equal "$case_root/local-before.md" "$codex_home/$local_layer_name" \
+      "$operation preserves local bytes under HOME symlink/.."
+    assert_contains 'HOME must not contain' "$case_root/attempt.log" \
+      "$operation explicitly rejects ambiguous HOME components"
+  done
+}
+
+run_newline_local_link_test() {
+  newline='
+'
+  for operation in install restore
+  do
+    case_root="$test_root/newline-local-link-$operation"
+    home="$case_root/home"
+    codex_home="$case_root/codex"
+    skill_root="$home/.agents/skills"
+    mkdir -p "$home" "$codex_home"
+    HOME="$home" CODEX_HOME="$codex_home" \
+      "$repo_root/scripts/install.sh" > "$case_root/first.log"
+    HOME="$home" CODEX_HOME="$codex_home" \
+      "$repo_root/scripts/install.sh" > "$case_root/second.log"
+    backup_dir=$(reported_path 'Recovery checkpoint' "$case_root/second.log")
+    printf '%s\n' '- **Fill — workspace.** Preserve newline target.' > \
+      "$skill_root/codex-playbook-code/local.md"
+    printf '%s\n' '- **Fill — workspace.** Harmless decoy.' > "$codex_home/alias"
+    ln -s "$skill_root/codex-playbook-code/local.md" "$codex_home/alias$newline"
+    ln -s "alias$newline" "$codex_home/$local_layer_name"
+    cp "$codex_home/$local_layer_name" "$case_root/local-before.md"
+    if [ "$operation" = install ]; then
+      set -- --replace-agents
+    else
+      set -- "$backup_dir"
+    fi
+    if HOME="$home" CODEX_HOME="$codex_home" \
+        "$repo_root/scripts/$operation.sh" "$@" > "$case_root/attempt.log" 2>&1; then
+      fail "$operation refuses a newline symlink alias into a managed skill"
+    fi
+    assert_file_equal "$case_root/local-before.md" "$codex_home/$local_layer_name" \
+      "$operation preserves local bytes behind a newline symlink"
+    assert_contains 'control character' "$case_root/attempt.log" \
+      "$operation explains the unsupported path encoding"
+  done
+}
+
+run_local_layer_install_rollback_test() {
+  for original in older first
+  do
+    for interruption in failure signal
+    do
+      case_root="$test_root/local-rollback-$original-$interruption"
+      home="$case_root/home"
+      codex_home="$case_root/codex"
+      skill_root="$home/.agents/skills"
+      fake_bin="$case_root/fake-bin"
+      mkdir -p "$home" "$codex_home" "$fake_bin"
+      if [ "$original" = older ]; then
+        seed_original_managed_state "$skill_root" "$codex_home"
+        cp "$repo_root/AGENTS.md" "$codex_home/AGENTS.md"
+        printf '\nOlder local-aware router.\n' >> "$codex_home/AGENTS.md"
+        cp "$codex_home/AGENTS.md" "$case_root/agents-before.md"
+      fi
+      printf '%s\n' '- **Fill — workspace.** Preserve transaction local data.' > \
+        "$codex_home/$local_layer_name"
+      cp "$codex_home/$local_layer_name" "$case_root/local-before.md"
+      chmod 640 "$codex_home/$local_layer_name"
+      local_mtime=$(mtime_of "$codex_home/$local_layer_name")
+      if [ "$interruption" = failure ]; then
+        write_fail_once_mv "$fake_bin/mv"
+      else
+        write_signal_mv "$fake_bin/mv"
+      fi
+      attempt_exit=0
+      PATH="$fake_bin:$PATH" FAIL_ONCE_MARKER="$case_root/once" \
+        SIGNAL_ONCE_MARKER="$case_root/once" HOME="$home" CODEX_HOME="$codex_home" \
+        "$repo_root/scripts/install.sh" --replace-agents > "$case_root/install.log" 2>&1 || attempt_exit=$?
+      if [ "$interruption" = signal ]; then expected_exit=130; else expected_exit=1; fi
+      [ "$attempt_exit" -eq "$expected_exit" ] || fail "$original $interruption returns $expected_exit"
+      pass "$original $interruption returns $expected_exit"
+      assert_contains 'verified checkpoint was restored' "$case_root/install.log" \
+        "$original $interruption completes internal rollback with a local file"
+      if [ "$original" = older ]; then
+        assert_file_equal "$case_root/agents-before.md" "$codex_home/AGENTS.md" \
+          "$original $interruption restores the exact older router"
+        assert_contains 'original code' "$skill_root/codex-playbook-code/SKILL.md" \
+          "$original $interruption restores the prior active skill"
+        assert_contains 'original release' "$skill_root/codex-playbook-release/SKILL.md" \
+          "$original $interruption restores the retired skill"
+      else
+        assert_absent "$codex_home/AGENTS.md" "$original $interruption restores absent router"
+      fi
+      for skill_name in $active_skill_names
+      do
+        if [ "$original" = older ] && [ "$skill_name" = codex-playbook-code ]; then continue; fi
+        assert_absent "$skill_root/$skill_name" "$original $interruption removes partial $skill_name"
+      done
+      assert_file_equal "$case_root/local-before.md" "$codex_home/$local_layer_name" \
+        "$original $interruption preserves local bytes"
+      assert_mode 640 "$codex_home/$local_layer_name" "$original $interruption preserves local mode"
+      assert_mtime "$local_mtime" "$codex_home/$local_layer_name" "$original $interruption preserves local mtime"
+      backup_dir=$(find "$codex_home/backups" -mindepth 1 -maxdepth 1 -type d -name 'codex-playbook-preinstall-*')
+      assert_contains 'complete' "$backup_dir/COMPLETE" "$original $interruption retains verified checkpoint"
+      if HOME="$home" CODEX_HOME="$codex_home" \
+          "$repo_root/scripts/restore.sh" "$backup_dir" > "$case_root/restore.log" 2>&1; then
+        fail "$original $interruption does not loosen deliberate restore policy"
+      fi
+      assert_contains 'does not load the local layer' "$case_root/restore.log" \
+        "$original $interruption keeps public restore fail-closed"
+    done
+  done
+}
+
+run_unsafe_agents_preflight_test() {
+  for target_kind in symlink directory
+  do
+    case_root="$test_root/unsafe-agents-$target_kind"
+    home="$case_root/home"
+    codex_home="$case_root/codex"
+    mkdir -p "$home" "$codex_home"
+    if [ "$target_kind" = symlink ]; then
+      printf 'external rules\n' > "$case_root/outside.md"
+      ln -s "$case_root/outside.md" "$codex_home/AGENTS.md"
+    else
+      mkdir "$codex_home/AGENTS.md"
+      printf 'directory contents\n' > "$codex_home/AGENTS.md/keep.md"
+    fi
+    if HOME="$home" CODEX_HOME="$codex_home" \
+        "$repo_root/scripts/install.sh" --replace-agents > "$case_root/install.log" 2>&1; then
+      fail "$target_kind AGENTS.md is refused before the transaction"
+    fi
+    assert_contains 'Refusing to replace' "$case_root/install.log" \
+      "$target_kind AGENTS.md receives explicit preflight refusal"
+    assert_absent "$codex_home/backups" "$target_kind AGENTS.md is refused before checkpoint creation"
+    if [ "$target_kind" = symlink ]; then
+      [ -L "$codex_home/AGENTS.md" ] || fail 'preflight preserves the AGENTS.md symlink'
+      assert_contains 'external rules' "$case_root/outside.md" 'preflight preserves the symlink target'
+    else
+      assert_contains 'directory contents' "$codex_home/AGENTS.md/keep.md" \
+        'preflight preserves the nonregular AGENTS.md target'
+    fi
+  done
+}
+
+run_early_install_signal_test() {
+  for original in present absent
+  do
+    case_root="$test_root/early-install-signal-$original"
+    home="$case_root/home"
+    codex_home="$case_root/codex"
+    skill_root="$home/.agents/skills"
+    fixture_root="$case_root/source"
+    mkdir -p "$home" "$codex_home"
+    build_complete_source_fixture "$fixture_root"
+    # Deliver TERM at the precise transaction boundary, before any touch flag
+    # or rename. Only this disposable source fixture gains the injected signal.
+    awk '{ print } $0 == "installation_started=1" { print "kill -TERM \"$$\"" }' \
+      "$repo_root/scripts/install.sh" > "$fixture_root/scripts/install.sh"
+    if [ "$original" = present ]; then
+      seed_original_managed_state "$skill_root" "$codex_home"
+    fi
+    printf '%s\n' '- **Fill — workspace.** Preserve early-signal local data.' > \
+      "$codex_home/$local_layer_name"
+    attempt_exit=0
+    HOME="$home" CODEX_HOME="$codex_home" \
+      "$fixture_root/scripts/install.sh" --replace-agents > "$case_root/install.log" 2>&1 || attempt_exit=$?
+    [ "$attempt_exit" -eq 130 ] || fail "$original early TERM returns 130"
+    pass "$original early TERM returns 130"
+    assert_contains 'interrupted; the verified checkpoint was restored' "$case_root/install.log" \
+      "$original early TERM verifies the original state"
+    if [ "$original" = present ]; then
+      assert_original_managed_state "$skill_root" "$codex_home" 'early TERM before any rename'
+    else
+      assert_absent "$codex_home/AGENTS.md" 'early TERM preserves absent AGENTS.md'
+      for skill_name in $active_skill_names $retired_skill_names
+      do
+        assert_absent "$skill_root/$skill_name" "early TERM preserves absent $skill_name"
+      done
+    fi
+    assert_contains 'Preserve early-signal local data' "$codex_home/$local_layer_name" \
+      "$original early TERM preserves the local file"
+  done
+}
+
+run_incomplete_install_rollback_test() {
+  for blocked in AGENTS.md codex-playbook-code
+  do
+    case_root="$test_root/incomplete-rollback-$blocked"
+    home="$case_root/home"
+    codex_home="$case_root/codex"
+    skill_root="$home/.agents/skills"
+    fake_bin="$case_root/fake-bin"
+    seed_original_managed_state "$skill_root" "$codex_home"
+    mkdir -p "$fake_bin"
+    printf '%s\n' '- **Fill — workspace.** Preserve incomplete rollback local data.' > \
+      "$codex_home/$local_layer_name"
+    cat > "$fake_bin/mv" <<'EOF'
+#!/bin/sh
+destination=''
+for argument in "$@"; do destination=$argument; done
+case "$destination" in
+  */codex-playbook-environment|*/"failed-$BLOCK_ROLLBACK") exit 1 ;;
+esac
+exec /bin/mv "$@"
+EOF
+    chmod +x "$fake_bin/mv"
+    if PATH="$fake_bin:$PATH" BLOCK_ROLLBACK="$blocked" HOME="$home" CODEX_HOME="$codex_home" \
+        "$repo_root/scripts/install.sh" --replace-agents > "$case_root/install.log" 2>&1; then
+      fail "$blocked rollback failure aborts installation"
+    fi
+    assert_contains 'Automatic recovery failed' "$case_root/install.log" \
+      "$blocked rollback failure reports incomplete recovery"
+    assert_contains 'rollback originals retained at' "$case_root/install.log" \
+      "$blocked rollback failure reports preserved original paths"
+    backup_dir=$(find "$codex_home/backups" -mindepth 1 -maxdepth 1 -type d -name 'codex-playbook-preinstall-*')
+    assert_contains 'complete' "$backup_dir/COMPLETE" "$blocked failure retains verified checkpoint"
+    assert_contains 'original rules' "$backup_dir/AGENTS.md" "$blocked failure preserves checkpoint router"
+    assert_contains 'original code' "$backup_dir/codex-playbook-code/SKILL.md" \
+      "$blocked failure preserves checkpoint skill"
+    if [ "$blocked" = AGENTS.md ]; then
+      originals_dir=$(find "$codex_home" -mindepth 1 -maxdepth 1 -type d -name '.codex-playbook.previous.*')
+      assert_contains 'original rules' "$originals_dir/AGENTS.md" \
+        'incomplete router rollback retains the exact original file'
+    else
+      originals_dir=$(find "$skill_root" -mindepth 1 -maxdepth 1 -type d -name '.codex-playbook.previous.*')
+      assert_contains 'original code' "$originals_dir/codex-playbook-code/SKILL.md" \
+        'incomplete skill rollback retains the exact original tree'
+      assert_absent "$skill_root/codex-playbook-code/codex-playbook-code" \
+        'failed displacement never nests an original inside the active skill'
+    fi
+    assert_contains 'Preserve incomplete rollback local data' "$codex_home/$local_layer_name" \
+      "$blocked failure leaves the local file intact"
+  done
+}
+
+case "${1:-}" in
+  path-dotdot) run_ambiguous_home_local_link_test; exit ;;
+  path-newline) run_newline_local_link_test; exit ;;
+  rollback-local) run_local_layer_install_rollback_test; exit ;;
+  rollback-incomplete) run_incomplete_install_rollback_test; exit ;;
+  rollback-boundary) run_unsafe_agents_preflight_test; run_early_install_signal_test; exit ;;
+  '') ;;
+  *) fail 'unknown focused lifecycle case' ;;
+esac
+
 run_first_install_and_restore_test
 run_refusal_test
 run_shadowed_agents_refusal_test
@@ -1704,5 +1974,11 @@ run_install_refuses_local_link_into_managed_destination_test
 run_restore_refuses_local_link_into_managed_destination_test
 run_restore_preserves_external_local_link_test
 run_restore_rejects_fenced_router_test
+run_ambiguous_home_local_link_test
+run_newline_local_link_test
+run_local_layer_install_rollback_test
+run_incomplete_install_rollback_test
+run_unsafe_agents_preflight_test
+run_early_install_signal_test
 
 printf '\nAll %s installer lifecycle assertions passed.\n' "$passes"

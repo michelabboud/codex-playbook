@@ -47,30 +47,35 @@ validate_inventory() {
     die "$inventory_label inventory must be sorted."
 }
 
+# These scripts use line-oriented manifests and shell command substitution.
+# Reject control bytes instead of silently resolving a different pathname.
+validate_path_encoding() {
+  case "$1" in
+    *'
+'*) die 'A path contains an unsupported control character.' ;;
+  esac
+  if printf '%s' "$1" | LC_ALL=C grep -q '[[:cntrl:]]'; then
+    die 'A path contains an unsupported control character.'
+  fi
+}
+
+physical_directory_for_check() {
+  # Keep pwd's final delimiter until after capture, so a pathname's own
+  # trailing newline cannot disappear during command substitution.
+  physical_output=$(CDPATH='' cd -P -- "$1" && pwd -P && printf '.') ||
+    die 'A path could not be physically resolved.'
+  physical_output=${physical_output%.}
+  physical_output=${physical_output%'
+'}
+  validate_path_encoding "$physical_output"
+  printf '%s\n' "$physical_output"
+}
+
 canonical_path_for_check() {
-  normalized_path=$(
-    printf '%s\n' "$1" | awk -F/ '
-      {
-        depth = 0
-        for (position = 1; position <= NF; position++) {
-          if ($position == "" || $position == ".") continue
-          if ($position == "..") {
-            if (depth > 0) depth--
-            continue
-          }
-          parts[++depth] = $position
-        }
-        if (depth == 0) {
-          print "/"
-          next
-        }
-        result = ""
-        for (position = 1; position <= depth; position++) result = result "/" parts[position]
-        print result
-      }
-    '
-  )
-  existing_path=$normalized_path
+  validate_path_encoding "$1"
+  # Resolve the existing prefix before handling a missing suffix. Never
+  # collapse .. lexically across a symlink.
+  existing_path=$1
   missing_suffix=''
   while [ ! -d "$existing_path" ]
   do
@@ -83,7 +88,7 @@ canonical_path_for_check() {
     existing_path=${existing_path%/*}
     [ -n "$existing_path" ] || existing_path=/
   done
-  physical_path=$(CDPATH= cd -- "$existing_path" && pwd -P)
+  physical_path=$(physical_directory_for_check "$existing_path") || return 1
   if [ "$physical_path" = / ]; then
     printf '/%s\n' "${missing_suffix#/}"
   else
@@ -98,13 +103,17 @@ resolve_local_link_target() {
   do
     link_hops=$((link_hops + 1))
     [ "$link_hops" -le 40 ] || die 'The local-file symlink chain is too deep to verify.'
-    link_value=$(readlink "$link_path") ||
+    link_value=$(readlink "$link_path" && printf '.') ||
       die 'The local-file symlink target could not be read.'
+    link_value=${link_value%.}
+    link_value=${link_value%'
+'}
+    validate_path_encoding "$link_value"
     case "$link_value" in
       /*) link_path=$link_value ;;
       *) link_path=$(dirname -- "$link_path")/$link_value ;;
     esac
-    link_parent=$(CDPATH= cd -- "$(dirname -- "$link_path")" && pwd -P) ||
+    link_parent=$(physical_directory_for_check "$(dirname -- "$link_path")") ||
       die 'The local-file symlink target could not be resolved.'
     link_path=$link_parent/$(basename -- "$link_path")
   done
@@ -135,8 +144,12 @@ resource_inventory="$repo_root/config/managed-resources.txt"
 agents_stage=''
 staging_root=''
 previous_root=''
+agents_previous_root=''
 backup_dir=''
 installation_started=0
+agents_touched=0
+skills_touched=''
+preserve_rollback_storage=0
 
 cleanup_staging() {
   if [ -n "$agents_stage" ] && [ -f "$agents_stage" ] &&
@@ -147,23 +160,93 @@ cleanup_staging() {
      ! rm -R "$staging_root"; then
     printf 'WARNING: skill staging remains at %s\n' "$staging_root" >&2
   fi
-  if [ -n "$previous_root" ] && [ -d "$previous_root" ] &&
+  if [ "$preserve_rollback_storage" -eq 0 ] &&
+     [ -n "$previous_root" ] && [ -d "$previous_root" ] &&
      ! rm -R "$previous_root"; then
     printf 'WARNING: redundant pre-replacement copies remain at %s\n' \
       "$previous_root" >&2
   fi
+  if [ "$preserve_rollback_storage" -eq 0 ] &&
+     [ -n "$agents_previous_root" ] && [ -d "$agents_previous_root" ] &&
+     ! rm -R "$agents_previous_root"; then
+    printf 'WARNING: pre-replacement AGENTS.md remains at %s\n' \
+      "$agents_previous_root" >&2
+  fi
+}
+
+# This is recovery of this process's own transaction, not a public restore.
+# Move original destinations back without reinterpreting the local layer or
+# accepting an arbitrary checkpoint. Retain originals if any move/check fails.
+rollback_installation() {
+  trap '' HUP INT TERM
+  rollback_failed=0
+  preserve_rollback_storage=1
+  if [ "$agents_touched" -eq 1 ]; then
+    if [ -f "$agents_previous_root/AGENTS.md" ]; then
+      if { [ -e "$agents_target" ] || [ -L "$agents_target" ]; } &&
+         ! mv "$agents_target" "$agents_previous_root/failed-AGENTS.md"; then
+        rollback_failed=1
+      elif ! mv "$agents_previous_root/AGENTS.md" "$agents_target"; then
+        rollback_failed=1
+      fi
+    elif [ ! -f "$backup_dir/AGENTS.md" ] &&
+         { [ -e "$agents_target" ] || [ -L "$agents_target" ]; }; then
+      mv "$agents_target" "$agents_previous_root/failed-AGENTS.md" || rollback_failed=1
+    fi
+  fi
+
+  for rollback_skill_name in $skills_touched
+  do
+    rollback_target="$skills_root/$rollback_skill_name"
+    if [ -d "$previous_root/$rollback_skill_name" ]; then
+      if { [ -e "$rollback_target" ] || [ -L "$rollback_target" ]; } &&
+         ! mv "$rollback_target" "$previous_root/failed-$rollback_skill_name"; then
+        rollback_failed=1
+      elif ! mv "$previous_root/$rollback_skill_name" "$rollback_target"; then
+        rollback_failed=1
+      fi
+    elif [ ! -d "$backup_dir/$rollback_skill_name" ] &&
+         { [ -e "$rollback_target" ] || [ -L "$rollback_target" ]; }; then
+      mv "$rollback_target" "$previous_root/failed-$rollback_skill_name" || rollback_failed=1
+    fi
+  done
+
+  # A failed preservation rename may leave the original in place. Verify the
+  # entire preinstall state rather than inferring success from rename exits.
+  if [ -f "$backup_dir/AGENTS.md" ]; then
+    cmp -s "$backup_dir/AGENTS.md" "$agents_target" || rollback_failed=1
+  elif [ -e "$agents_target" ] || [ -L "$agents_target" ]; then
+    rollback_failed=1
+  fi
+  for rollback_skill_name in $managed_skill_names
+  do
+    rollback_target="$skills_root/$rollback_skill_name"
+    if [ -d "$backup_dir/$rollback_skill_name" ]; then
+      diff -qr "$backup_dir/$rollback_skill_name" "$rollback_target" >/dev/null 2>&1 ||
+        rollback_failed=1
+    elif [ -e "$rollback_target" ] || [ -L "$rollback_target" ]; then
+      rollback_failed=1
+    fi
+  done
+  installation_started=0
+  if [ "$rollback_failed" -eq 0 ]; then
+    preserve_rollback_storage=0
+    return 0
+  fi
+  printf 'ERROR: rollback originals retained at %s and %s; verified checkpoint: %s\n' \
+    "$agents_previous_root" "$previous_root" "$backup_dir" >&2
+  return 1
 }
 
 handle_signal() {
   trap - HUP INT TERM
   if [ "$installation_started" -eq 1 ] &&
      [ -n "$backup_dir" ] && [ -f "$backup_dir/COMPLETE" ]; then
-    if HOME="$HOME" CODEX_HOME="$codex_home" \
-        "$repo_root/scripts/restore.sh" "$backup_dir" >/dev/null 2>&1; then
+    if rollback_installation; then
       printf 'ERROR: installation interrupted; the verified checkpoint was restored: %s\n' \
         "$backup_dir" >&2
     else
-      printf 'ERROR: installation interrupted and automatic recovery failed. Restore manually from %s\n' \
+      printf 'ERROR: installation interrupted and automatic recovery failed. Recovery checkpoint: %s\n' \
         "$backup_dir" >&2
     fi
   else
@@ -174,12 +257,11 @@ handle_signal() {
 
 recover_installation_and_die() {
   failure_message=$1
-  if HOME="$HOME" CODEX_HOME="$codex_home" \
-      "$repo_root/scripts/restore.sh" "$backup_dir" >/dev/null 2>&1; then
+  if rollback_installation; then
     installation_started=0
     die "$failure_message The verified checkpoint was restored."
   else
-    die "$failure_message Automatic recovery failed. Restore manually from $backup_dir"
+    die "$failure_message Automatic recovery failed. Recovery checkpoint: $backup_dir"
   fi
 }
 
@@ -193,6 +275,15 @@ esac
 case "$codex_home/" in
   */./*|*/../*) die 'CODEX_HOME must not contain . or .. path components.' ;;
 esac
+case "$HOME" in
+  /*) ;;
+  *) die 'HOME must be an absolute path.' ;;
+esac
+case "$HOME/" in
+  */./*|*/../*) die 'HOME must not contain . or .. path components.' ;;
+esac
+validate_path_encoding "$HOME"
+validate_path_encoding "$codex_home"
 
 case "$skills_root" in
   /*) ;;
@@ -379,8 +470,17 @@ done
 if ! previous_root=$(mktemp -d "$skills_root/.codex-playbook.previous.XXXXXX"); then
   die 'Could not allocate rollback storage before managed destinations changed.'
 fi
+if ! agents_previous_root=$(mktemp -d "$codex_home/.codex-playbook.previous.XXXXXX"); then
+  die 'Could not allocate AGENTS.md rollback storage before managed destinations changed.'
+fi
 
 installation_started=1
+preserve_rollback_storage=1
+agents_touched=1
+if [ -f "$agents_target" ] &&
+   ! mv "$agents_target" "$agents_previous_root/AGENTS.md"; then
+  recover_installation_and_die 'Could not preserve AGENTS.md for replacement.'
+fi
 if ! mv -f "$agents_stage" "$agents_target"; then
   recover_installation_and_die 'AGENTS.md installation failed.'
 fi
@@ -388,6 +488,7 @@ fi
 for skill_name in $managed_skill_names
 do
   skill_target="$skills_root/$skill_name"
+  skills_touched="$skills_touched $skill_name"
   if [ -d "$skill_target" ] &&
      ! mv "$skill_target" "$previous_root/$skill_name"; then
     recover_installation_and_die "Could not preserve $skill_name for replacement."
@@ -421,6 +522,7 @@ do
 done
 
 installation_started=0
+preserve_rollback_storage=0
 if ! rm -R "$previous_root"; then
   printf 'WARNING: installation is verified, but redundant pre-replacement copies remain at %s\n' \
     "$previous_root" >&2

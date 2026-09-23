@@ -4,6 +4,13 @@
 
 **Last updated:** 2026-09-23
 
+**Current hold:** independent review of `43a5580` failed on two path-resolution
+gaps and installer rollback compatibility. The current unpublished worktree
+repairs them with red-to-green lifecycle tests and preserves deliberate
+restore's strict router check. It also carries approved task-continuity,
+communication/Herdr, hygiene, and GPT-6 guidance. No tag or push follows from
+passing local tests alone; focused review is still required.
+
 The canonical repository is now `michelabboud/codex-playbook`.
 `nice-michel/codex-playbook` is its fork for branches and pull requests, while
 the former standalone repository is preserved at

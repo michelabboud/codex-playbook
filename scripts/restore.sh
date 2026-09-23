@@ -16,30 +16,35 @@ validate_skill_name() {
     die "The checkpoint contains an invalid managed skill name: $1"
 }
 
+# These scripts use line-oriented manifests and shell command substitution.
+# Reject control bytes instead of silently resolving a different pathname.
+validate_path_encoding() {
+  case "$1" in
+    *'
+'*) die 'A path contains an unsupported control character.' ;;
+  esac
+  if printf '%s' "$1" | LC_ALL=C grep -q '[[:cntrl:]]'; then
+    die 'A path contains an unsupported control character.'
+  fi
+}
+
+physical_directory_for_check() {
+  # Keep pwd's final delimiter until after capture, so a pathname's own
+  # trailing newline cannot disappear during command substitution.
+  physical_output=$(CDPATH='' cd -P -- "$1" && pwd -P && printf '.') ||
+    die 'A path could not be physically resolved.'
+  physical_output=${physical_output%.}
+  physical_output=${physical_output%'
+'}
+  validate_path_encoding "$physical_output"
+  printf '%s\n' "$physical_output"
+}
+
 canonical_path_for_check() {
-  normalized_path=$(
-    printf '%s\n' "$1" | awk -F/ '
-      {
-        depth = 0
-        for (position = 1; position <= NF; position++) {
-          if ($position == "" || $position == ".") continue
-          if ($position == "..") {
-            if (depth > 0) depth--
-            continue
-          }
-          parts[++depth] = $position
-        }
-        if (depth == 0) {
-          print "/"
-          next
-        }
-        result = ""
-        for (position = 1; position <= depth; position++) result = result "/" parts[position]
-        print result
-      }
-    '
-  )
-  existing_path=$normalized_path
+  validate_path_encoding "$1"
+  # Resolve the existing prefix before handling a missing suffix. Never
+  # collapse .. lexically across a symlink.
+  existing_path=$1
   missing_suffix=''
   while [ ! -d "$existing_path" ]
   do
@@ -52,7 +57,7 @@ canonical_path_for_check() {
     existing_path=${existing_path%/*}
     [ -n "$existing_path" ] || existing_path=/
   done
-  physical_path=$(CDPATH= cd -- "$existing_path" && pwd -P)
+  physical_path=$(physical_directory_for_check "$existing_path") || return 1
   if [ "$physical_path" = / ]; then
     printf '/%s\n' "${missing_suffix#/}"
   else
@@ -67,13 +72,17 @@ resolve_local_link_target() {
   do
     link_hops=$((link_hops + 1))
     [ "$link_hops" -le 40 ] || die 'The local-file symlink chain is too deep to verify.'
-    link_value=$(readlink "$link_path") ||
+    link_value=$(readlink "$link_path" && printf '.') ||
       die 'The local-file symlink target could not be read.'
+    link_value=${link_value%.}
+    link_value=${link_value%'
+'}
+    validate_path_encoding "$link_value"
     case "$link_value" in
       /*) link_path=$link_value ;;
       *) link_path=$(dirname -- "$link_path")/$link_value ;;
     esac
-    link_parent=$(CDPATH= cd -- "$(dirname -- "$link_path")" && pwd -P) ||
+    link_parent=$(physical_directory_for_check "$(dirname -- "$link_path")") ||
       die 'The local-file symlink target could not be resolved.'
     link_path=$link_parent/$(basename -- "$link_path")
   done
@@ -155,6 +164,15 @@ esac
 case "$codex_home/" in
   */./*|*/../*) die 'CODEX_HOME must not contain . or .. path components.' ;;
 esac
+case "$HOME" in
+  /*) ;;
+  *) die 'HOME must be an absolute path.' ;;
+esac
+case "$HOME/" in
+  */./*|*/../*) die 'HOME must not contain . or .. path components.' ;;
+esac
+validate_path_encoding "$HOME"
+validate_path_encoding "$codex_home"
 
 [ -f "$active_inventory" ] && [ ! -L "$active_inventory" ] ||
   die 'The active skill inventory is missing or unsafe.'
@@ -176,8 +194,9 @@ done
   die 'The checkpoint must be a real directory, not a symlink.'
 [ -d "$codex_home/backups" ] || die 'The managed backup directory does not exist.'
 
-checkpoint=$(CDPATH= cd -- "$checkpoint_input" && pwd -P)
-backup_root=$(CDPATH= cd -- "$codex_home/backups" && pwd -P)
+validate_path_encoding "$checkpoint_input"
+checkpoint=$(physical_directory_for_check "$checkpoint_input")
+backup_root=$(physical_directory_for_check "$codex_home/backups")
 [ "$(dirname -- "$checkpoint")" = "$backup_root" ] ||
   die 'Refusing a checkpoint outside the managed backup directory.'
 
