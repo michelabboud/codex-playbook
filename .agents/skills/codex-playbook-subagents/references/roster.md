@@ -51,7 +51,7 @@ The tiers are law; a dispatch needs a name. Keep a dated binding of each role to
 identifier and an effort — with the settings the runtime reports back, if it exposes them, and
 one line of rationale — **outside the managed skill packages**, so an installer upgrade cannot
 erase it: your personal global `AGENTS.md` notes or a file beside them. Review headers and
-close-out ledgers quote the binding that was actually used. Re-examine it whenever the runtime's
+close-out ledgers quote the binding that was actually used. The binding also names the economy configuration, one per family, when economy mode is available. Re-examine it whenever the runtime's
 model list changes; a binding older than a few months is a claim, not a fact.
 
 ## The measurement behind the mechanical-review floor — and what it does not show

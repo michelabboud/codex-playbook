@@ -44,7 +44,7 @@ informational finding I2 of the mechanical review of 2026-09-21 and adopted
 later by the source. The shared vectors carry no line near it, so the bound
 cannot change their behavior.
 
-**Target architecture:** lean global authority router plus sixteen
+**Target architecture:** lean global authority router plus seventeen
 progressive-disclosure Codex skills.
 
 The migration preserves every numbered source rule. “Direct” means the rule

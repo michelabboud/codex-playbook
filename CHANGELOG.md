@@ -25,7 +25,20 @@ as `rm -r --`, and as `find -delete`.
 - Every platform skill gained a free-disk row.
 - 56 rules, seventeen skills: manifest, map, parity matrix, README, INSTALL,
   ARCHITECTURE and the installer checkpoint count (19 names) follow.
-- `tests/rulebook_test.sh` 58 → 92; each of the 34 new assertions was shown to
+- Deep review (Strong tier, `docs/reviews/2026-09-28-0.1.7-deep-review.md`):
+  **PASS**, five minor findings, all fixed before release:
+  - no platform skill said how to find a process using a directory, so "check
+    that no process uses it" checked nothing — each platform skill now has
+    that row (the source edition gets the same fix);
+  - the refusal rule banned an escalated retry, which in Codex is how an agent
+    asks for approval — one escalated request stating the refusal is now
+    allowed, never under the `never` approval policy and never after a decline;
+    the quarantine skill notes its move may need it;
+  - two "sixteen skills" left behind; the "tier never drops" sentence now names
+    the economy exception; the roster's binding names the economy
+    configuration;
+  - nineteen clauses without a test now have one.
+- `tests/rulebook_test.sh` 58 → 111; each of the 53 new assertions was shown to
   fail when its phrase is removed.
 
 ## Unreleased

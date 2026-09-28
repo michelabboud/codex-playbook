@@ -54,6 +54,7 @@ Inspect before you terminate:
 1. Who holds the port: `Get-NetTCPConnection -LocalPort <PORT> -State Listen | Select-Object OwningProcess`, then `Get-Process -Id <PID>` to see what it is. Or read the PID straight off `netstat -ano | findstr :<PORT>`.
 2. Is it still alive: `Get-Process -Id <PID> -ErrorAction SilentlyContinue` — returns nothing if it's already gone.
 3. Stop it: `Stop-Process -Id <PID>`; add `-Force` only if a plain request doesn't make it exit.
+4. Is a process using a directory — before removing build output or a worktree: Windows has no built-in command for this. Sysinternals `handle.exe <dir>` lists open handles under it when it is installed; otherwise Resource Monitor's CPU tab, "Associated Handles", searched for the path. If neither is available, say so — the check was not run, and the folder is not proven idle.
 
 ## 6. Conventional paths on this OS
 

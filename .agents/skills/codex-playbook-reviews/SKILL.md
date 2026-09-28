@@ -22,7 +22,7 @@ description: Apply Codex Playbook review rules 3.1-3.5 when a task lands, a batc
     | **milestone** | something real shown working end to end | high deep — deep + plan conformance: the planner re-reads the plan against reality and revises it here | Top tier, dual-blind | waits (rule 3.5) | `gate/<VERSION>` |
     | **phase → release** | the phase's last task, rule 6.3 chain | high deep — the best review, rule 3.4 | Top tier, dual-blind, fed every review below it | waits | `v<VERSION>` — never before it passes |
 
-    Levels collapse when the plan is small; the tier of the level that closes never drops.
+    Levels collapse when the plan is small; the tier of the level that closes never drops — economy mode, below, is the one exception, on my word only.
 
     - **Mechanical** — tests and lint actually run, input handling, ignored return values, obvious defects, conformance to the brief. **Per task**, on the Standard tier and never the Fast one (a conservative floor — see the roster reference for the measurement and its limits), findings validated by the **coordinator**, not the planner. **A pending mechanical review never delays the next reversible task; once any review returns a blocking finding, stop-the-line applies, whatever kind of review found it** (rule 3.3).
     - **Deep** — architecture, concurrency, security, data paths, whether the code still matches the approved plan. **Per batch** of 3–10 tasks by complexity; the **planner writes the batch boundaries into the plan** so nobody decides them under pressure. On the Strong tier, **pipelined** with development (rules 3.3 and 3.5).

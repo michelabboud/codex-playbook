@@ -45,6 +45,8 @@ it, keep moving.
    instead). Secret VALUES are never printed while quarantining — name, length,
    hash only.
 
+**In Codex's sandbox**, the vault usually sits outside the writable roots, so the quarantine move may need one escalated approval request (rule 10.1). State that it is a quarantine move, and name the target and the vault path.
+
 ## 2. The vault & its hierarchy
 
 The root lives outside any repo, owner-only. A conventional location per OS is in

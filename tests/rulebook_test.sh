@@ -852,6 +852,103 @@ else
   fail 'the Windows skill gives the free-disk command'
 fi
 
+# Review follow-up for 0.1.7: clauses the deep review found untested.
+if [ "$(grep -Fc -- 'or an escalated retry of the same command' .agents/skills/codex-playbook-destructive/SKILL.md)" -eq 1 ]; then
+  pass 'rule 10.1 names an escalated retry as a re-spelling'
+else
+  fail 'rule 10.1 names an escalated retry as a re-spelling'
+fi
+if [ "$(grep -Fc -- 'never under the `never` approval policy, and never again after I decline' .agents/skills/codex-playbook-destructive/SKILL.md)" -eq 1 ]; then
+  pass 'rule 10.1 allows one escalated approval request and no more'
+else
+  fail 'rule 10.1 allows one escalated approval request and no more'
+fi
+if [ "$(grep -Fc -- 'take the route the refusal names, quarantine, or ask' AGENTS.md)" -eq 1 ]; then
+  pass 'the router names the three routes after a refusal'
+else
+  fail 'the router names the three routes after a refusal'
+fi
+if [ "$(grep -Fc -- 'one escalated approval request, stating the refusal, is asking, never after I decline' AGENTS.md)" -eq 1 ]; then
+  pass 'the router treats one escalated request as asking'
+else
+  fail 'the router treats one escalated request as asking'
+fi
+if [ "$(grep -Fc -- 'the quarantine move may need one escalated approval request (rule 10.1)' .agents/skills/codex-playbook-quarantine/SKILL.md)" -eq 1 ]; then
+  pass 'the quarantine skill notes the sandbox escalation'
+else
+  fail 'the quarantine skill notes the sandbox escalation'
+fi
+if [ "$(grep -Fc -- 'so branch or tag them first' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.3 branches or tags detached commits first'
+else
+  fail '13.3 branches or tags detached commits first'
+fi
+if [ "$(grep -Fc -- 'if `git -C <worktree> reflog` shows commits you moved away from' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.3 checks the worktree HEAD log'
+else
+  fail '13.3 checks the worktree HEAD log'
+fi
+if [ "$(grep -Fc -- 'Never use `git branch -D` on a branch with unique work' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.3 forbids branch -D on unique work'
+else
+  fail '13.3 forbids branch -D on unique work'
+fi
+if [ "$(grep -Fc -- 'If git refuses, fix the cause it names instead of forcing' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.3 fixes the cause instead of forcing'
+else
+  fail '13.3 fixes the cause instead of forcing'
+fi
+if [ "$(grep -Fc -- 'Treat every git-ignored file that is not regenerable build output' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.3 protects ignored files that are not build output'
+else
+  fail '13.3 protects ignored files that are not build output'
+fi
+if [ "$(grep -Fc -- 'A marker you did not write, or cannot show you wrote, is evidence, not permission' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.4 a foreign marker is evidence only'
+else
+  fail '13.4 a foreign marker is evidence only'
+fi
+if [ "$(grep -Fc -- 'It covers code review only: planning and design stay on the Top tier' .agents/skills/codex-playbook-reviews/SKILL.md)" -eq 1 ]; then
+  pass 'economy mode covers code review only'
+else
+  fail 'economy mode covers code review only'
+fi
+if [ "$(grep -Fc -- 'every review it runs says *economy mode* in its header' .agents/skills/codex-playbook-reviews/SKILL.md)" -eq 1 ]; then
+  pass 'economy mode is recorded in every review header'
+else
+  fail 'economy mode is recorded in every review header'
+fi
+if [ "$(grep -Fc -- 'economy mode, below, is the one exception, on my word only' .agents/skills/codex-playbook-reviews/SKILL.md)" -eq 1 ]; then
+  pass 'the never-drops sentence names the economy exception'
+else
+  fail 'the never-drops sentence names the economy exception'
+fi
+if [ "$(grep -Fc -- 'never the deep reviewers of the same batch' .agents/skills/codex-playbook-subagents/references/roster.md)" -eq 1 ]; then
+  pass 'economy reviewers are fresh sessions'
+else
+  fail 'economy reviewers are fresh sessions'
+fi
+if [ "$(grep -Fc -- 'The binding also names the economy configuration' .agents/skills/codex-playbook-subagents/references/roster.md)" -eq 1 ]; then
+  pass 'the binding names the economy configuration'
+else
+  fail 'the binding names the economy configuration'
+fi
+if [ "$(grep -Fc -- '4. Is a process using a directory' .agents/skills/codex-playbook-platform-linux/SKILL.md)" -eq 1 ]; then
+  pass 'the Linux skill checks for a process using a directory'
+else
+  fail 'the Linux skill checks for a process using a directory'
+fi
+if [ "$(grep -Fc -- '4. Is a process using a directory' .agents/skills/codex-playbook-platform-macos/SKILL.md)" -eq 1 ]; then
+  pass 'the macOS skill checks for a process using a directory'
+else
+  fail 'the macOS skill checks for a process using a directory'
+fi
+if [ "$(grep -Fc -- 'the check was not run, and the folder is not proven idle' .agents/skills/codex-playbook-platform-windows/SKILL.md)" -eq 1 ]; then
+  pass 'the Windows skill says when the idle check cannot run'
+else
+  fail 'the Windows skill says when the idle check cannot run'
+fi
+
 if [ "$failures" -ne 0 ]; then
   printf '\n%s rulebook verification check(s) failed.\n' "$failures" >&2
   exit 1
