@@ -963,6 +963,11 @@ else
 fi
 
 # Rule 7.1: tasks run back to back.
+if [ "$(grep -Fc -- 'a release blocked by an unfixable advisory (rule 6.3)' .agents/skills/codex-playbook-collaboration/SKILL.md)" -eq 1 ]; then
+  pass '7.1 the stops include an unfixable-advisory release block'
+else
+  fail '7.1 the stops include an unfixable-advisory release block'
+fi
 if [ "$(grep -Fc -- 'and never admits the next task itself (rule 3.5: one coordinator admits work)' .agents/skills/codex-playbook-collaboration/SKILL.md)" -eq 1 ]; then
   pass '7.1 a lane never admits the next task'
 else

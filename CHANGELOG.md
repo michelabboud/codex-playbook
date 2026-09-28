@@ -53,10 +53,11 @@ as `rm -r --`, and as `find -delete`.
   coordinator and never admits the next task; the only stops are the gates the
   rulebook keeps (high deep review, the review ceiling and its waits, a review's
   blocking finding, a real blocker, a change of direction, an uncovered
-  approval, the owner's word). Its first wording failed the third review. Rule 6.2's checkpoint hands on to
+  approval, the owner's word, a release blocked by an unfixable advisory). Its
+  first wording failed the third review. Rule 6.2's checkpoint hands on to
   the next task. (The owner's word, 2026-09-28: "extremely important … when one
   task finishes it start the next one".)
-- `tests/rulebook_test.sh` 58 → 121; every new assertion was shown to fail when
+- `tests/rulebook_test.sh` 58 → 122; every new assertion was shown to fail when
   its phrase is removed.
 
 ## Unreleased
