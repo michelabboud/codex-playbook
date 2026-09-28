@@ -44,15 +44,19 @@ as `rm -r --`, and as `find -delete`.
   failed. Fixed, and the rulebook suite now checks every version carrier itself
   (it cannot call `verify.sh`, which runs it). Its two minors are fixed: the one
   escalated request must be for the refused command itself, unchanged; the
-  directory check says `lsof` exits 1 even when it finds something, may not see
+  directory check says `lsof` can exit 1 even when it finds something, may not see
   other users' processes, and misses a build between compile steps.
 - **Rule 7.1: tasks run back to back, and every plan says so in its header.**
   When a task's close-out finishes, hygiene included, the next approved task
   starts at once in the same turn; a close-out report is a record, not a
-  stopping point, and the stops are named. Rule 6.2's checkpoint hands on to
+  stopping point for whoever runs the plan; a lane returns its close-out to the
+  coordinator and never admits the next task; the only stops are the gates the
+  rulebook keeps (high deep review, the review ceiling and its waits, a review's
+  blocking finding, a real blocker, a change of direction, an uncovered
+  approval, the owner's word). Its first wording failed the third review. Rule 6.2's checkpoint hands on to
   the next task. (The owner's word, 2026-09-28: "extremely important … when one
   task finishes it start the next one".)
-- `tests/rulebook_test.sh` 58 → 117; every new assertion was shown to fail when
+- `tests/rulebook_test.sh` 58 → 121; every new assertion was shown to fail when
   its phrase is removed.
 
 ## Unreleased

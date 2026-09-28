@@ -963,12 +963,32 @@ else
 fi
 
 # Rule 7.1: tasks run back to back.
+if [ "$(grep -Fc -- 'and never admits the next task itself (rule 3.5: one coordinator admits work)' .agents/skills/codex-playbook-collaboration/SKILL.md)" -eq 1 ]; then
+  pass '7.1 a lane never admits the next task'
+else
+  fail '7.1 a lane never admits the next task'
+fi
+if [ "$(grep -Fc -- 'ceiling and its waits (work expensive to undo, anything irreversible or outward-facing)' .agents/skills/codex-playbook-collaboration/SKILL.md)" -eq 1 ]; then
+  pass '7.1 the stops include the review ceiling and its waits'
+else
+  fail '7.1 the stops include the review ceiling and its waits'
+fi
+if [ "$(grep -Fc -- 'blocking finding (rule 3.3' .agents/skills/codex-playbook-collaboration/SKILL.md)" -eq 1 ]; then
+  pass '7.1 the stops include stop-the-line'
+else
+  fail '7.1 the stops include stop-the-line'
+fi
+if [ "$(grep -Fc -- 'The only stops are the gates this rulebook keeps: a high deep review' .agents/skills/codex-playbook-collaboration/SKILL.md)" -eq 1 ]; then
+  pass '7.1 the stops are the gates this rulebook keeps'
+else
+  fail '7.1 the stops are the gates this rulebook keeps'
+fi
 if [ "$(grep -Fc -- '**Tasks run back to back — every plan says so in its header.**' .agents/skills/codex-playbook-collaboration/SKILL.md)" -eq 1 ]; then
   pass '7.1 tasks run back to back and every plan says so'
 else
   fail '7.1 tasks run back to back and every plan says so'
 fi
-if [ "$(grep -Fc -- 'the next approved task starts at once, in the same turn' .agents/skills/codex-playbook-collaboration/SKILL.md)" -eq 1 ]; then
+if [ "$(grep -Fc -- 'whoever runs the plan — the coordinator, or a solo session running it — starts the next approved task at once, in the same turn' .agents/skills/codex-playbook-collaboration/SKILL.md)" -eq 1 ]; then
   pass '7.1 the next approved task starts at once'
 else
   fail '7.1 the next approved task starts at once'
@@ -978,12 +998,12 @@ if [ "$(grep -Fc -- 'A close-out report is a record, not a stopping point' .agen
 else
   fail '7.1 a close-out report is not a stopping point'
 fi
-if [ "$(grep -Fc -- 'never ask "shall I continue?"' .agents/skills/codex-playbook-collaboration/SKILL.md)" -eq 1 ]; then
+if [ "$(grep -Fc -- 'never asks "shall I continue?"' .agents/skills/codex-playbook-collaboration/SKILL.md)" -eq 1 ]; then
   pass '7.1 never asks whether to continue'
 else
   fail '7.1 never asks whether to continue'
 fi
-if [ "$(grep -Fc -- 'then the next approved task starts at once (rule 7.1)' .agents/skills/codex-playbook-workflow/SKILL.md)" -eq 1 ]; then
+if [ "$(grep -Fc -- 'then whoever runs the plan starts the next approved task at once (rule 7.1)' .agents/skills/codex-playbook-workflow/SKILL.md)" -eq 1 ]; then
   pass '6.2 the hygiene checkpoint hands on to the next task'
 else
   fail '6.2 the hygiene checkpoint hands on to the next task'
