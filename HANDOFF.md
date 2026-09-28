@@ -1,5 +1,7 @@
 # Handoff
 
+**Owner installation, 2026-09-28:** 0.1.7 installed with `scripts/install.sh --replace-agents` (previous state was the published 0.1.6, byte-identical); router and 17 skills byte-identical to `checkpoint/0.1.7`; recovery checkpoint `~/.codex/backups/codex-playbook-preinstall-20260928T141644Z-0MXwrI`. The owner's first `playbook-local.md` was written the same day at his request (Mai boundary as rule M.1, git identity, Task Orc, the model binding, quarantine, owner channels, disk floor); the checker passes it 3/3.
+
 **0.1.7, 2026-09-28:** ports source 0.1.19–0.1.21 — hygiene (seventeenth skill), the refusal and worktree laws in the router, economy mode (ADR 0009). Next owed: a measurement of Codex skill loading when the need is only implied.
 
 **Published source, 2026-09-23:** remote `main` and the peeled annotated
