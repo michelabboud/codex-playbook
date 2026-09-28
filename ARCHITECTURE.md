@@ -68,7 +68,7 @@ to execute an approved action; it cannot add a reason to stop or ask.
 
 Three files are authoritative:
 
-- `config/managed-skills.txt` lists the exact sixteen active skill packages.
+- `config/managed-skills.txt` lists the exact seventeen active skill packages.
   Install, restore, tests, and verification read this file rather than
   duplicating shell lists.
 - `config/managed-resources.txt` lists the repository-relative path of every
@@ -172,7 +172,7 @@ touched.
    active-plus-retired managed inventory, every state marker, and verified
    copies of every present item;
 3. stage and verify the complete new payload; then swap the global router and
-   all sixteen active skills while retiring the two v0.1.0 procedural skills;
+   all seventeen active skills while retiring the two v0.1.0 procedural skills;
 4. compare every installed item to source and remove redundant transaction
    copies only after success.
 

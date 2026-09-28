@@ -8,7 +8,7 @@ around that ratio.*
 **Do the right thing, not the lazy or easy thing.**
 
 Codex Playbook is Michel's Claude Code Playbook, faithfully adapted to Codex.
-It preserves the same 50 rules, partnership model, approval boundaries, review
+It preserves the same 56 rules, partnership model, approval boundaries, review
 ladder, verification standard, workflow, safety procedures, and writing rules.
 The adaptation changes client mechanics—not doctrine.
 
@@ -21,8 +21,8 @@ collaboration.
 **[Open the visual playbook →](https://michelabboud.github.io/codex-playbook/)**
 
 The dependency-free visual map presents the five partnership principles, all
-50 rules, the complete approval matrix, the thirteen rule sections, and the
-split between the always-loaded authority router and sixteen on-demand skills.
+56 rules, the complete approval matrix, the fourteen rule sections, and the
+split between the always-loaded authority router and seventeen on-demand skills.
 It uses no framework, build step, cookies, or analytics.
 
 ## Review without stalling development
@@ -67,9 +67,9 @@ Codex Playbook uses that progressive-disclosure model:
 - `AGENTS.md` stays small and always available. It carries the five partnership
   principles, precedence, request classification, the complete approval table,
   critical rules 0.1–0.4, and the mandatory skill router.
-- Sixteen skills carry the full subject rules and procedures for code, testing,
+- Seventeen skills carry the full subject rules and procedures for code, testing,
   reviews, documentation, repository structure, workflow, collaboration,
-  subagents, operations, destructive actions, quarantine, platform commands,
+  subagents, operations, destructive actions, quarantine, hygiene, platform commands,
   writing, and self-update.
 - All three platform skills install for portability. The router selects only the
   execution environment's skill: Linux or WSL, macOS, or native Windows.
@@ -106,7 +106,7 @@ upgrade, restore, and Windows guidance is in [`INSTALL.md`](INSTALL.md).
 | Layer | Destination | Purpose |
 |---|---|---|
 | Global authority router | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` | Always-loaded partnership, authority, classification, approval, and trigger routing |
-| Sixteen personal skills | `$HOME/.agents/skills/codex-playbook-*/` | Full subject procedures loaded through progressive disclosure |
+| Seventeen personal skills | `$HOME/.agents/skills/codex-playbook-*/` | Full subject procedures loaded through progressive disclosure |
 | Recovery checkpoint | `${CODEX_HOME:-$HOME/.codex}/backups/` | Verified pre-install state for exact restoration |
 | **Never shipped, never written** | `${CODEX_HOME:-$HOME/.codex}/playbook-local.md` | Your local layer: the one file the scripts only ever read, and only to check it |
 
@@ -162,7 +162,7 @@ and the update source.
 
 ```text
 AGENTS.md                 lean global authority and trigger router
-.agents/skills/           sixteen complete on-demand rule sections
+.agents/skills/           seventeen complete on-demand rule sections
 config/managed-skills.txt authoritative installed-skill inventory
 config/managed-resources.txt  nested files an installation depends on
 config/rule-manifest.tsv  authoritative 50-rule ownership map

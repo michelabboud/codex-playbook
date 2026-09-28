@@ -29,6 +29,7 @@ No output for that port = free.
 | Logical CPU count | `sysctl -n hw.ncpu` | a plain integer (there is no `nproc`) |
 | Current load | `sysctl -n vm.loadavg` or `uptime` | `vm.loadavg` prints `{ 1m 5m 15m }`; `uptime`'s trailing three numbers are the same triplet. Divide the one you use by `hw.ncpu` for the load factor the `codex-playbook-subagents` skill's formula wants. There is no `/proc/loadavg`. |
 | Free memory | `vm_stat` | **this is not `free -m` — it reports PAGES, not megabytes.** The first line states the page size (`page size of 16384 bytes` on Apple Silicon, `4096` on Intel). Read `Pages free:` plus `Pages inactive:` (both reasonably reclaimable) and convert: `(pages_free + pages_inactive) * page_size / 1024 / 1024` = MB available. |
+| Free disk | `df -h <path>` | read `Avail` and `Capacity` for the volume holding `<path>`; on APFS, purgeable space is not counted as available |
 
 ## 3. Hash a file
 

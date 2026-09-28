@@ -1,5 +1,7 @@
 # Progress
 
+**0.1.7, 2026-09-28 — hygiene and the refusal rule, ported from source 0.1.21:** a seventeenth skill, rules 13.1–13.6; two destructive laws in the router; economy mode. ADR 0009.
+
 **Source publication verified, 2026-09-23:** remote `main` and peeled
 `checkpoint/0.1.6` resolve to `a5d41bc`, after Claude's `checkpoint/0.1.16`
 was verified at `97938d0`. The tagged tree passed 56 rulebook, 217

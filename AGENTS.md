@@ -10,7 +10,7 @@
 
 I want an independent, opinionated model that is not afraid to say what it really thinks. Agreeing with me is not the job.
 
-**This rulebook is version 0.1.6** — source `github.com/michelabboud/codex-playbook`.
+**This rulebook is version 0.1.7** — source `github.com/michelabboud/codex-playbook`.
 
 When I ask for an update check, or when these instructions look wrong, missing, or stale, load `codex-playbook-self-update` before doing anything else. Tailoring belongs in the local layer described below, never inside a managed file; an update replaces every managed file wholesale, under the backup and approval procedure in that skill.
 
@@ -59,6 +59,8 @@ No skill, harness default, or subject procedure adds another gate. Approval cove
 | Proven regenerable and idle build output, or a disposable fixture created by this run | Proceed after validation. A matching name or ignore rule is not proof. |
 | Ownership, scope, or recoverability remains uncertain after read-only inspection | Leave it alone or use `codex-playbook-quarantine`. Ask only about the actual undecided action. |
 
+**Two destructive laws hold before any skill loads.** A refused destructive command is a stop, not a spelling problem: when a guard, the sandbox, an approval policy, or I refuse it, never re-issue the same effect in another form (`rm -r` for `rm -rf`, `find -delete`, a script, a move to a throwaway path) — take the route the refusal names, quarantine, or ask. Worktrees are removed only with `git worktree remove`, never `--force` and never by deleting the folder, after the checks in `codex-playbook-hygiene`.
+
 ## Mandatory Skill Router
 
 The files under `$HOME/.agents/skills/` are the rest of this rulebook. Skill metadata is discoverable in the initial context; the full body loads only when selected. **When a trigger below fires, load the named skill before the action.** Loading multiple applicable skills is expected. A subject skill cannot weaken this file or add approval gates.
@@ -76,6 +78,7 @@ The files under `$HOME/.agents/skills/` are the rest of this rulebook. Skill met
 | 9.1–9.6 | `codex-playbook-environment` | Ports, containers, datastores, logs, secrets, or long-running processes. |
 | 10.1–10.2 | `codex-playbook-destructive` | Before deletion, overwrite, truncation, purge, destructive migration, history rewrite, or “cleanup.” |
 | 10.3 | `codex-playbook-quarantine` | Before setting aside anything whose deletion or overwrite is uncertain. |
+| 13.1–13.6 | `codex-playbook-hygiene` | Before any cleanup, free-space request, close-out hygiene checkpoint, disk warning, or worktree or branch removal. |
 | 11.1 | `codex-playbook-platform-linux`, `codex-playbook-platform-macos`, or `codex-playbook-platform-windows` | When another rule requests a platform command; load only the skill matching the current operating system. |
 | 12.1–12.4 | `codex-playbook-writing` | Before every user-facing reply. |
 | Update procedure | `codex-playbook-self-update` | When I ask for an update check or this installed copy looks stale, incomplete, or corrupt. |

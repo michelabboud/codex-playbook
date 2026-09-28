@@ -15,7 +15,7 @@ Add is non-authorizing guidance or a stricter constraint; an Override changes a
 named rule within that boundary. No local entry may expand authority, remove an
 approval, relax a protection, change precedence, or override that boundary.*
 
-*Written against playbook version 0.1.6.*
+*Written against playbook version 0.1.7.*
 
 ---
 

@@ -41,6 +41,10 @@ Where none is reachable, the pair is two **fresh same-family sessions**, and the
 records that limitation; where even that is unavailable, report the missing gate rather than
 silently substituting.
 
+## Economy mode — code review only (rule 3.1)
+
+When the owner switches economy mode on, each **Top-tier review seat** is filled by the **economy configuration**: the Strong tier's model at the highest reasoning effort the runtime offers — one per model family, so a dual-blind pair stays cross-family where a second family is reachable. The planning seat is not affected. A configuration is a model **and** an effort: the Strong model at its default effort is not the economy configuration. The economy reviewers are fresh sessions, never the deep reviewers of the same batch. Your binding (below) names the economy configuration beside the tiers.
+
 ## The binding — yours, dated, and outside the managed packages
 
 The tiers are law; a dispatch needs a name. Keep a dated binding of each role to a model

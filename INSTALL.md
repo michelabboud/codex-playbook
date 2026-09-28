@@ -15,7 +15,7 @@ replaced.
 | Repository source | Destination |
 |---|---|
 | `AGENTS.md` | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
-| Sixteen names from `config/managed-skills.txt` | `$HOME/.agents/skills/<name>/` |
+| Seventeen names from `config/managed-skills.txt` | `$HOME/.agents/skills/<name>/` |
 | Every nested file listed in `config/managed-resources.txt` | inside its skill's destination directory |
 | Recovery checkpoint | `${CODEX_HOME:-$HOME/.codex}/backups/codex-playbook-preinstall-*` |
 
@@ -88,7 +88,7 @@ From the repository root:
 
 The installer executes this order:
 
-1. Validate both inventories, all sixteen source skills, `AGENTS.md`,
+1. Validate both inventories, all seventeen source skills, `AGENTS.md`,
    `VERSION`, and the restore and local-layer-check commands.
 2. Run `scripts/check-local.sh` against the local layer and **the text this run
    would install** — before `umask`, before any directory is created, before any
@@ -102,12 +102,12 @@ The installer executes this order:
    existing global `AGENTS.md` unless `--replace-agents` was given, and any
    managed destination that is not a plain directory.
 4. Create a unique, private format-2 checkpoint.
-5. Record the exact sixteen active and two retired managed names plus whether
+5. Record the exact seventeen active and two retired managed names plus whether
    every destination was present or absent.
 6. Copy every present destination into the checkpoint with its file modes and
    verify each copy with `cmp` or `diff`.
 7. Write `COMPLETE` only after the entire checkpoint verifies.
-8. Stage and verify the new global router and all sixteen skills.
+8. Stage and verify the new global router and all seventeen skills.
 9. Swap managed destinations. Retired skills are removed from the active skill
    directory only after their checkpoint has verified.
 10. On any copy, swap, verification, or signal failure, automatically restore the

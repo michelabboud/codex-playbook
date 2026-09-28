@@ -10,3 +10,4 @@
 | [0006](0006-verifiable-local-overrides.md) | Bind every local Override to a unique Markdown section, digest, and minimum-length quote | Accepted; supersedes ADR 0005's staleness-check portion |
 | [0007](0007-local-layer-restore-compatibility.md) | Preserve external local symlinks but refuse links into replaced destinations; restore only a checkpoint with the complete known active router | Accepted |
 | [0008](0008-local-layer-chain-and-transaction-rollback.md) | Guard every local-file path hop through managed destinations and use exact originals for install rollback | Accepted |
+| [0009](0009-hygiene-and-router-laws.md) | Port source 0.1.20–0.1.21: hygiene as a seventeenth skill, the refusal and worktree laws in the always-loaded router, economy mode defined by capability | Accepted |

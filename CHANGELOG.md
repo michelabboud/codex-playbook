@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.1.7 — 2026-09-28
+
+Ports Claude Code Playbook 0.1.19–0.1.21 (`checkpoint/0.1.21`, `570e7dd`).
+Prompted by two Codex sessions on 2026-09-27 that re-issued a refused `rm -rf`
+as `rm -r --`, and as `find -delete`.
+
+- **Rule 10.1: a blocked command is a stop, not a spelling problem.** A refused
+  destructive command — refused by a guard, the sandbox, an approval policy, a
+  permission rule, a hook or the owner — is never re-issued in another form.
+- **New skill `codex-playbook-hygiene`, rules 13.1–13.6:** classify before you
+  remove (most protective class wins; a name or ignore rule never decides);
+  remove only what is provably yours; worktrees through git after three checks
+  (`--untracked-files=all`, reachability against `refs/heads refs/tags` only,
+  not in use), branch deletion only when another ref holds the commits; a
+  `.hygiene.json` marker at creation; a free-space floor (local layer, else
+  10 %) and a fixed report; a refusal ends the attempt.
+- **The router (`AGENTS.md`) carries the refusal and worktree laws** so they
+  hold before any skill loads (ADR 0009). 10,805 of 12,288 bytes.
+- Rule 10.2 sends cleanup to section 13; rule 6.2's checkpoint runs it.
+- **Economy mode** for code review (rule 3.1, rule 3.4, the roster): on the
+  owner's word only, Top-tier review seats run on the Strong model at its
+  highest effort, and every such review says so.
+- Every platform skill gained a free-disk row.
+- 56 rules, seventeen skills: manifest, map, parity matrix, README, INSTALL,
+  ARCHITECTURE and the installer checkpoint count (19 names) follow.
+- `tests/rulebook_test.sh` 58 → 92; each of the 34 new assertions was shown to
+  fail when its phrase is removed.
+
 ## Unreleased
 
 - Coordinate approved plans with scoped subagents when available, record task

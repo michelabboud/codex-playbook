@@ -3,6 +3,7 @@ codex-playbook-collaboration
 codex-playbook-destructive
 codex-playbook-documentation
 codex-playbook-environment
+codex-playbook-hygiene
 codex-playbook-platform-linux
 codex-playbook-platform-macos
 codex-playbook-platform-windows

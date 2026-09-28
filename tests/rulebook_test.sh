@@ -71,6 +71,12 @@ cat > "$test_root/expected-ids" <<'EOF'
 12.2
 12.3
 12.4
+13.1
+13.2
+13.3
+13.4
+13.5
+13.6
 EOF
 
 agents_bytes=$(wc -c < AGENTS.md | tr -d ' ')
@@ -96,13 +102,13 @@ fi
 
 managed_count=$(wc -l < config/managed-skills.txt | tr -d ' ')
 managed_unique=$(LC_ALL=C sort -u config/managed-skills.txt | wc -l | tr -d ' ')
-if [ "$managed_count" -eq 16 ] &&
-   [ "$managed_unique" -eq 16 ] &&
+if [ "$managed_count" -eq 17 ] &&
+   [ "$managed_unique" -eq 17 ] &&
    [ "$(LC_ALL=C sort config/managed-skills.txt)" = "$(cat config/managed-skills.txt)" ] &&
    ! grep -Evq '^codex-playbook-[a-z]+(-[a-z]+)*$' config/managed-skills.txt; then
-  pass 'managed skill inventory is sorted, valid, unique, and contains 16 skills'
+  pass 'managed skill inventory is sorted, valid, unique, and contains 17 skills'
 else
-  fail 'managed skill inventory must be sorted, valid, unique, and contain 16 skills'
+  fail 'managed skill inventory must be sorted, valid, unique, and contain 17 skills'
 fi
 
 metadata_chars=0
@@ -133,10 +139,10 @@ do
 done < config/managed-skills.txt
 
 actual_skill_count=$(find .agents/skills -mindepth 2 -maxdepth 2 -name SKILL.md -path '*/codex-playbook-*/*' | wc -l | tr -d ' ')
-if [ "$actual_skill_count" -eq 16 ]; then
-  pass 'the repository contains all and only 16 Codex Playbook skills'
+if [ "$actual_skill_count" -eq 17 ]; then
+  pass 'the repository contains all and only 17 Codex Playbook skills'
 else
-  fail "the repository contains $actual_skill_count Codex Playbook skills; expected 16"
+  fail "the repository contains $actual_skill_count Codex Playbook skills; expected 17"
 fi
 
 if [ "$metadata_chars" -le 8000 ]; then
@@ -148,9 +154,9 @@ fi
 manifest_ids="$test_root/manifest-ids"
 cut -f1 config/rule-manifest.tsv > "$manifest_ids"
 if cmp -s "$test_root/expected-ids" "$manifest_ids"; then
-  pass 'rule manifest contains the canonical 50 IDs in order'
+  pass 'rule manifest contains the canonical 56 IDs in order'
 else
-  fail 'rule manifest does not match the canonical 50-ID set'
+  fail 'rule manifest does not match the canonical 56-ID set'
 fi
 
 occurrences="$test_root/rule-occurrences"
@@ -207,12 +213,12 @@ fi
 
 grep -Eo '"[0-9]+\.[0-9]+",' docs/index.html |
   sed -e 's/^"//' -e 's/",$//' > "$test_root/site-ids"
-if [ "$(wc -l < "$test_root/site-ids" | tr -d ' ')" -eq 50 ] &&
-   [ "$(LC_ALL=C sort -V -u "$test_root/site-ids" | wc -l | tr -d ' ')" -eq 50 ] &&
+if [ "$(wc -l < "$test_root/site-ids" | tr -d ' ')" -eq 56 ] &&
+   [ "$(LC_ALL=C sort -V -u "$test_root/site-ids" | wc -l | tr -d ' ')" -eq 56 ] &&
    cmp -s "$test_root/expected-ids" "$test_root/site-ids"; then
-  pass 'visual playbook contains the exact canonical 50-ID set'
+  pass 'visual playbook contains the exact canonical 56-ID set'
 else
-  fail 'visual playbook rule IDs do not match the canonical 50-ID set'
+  fail 'visual playbook rule IDs do not match the canonical 56-ID set'
 fi
 
 cat > "$test_root/expected-mantra-headings" <<'EOF'
@@ -256,11 +262,11 @@ fi
 
 grep -E '^\| [0-9]+\.[0-9]+ \|' docs/reports/2026-09-17-rule-parity-matrix.md |
   sed -E 's/^\| ([0-9]+\.[0-9]+) \|.*$/\1/' > "$test_root/report-ids"
-if [ "$(wc -l < "$test_root/report-ids" | tr -d ' ')" -eq 50 ] &&
+if [ "$(wc -l < "$test_root/report-ids" | tr -d ' ')" -eq 56 ] &&
    cmp -s "$test_root/expected-ids" "$test_root/report-ids"; then
-  pass 'human-readable parity matrix contains the canonical 50 IDs in order'
+  pass 'human-readable parity matrix contains the canonical 56 IDs in order'
 else
-  fail 'human-readable parity matrix does not match the canonical 50-ID set'
+  fail 'human-readable parity matrix does not match the canonical 56-ID set'
 fi
 
 roster_file=.agents/skills/codex-playbook-subagents/references/roster.md
@@ -672,6 +678,178 @@ if [ "$template_failures" -eq 0 ]; then
   pass 'the local-layer template exists outside every installer inventory, carries no live entry, and checks nothing as shipped'
 else
   fail "$template_failures local-layer template check(s) failed"
+fi
+
+# Port of source 0.1.20-0.1.21: refusal, worktrees, hygiene, economy mode.
+if [ "$(grep -Fc -- '**Two destructive laws hold before any skill loads.**' AGENTS.md)" -eq 1 ]; then
+  pass 'the router carries the destructive laws that hold before any skill loads'
+else
+  fail 'the router carries the destructive laws that hold before any skill loads'
+fi
+if [ "$(grep -Fc -- 'never re-issue the same effect in another form' AGENTS.md)" -eq 1 ]; then
+  pass 'the router forbids re-spelling a refused destructive command'
+else
+  fail 'the router forbids re-spelling a refused destructive command'
+fi
+if [ "$(grep -Fc -- 'never `--force` and never by deleting the folder' AGENTS.md)" -eq 1 ]; then
+  pass 'the router removes worktrees only through git'
+else
+  fail 'the router removes worktrees only through git'
+fi
+if [ "$(grep -Fc -- '| 13.1–13.6 | `codex-playbook-hygiene` |' AGENTS.md)" -eq 1 ]; then
+  pass 'the router routes cleanup to the hygiene skill'
+else
+  fail 'the router routes cleanup to the hygiene skill'
+fi
+if [ "$(grep -Fc -- '**A blocked command is a stop, not a spelling problem.**' .agents/skills/codex-playbook-destructive/SKILL.md)" -eq 1 ]; then
+  pass 'rule 10.1 says a blocked command is a stop'
+else
+  fail 'rule 10.1 says a blocked command is a stop'
+fi
+if [ "$(grep -Fc -- 'When a guard, the sandbox, an approval policy, a permission rule or a hook refuses' .agents/skills/codex-playbook-destructive/SKILL.md)" -eq 1 ]; then
+  pass 'rule 10.1 counts a sandbox or approval-policy refusal'
+else
+  fail 'rule 10.1 counts a sandbox or approval-policy refusal'
+fi
+if [ "$(grep -Fc -- '`rm -r` or `cargo clean` for a refused `rm -rf target/`' .agents/skills/codex-playbook-destructive/SKILL.md)" -eq 1 ]; then
+  pass 'rule 10.1 names same-effect examples'
+else
+  fail 'rule 10.1 names same-effect examples'
+fi
+if [ "$(grep -Fc -- '— the one sanctioned move), or ask me.' .agents/skills/codex-playbook-destructive/SKILL.md)" -eq 1 ]; then
+  pass 'rule 10.1 names quarantine as the one sanctioned move'
+else
+  fail 'rule 10.1 names quarantine as the one sanctioned move'
+fi
+if [ "$(grep -Fc -- '**Cleanup follows section 13: load `codex-playbook-hygiene` before any cleanup**' .agents/skills/codex-playbook-destructive/SKILL.md)" -eq 1 ]; then
+  pass 'rule 10.2 sends cleanup to section 13'
+else
+  fail 'rule 10.2 sends cleanup to section 13'
+fi
+if [ "$(grep -Fc -- 'or `git worktree remove --force`, is a destructive act under rule 10.1' .agents/skills/codex-playbook-destructive/SKILL.md)" -eq 1 ]; then
+  pass 'rule 10.2 keeps the worktree law'
+else
+  fail 'rule 10.2 keeps the worktree law'
+fi
+if [ "$(grep -Fc -- 'run the hygiene procedure (`codex-playbook-hygiene`, section 13)' .agents/skills/codex-playbook-workflow/SKILL.md)" -eq 1 ]; then
+  pass 'the close-out hygiene checkpoint runs section 13'
+else
+  fail 'the close-out hygiene checkpoint runs section 13'
+fi
+if [ "$(grep -Fc -- 'the most protective one applies: protected, then evidence, then unknown, then the rest' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.1 resolves overlapping classes to the most protective'
+else
+  fail '13.1 resolves overlapping classes to the most protective'
+fi
+if [ "$(grep -Fc -- 'or a `.gitignore` entry never decides it' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.1 never lets a name or ignore rule decide'
+else
+  fail '13.1 never lets a name or ignore rule decide'
+fi
+if [ "$(grep -Fc -- '| **Disposable, created by this session** |' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.1 limits the session row to disposable items'
+else
+  fail '13.1 limits the session row to disposable items'
+fi
+if [ "$(grep -Fc -- 'debug dumps a document refers to | keep; compress rotated logs (rule 9.4)' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.1 keeps evidence'
+else
+  fail '13.1 keeps evidence'
+fi
+if [ "$(grep -Fc -- 'anything I created | only on my word (rule 10.2) |' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.1 leaves protected items to the owner'
+else
+  fail '13.1 leaves protected items to the owner'
+fi
+if [ "$(grep -Fc -- 'which the quarantine procedure forbids moving: list it in the report instead' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.1 reports in-use unknowns instead of moving them'
+else
+  fail '13.1 reports in-use unknowns instead of moving them'
+fi
+if [ "$(grep -Fc -- 'lists the same path' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.2 needs the task record beside a marker'
+else
+  fail '13.2 needs the task record beside a marker'
+fi
+if [ "$(grep -Fc -- 'status --short --ignored --untracked-files=all' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.3 lists files inside ignored folders'
+else
+  fail '13.3 lists files inside ignored folders'
+fi
+if [ "$(grep -Fc -- 'for-each-ref --contains HEAD refs/heads refs/tags` must print a ref' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.3 checks reachability against branches and tags only'
+else
+  fail '13.3 checks reachability against branches and tags only'
+fi
+if [ "$(grep -Fc -- 'A stash or a remote-tracking ref alone is not enough' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.3 does not count a stash'
+else
+  fail '13.3 does not count a stash'
+fi
+if [ "$(grep -Fc -- 'prints a ref other than `refs/heads/<branch>` itself' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.3 needs another ref before deleting a branch'
+else
+  fail '13.3 needs another ref before deleting a branch'
+fi
+if [ "$(grep -Fc -- 'Then run `git worktree remove <path>`, without `--force`, alone' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.3 removes worktrees through git without force'
+else
+  fail '13.3 removes worktrees through git without force'
+fi
+if [ "$(grep -Fc -- 'A marker never moves an item out of the protected or evidence class' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.4 markers never override protection'
+else
+  fail '13.4 markers never override protection'
+fi
+if [ "$(grep -Fc -- 'or 10 % free when it sets none' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.5 defaults the disk floor to 10 %'
+else
+  fail '13.5 defaults the disk floor to 10 %'
+fi
+if [ "$(grep -Fc -- 'Low space calls for this procedure, never for broader deletion' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.5 never widens deletion under low space'
+else
+  fail '13.5 never widens deletion under low space'
+fi
+if [ "$(grep -Fc -- 'When a guard, the sandbox, an approval policy or I refuse a removal' .agents/skills/codex-playbook-hygiene/SKILL.md)" -eq 1 ]; then
+  pass '13.6 counts sandbox and approval-policy refusals'
+else
+  fail '13.6 counts sandbox and approval-policy refusals'
+fi
+if [ "$(grep -Fc -- '**Economy mode — on my word only.**' .agents/skills/codex-playbook-reviews/SKILL.md)" -eq 1 ]; then
+  pass 'rule 3.1 carries economy mode'
+else
+  fail 'rule 3.1 carries economy mode'
+fi
+if [ "$(grep -Fc -- 'you never switch it on yourself to save cost' .agents/skills/codex-playbook-reviews/SKILL.md)" -eq 1 ]; then
+  pass 'economy mode is switched on by the owner only'
+else
+  fail 'economy mode is switched on by the owner only'
+fi
+if [ "$(grep -Fc -- 'In economy mode (rule 3.1) it runs on the economy configuration, and its record says so.' .agents/skills/codex-playbook-reviews/SKILL.md)" -eq 1 ]; then
+  pass 'rule 3.4 records economy mode'
+else
+  fail 'rule 3.4 records economy mode'
+fi
+if [ "$(grep -Fc -- '## Economy mode — code review only (rule 3.1)' .agents/skills/codex-playbook-subagents/references/roster.md)" -eq 1 ]; then
+  pass 'the roster defines the economy configuration'
+else
+  fail 'the roster defines the economy configuration'
+fi
+if [ "$(grep -Fc -- '| Free disk | `df -h <path>` |' .agents/skills/codex-playbook-platform-linux/SKILL.md)" -eq 1 ]; then
+  pass 'the Linux skill gives the free-disk command'
+else
+  fail 'the Linux skill gives the free-disk command'
+fi
+if [ "$(grep -Fc -- '| Free disk | `df -h <path>` |' .agents/skills/codex-playbook-platform-macos/SKILL.md)" -eq 1 ]; then
+  pass 'the macOS skill gives the free-disk command'
+else
+  fail 'the macOS skill gives the free-disk command'
+fi
+if [ "$(grep -Fc -- '| Free disk | `Get-PSDrive' .agents/skills/codex-playbook-platform-windows/SKILL.md)" -eq 1 ]; then
+  pass 'the Windows skill gives the free-disk command'
+else
+  fail 'the Windows skill gives the free-disk command'
 fi
 
 if [ "$failures" -ne 0 ]; then

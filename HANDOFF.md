@@ -1,5 +1,7 @@
 # Handoff
 
+**0.1.7, 2026-09-28:** ports source 0.1.19–0.1.21 — hygiene (seventeenth skill), the refusal and worktree laws in the router, economy mode (ADR 0009). Next owed: a measurement of Codex skill loading when the need is only implied.
+
 **Published source, 2026-09-23:** remote `main` and the peeled annotated
 `checkpoint/0.1.6` tag both resolve to `a5d41bc46e9ef7f9fba58d041ebc10623306dfac`.
 The exact tagged tree passed 56 rulebook checks, 217 local-layer assertions,

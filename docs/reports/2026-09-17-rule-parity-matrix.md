@@ -1,5 +1,7 @@
 # Claude Code to Codex rule parity matrix
 
+**Revised 2026-09-28 for source 0.1.21** — rows 13.1–13.6 are new (section 13, Hygiene, `checkpoint/0.1.21` at `570e7ddfd3ca55f6b9b7d07d23824c95f154cd5d`); rules 10.1–10.2 and 3.1/3.4 took that source's refusal, worktree and economy-mode text; 56 numbered rules.
+
 **Revised 2026-09-20 for source 0.1.15** — rows 3.1, 3.3, 3.4, 3.5 and 8.1 moved
 to that source; every other row stays at the source version recorded in the
 original matrix. The matrix now covers 50 numbered rules; rule 3.5 is new.
@@ -102,6 +104,12 @@ rule with three operating-system implementations.
 | 12.2 | `rules/WRITING.md` | `codex-playbook-writing` | Adapted: Codex progress/task UI may carry state when available. |
 | 12.3 | `rules/WRITING.md` | `codex-playbook-writing` | Direct: plain language, expanded acronyms, meaning before labels. |
 | 12.4 | `rules/WRITING.md` | `codex-playbook-writing` | Direct: mechanical pre-send check, no arbitrary list cap or invented estimates. |
+| 13.1 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Direct: six classes, most protective wins, name and ignore rules never decide. |
+| 13.2 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Direct: provable ownership; build output follows rule 10.2's carve-out. |
+| 13.3 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Direct: three read-only checks, `git worktree remove` without `--force`, branch deletion needs another ref. |
+| 13.4 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Direct: `.hygiene.json` marker, evidence not permission. |
+| 13.5 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Adapted: the disk floor is set in `playbook-local.md`; the platform skill gives the commands. |
+| 13.6 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Adapted: a sandbox or approval-policy refusal counts as a refusal. |
 
 ## Unnumbered source contract
 

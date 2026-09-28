@@ -1,5 +1,9 @@
 # Plan
 
+## Task — Port source 0.1.19–0.1.21 (0.1.7)
+
+**Status:** done 2026-09-28 — the owner asked 2026-09-28 ("please update codex rules as well"). Decision: `docs/adr/0009-hygiene-and-router-laws.md`.
+
 ## Batch — The local layer (0.1.6)
 
 **Status:** Source published as `checkpoint/0.1.6` — approved 2026-09-21 (the owner's word in conversation).
