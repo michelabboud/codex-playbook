@@ -10,7 +10,7 @@ local-layer, and 673 installer lifecycle checks with direct exit 0. See
 installation and native macOS acceptance remain unverified and were outside
 this two-playbook publication scope. Older gate notes below are historical.
 
-**Current version:** 0.1.6
+**Current version:** 0.1.7
 
 **Last updated:** 2026-09-23
 

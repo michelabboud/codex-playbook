@@ -852,6 +852,19 @@ else
   fail 'the Windows skill gives the free-disk command'
 fi
 
+# Review follow-up for 0.1.7: every public version carrier matches VERSION.
+# (The same check as scripts/verify.sh; verify.sh runs this suite, so this suite
+# must never call verify.sh.)
+carrier_version=$(tr -d '\r\n' < VERSION)
+if grep -Fq "Current: **v$carrier_version**" README.md &&
+   grep -Fq "rulebook is version $carrier_version" AGENTS.md &&
+   grep -Fq "**Current version:** $carrier_version" PROGRESS.md &&
+   grep -Fq "## $carrier_version —" CHANGELOG.md &&
+   grep -Fq "Codex Playbook / $carrier_version" docs/index.html; then
+  pass 'every public version carrier matches VERSION'
+else
+  fail 'a public version carrier disagrees with VERSION'
+fi
 # Review follow-up for 0.1.7: clauses the deep review found untested.
 if [ "$(grep -Fc -- 'or an escalated retry of the same command' .agents/skills/codex-playbook-destructive/SKILL.md)" -eq 1 ]; then
   pass 'rule 10.1 names an escalated retry as a re-spelling'
@@ -868,7 +881,7 @@ if [ "$(grep -Fc -- 'take the route the refusal names, quarantine, or ask' AGENT
 else
   fail 'the router names the three routes after a refusal'
 fi
-if [ "$(grep -Fc -- 'one escalated approval request, stating the refusal, is asking, never after I decline' AGENTS.md)" -eq 1 ]; then
+if [ "$(grep -Fc -- 'one escalated request for the refused command itself, unchanged and stating the refusal, is asking' AGENTS.md)" -eq 1 ]; then
   pass 'the router treats one escalated request as asking'
 else
   fail 'the router treats one escalated request as asking'
@@ -947,6 +960,33 @@ if [ "$(grep -Fc -- 'the check was not run, and the folder is not proven idle' .
   pass 'the Windows skill says when the idle check cannot run'
 else
   fail 'the Windows skill says when the idle check cannot run'
+fi
+
+# Rule 7.1: tasks run back to back.
+if [ "$(grep -Fc -- '**Tasks run back to back — every plan says so in its header.**' .agents/skills/codex-playbook-collaboration/SKILL.md)" -eq 1 ]; then
+  pass '7.1 tasks run back to back and every plan says so'
+else
+  fail '7.1 tasks run back to back and every plan says so'
+fi
+if [ "$(grep -Fc -- 'the next approved task starts at once, in the same turn' .agents/skills/codex-playbook-collaboration/SKILL.md)" -eq 1 ]; then
+  pass '7.1 the next approved task starts at once'
+else
+  fail '7.1 the next approved task starts at once'
+fi
+if [ "$(grep -Fc -- 'A close-out report is a record, not a stopping point' .agents/skills/codex-playbook-collaboration/SKILL.md)" -eq 1 ]; then
+  pass '7.1 a close-out report is not a stopping point'
+else
+  fail '7.1 a close-out report is not a stopping point'
+fi
+if [ "$(grep -Fc -- 'never ask "shall I continue?"' .agents/skills/codex-playbook-collaboration/SKILL.md)" -eq 1 ]; then
+  pass '7.1 never asks whether to continue'
+else
+  fail '7.1 never asks whether to continue'
+fi
+if [ "$(grep -Fc -- 'then the next approved task starts at once (rule 7.1)' .agents/skills/codex-playbook-workflow/SKILL.md)" -eq 1 ]; then
+  pass '6.2 the hygiene checkpoint hands on to the next task'
+else
+  fail '6.2 the hygiene checkpoint hands on to the next task'
 fi
 
 if [ "$failures" -ne 0 ]; then

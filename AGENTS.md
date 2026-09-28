@@ -59,7 +59,7 @@ No skill, harness default, or subject procedure adds another gate. Approval cove
 | Proven regenerable and idle build output, or a disposable fixture created by this run | Proceed after validation. A matching name or ignore rule is not proof. |
 | Ownership, scope, or recoverability remains uncertain after read-only inspection | Leave it alone or use `codex-playbook-quarantine`. Ask only about the actual undecided action. |
 
-**Two destructive laws hold before any skill loads.** A refused destructive command is a stop, not a spelling problem: when a guard, the sandbox, an approval policy, or I refuse it, never re-issue the same effect in another form (`rm -r` for `rm -rf`, `find -delete`, a script, a move to a throwaway path) — take the route the refusal names, quarantine, or ask — one escalated approval request, stating the refusal, is asking, never after I decline. Worktrees are removed only with `git worktree remove`, never `--force` and never by deleting the folder, after the checks in `codex-playbook-hygiene`.
+**Two destructive laws hold before any skill loads.** A refused destructive command is a stop, not a spelling problem: when a guard, the sandbox, an approval policy, or I refuse it, never re-issue the same effect in another form (`rm -r` for `rm -rf`, `find -delete`, a script, a move to a throwaway path) — take the route the refusal names, quarantine, or ask — one escalated request for the refused command itself, unchanged and stating the refusal, is asking — never after I decline. Worktrees are removed only with `git worktree remove`, never `--force` and never by deleting the folder, after the checks in `codex-playbook-hygiene`.
 
 ## Mandatory Skill Router
 
