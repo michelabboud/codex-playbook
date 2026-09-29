@@ -3,7 +3,7 @@
 **0.1.9, 2026-09-30 — approval interruption repair:** remaining plan and
 workflow approval contradictions corrected; local full-access defaults and
 Superpowers disablement verified through fresh prompt rendering. Existing
-Medata worker permissions explain the reported edit prompt. See
+worker permissions explain the reported edit prompt. See
 [the diagnosis and validation record](docs/reports/2026-09-30-approval-interruption-repair.md).
 
 **0.1.8, 2026-09-30 — approvals are destructive-only:** the plan gate, the publication ask, the datastore ban and the system/security/performance-configuration asks are gone from the router and the skills; the destructive-action gate stays whole. ADR 0010.

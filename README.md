@@ -8,9 +8,10 @@ around that ratio.*
 **Do the right thing, not the lazy or easy thing.**
 
 Codex Playbook is Michel's Claude Code Playbook, faithfully adapted to Codex.
-It preserves the same 56 rules, partnership model, approval boundaries, review
-ladder, verification standard, workflow, safety procedures, and writing rules.
-The adaptation changes client mechanics—not doctrine.
+It preserves the 56 numbered rules, partnership model, review ladder,
+verification standard, safety procedures, and writing rules, with documented
+Codex execution-authority differences: ordinary authorized work proceeds
+without additional approval; destructive safeguards remain.
 
 The rulebook is written in the first person on purpose. Once installed, “I”
 means you. These are not abstract best practices; they are the terms of the

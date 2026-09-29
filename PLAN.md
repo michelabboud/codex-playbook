@@ -2,7 +2,7 @@
 
 ## Task — Approval interruption repair (0.1.9)
 
-**Status:** running 2026-09-30 — authorized by the owner's request to fix the
+**Status:** done 2026-09-30 — authorized by the owner's request to fix the
 playbook and local Codex settings. Tasks run back to back without another go.
 
 1. Coordinator: inspect effective settings, plugin instructions and active rules;
@@ -18,6 +18,12 @@ File ownership is split between source skills/visual summaries (implementation)
 and config, installation, records, version and Git (coordinator). Reviews and
 tests remain required; genuine destructive actions and explicit user holds remain
 gated. Native agent messages signal completion; the coordinator checks evidence.
+
+Verification: 140 rulebook, 217 local-layer and 689 installer assertions passed.
+Independent focused Sol xhigh review passed; its README wording correction is
+included. Installed rules match source and fresh Codex prompt rendering confirms
+the saved defaults. Existing worker permissions require session-side refresh;
+their state was preserved, as recorded in the diagnosis report.
 
 ## Task — Port source 0.1.19–0.1.21 (0.1.7)
 

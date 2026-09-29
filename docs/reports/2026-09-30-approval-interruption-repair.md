@@ -24,19 +24,19 @@ rules, refusal handling, review safeguards and the local MAI boundary remain.
 
 ## Specific file-edit prompt diagnosis
 
-Read-only session metadata identified two distinct threads with the same
-displayed eight-character prefix, `01a0ef44`. The Genie thread ended in
-`7c7e-7db2-937e-39eaee8e7857`; it and its parent used approval `never` and
-disabled sandboxing. The Medata thread ended in
-`95ee-7f12-b733-a5269c2edf65`; it and its parent used `on-request` and a
-restricted sandbox. Their latest recorded turn contexts agreed with those
-policies. The Medata worker's writable roots did not include the sibling
-`medata-worktrees/w0c` destination shown in the owner's prompt.
+Read-only session metadata identified two distinct project threads with the
+same displayed eight-character prefix. One thread and its parent used approval
+`never` and disabled sandboxing. The other thread and its parent used
+`on-request` and a restricted sandbox. Their latest recorded turn contexts
+agreed with those policies. The restricted worker's writable roots did not
+include the sibling worktree destination shown in the owner's prompt.
+The detailed diagnosis is retained privately alongside the recovery copies;
+this summary omits the operational identifiers.
 
 This explains the file-edit approval requirement. The short thread label alone
 does not establish a cross-repository edit or prove which terminal displayed
-the request. Shared-server UI routing was not reproduced. No Genie or Medata
-source or running session state was changed.
+the request. Shared-server UI routing was not reproduced. Neither project's
+source nor running session state was changed.
 
 ## Verification and limits
 
@@ -53,7 +53,7 @@ source or running session state was changed.
 - No end-to-end claim is made that a future model can never pause. Saved
   defaults do not rewrite active threads' policies. CLI/project overrides,
   managed requirements, external tool consent and actual blockers can still
-  constrain execution. The existing Medata threads require a session permission
+  constrain execution. The existing restricted threads require a session permission
   change or a fresh launch/resume with explicit full-access/never options;
   existing workers must also acquire the intended policy.
 - Full access with `never` is not an enforced destructive-command filter.
@@ -65,6 +65,15 @@ source or running session state was changed.
 - The router and three corrected installed skills match source byte for byte.
   The live local-layer check passed all three dead-words items against both
   source and installed text; the digest-bound overrides remain valid.
+- Final frozen source verification exited 0: 140 rulebook checks, 217
+  local-layer assertions and 689 installer lifecycle assertions passed, ending
+  `All Codex Playbook verification checks passed.` Logs are retained locally as
+  `/tmp/codex-playbook-approval-verify-20260930.log` (initial failure) and
+  `/tmp/codex-playbook-approval-final-verify-20260930.log` (passing run).
+- No new prose-matching tests were added; existing contract/lifecycle tests,
+  fresh configuration rendering and direct installed-source comparisons cover
+  this instruction/configuration correction. No dependency or executable
+  implementation changed.
 
 ## Sources
 
@@ -86,3 +95,20 @@ Do not replace a current config wholesale with an old backup.
 The repository follows its documented solo-maintainer main-branch workflow.
 A main-branch push also publishes the visual guide through GitHub Pages from
 `/docs`; the destination is the existing Codex Playbook public site.
+
+Hygiene: no user data, session records, logs, branches or worktrees were removed.
+The test suites removed their own disposable fixtures through their existing
+traps. Private recovery copies and both verification logs are retained. No
+task-created service remains running. Working filesystem free space was about
+55 GiB, above this owner's 3 percent floor.
+
+To resume an affected parent with explicit permissions, after leaving
+its old client, use:
+
+```sh
+codex resume <full-session-id> \
+  -C <project-directory> -s danger-full-access -a never
+```
+
+This command is documented, not executed by this repair. Check existing child
+workers separately; resuming a parent is not proof their permissions changed.
