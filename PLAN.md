@@ -1,5 +1,24 @@
 # Plan
 
+## Task — Approval interruption repair (0.1.9)
+
+**Status:** running 2026-09-30 — authorized by the owner's request to fix the
+playbook and local Codex settings. Tasks run back to back without another go.
+
+1. Coordinator: inspect effective settings, plugin instructions and active rules;
+   preserve a private backup before targeted local configuration edits.
+2. Scoped implementation agent: reconcile repository, workflow, collaboration
+   skills and public rule summaries with the destructive-only approval table.
+3. Coordinator: validate source and local-layer compatibility, apply identical
+   targeted corrections to installed files, verify fresh Codex configuration.
+4. Independent reviewer: review the pinned candidate; coordinator resolves
+   findings, records limitations and publishes the task checkpoint.
+
+File ownership is split between source skills/visual summaries (implementation)
+and config, installation, records, version and Git (coordinator). Reviews and
+tests remain required; genuine destructive actions and explicit user holds remain
+gated. Native agent messages signal completion; the coordinator checks evidence.
+
 ## Task — Port source 0.1.19–0.1.21 (0.1.7)
 
 **Status:** done 2026-09-28 — the owner asked 2026-09-28 ("please update codex rules as well"). Decision: `docs/adr/0009-hygiene-and-router-laws.md`.

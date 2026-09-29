@@ -1,5 +1,7 @@
 # Claude Code to Codex rule parity matrix
 
+**Revised 2026-09-30 for Codex execution authority** — rows 5.1, 6.1, 7.1, 7.2 and 7.6 now record the destructive-only approval policy in `AGENTS.md`. These are deliberate authority changes from the historical source: plan records and routine version decisions add no approval gate; technical reviews and blockers remain mandatory and are handled by the coordinator. Superseded approval asks in old records cannot override current instructions; explicit user holds and destructive safeguards remain in force.
+
 **Revised 2026-09-28 for source 0.1.21** — rows 13.1–13.6 are new (section 13, Hygiene, `checkpoint/0.1.21` at `570e7ddfd3ca55f6b9b7d07d23824c95f154cd5d`); rules 10.1–10.2 and 3.1/3.4 took that source's refusal, worktree and economy-mode text; 56 numbered rules.
 
 **Revised 2026-09-20 for source 0.1.15** — rows 3.1, 3.3, 3.4, 3.5 and 8.1 moved
@@ -49,7 +51,7 @@ progressive-disclosure Codex skills.
 
 The migration preserves every numbered source rule. “Direct” means the rule
 wording and behavior carry over without a client-specific semantic change.
-“Adapted” means only the named Codex mechanism differs. Rule 11.1 is one logical
+"Adapted" means the named Codex mechanism or explicitly recorded execution-authority decision differs. Rule 11.1 is one logical
 rule with three operating-system implementations.
 
 | Rule | Claude source | Codex owner | Treatment |
@@ -75,19 +77,19 @@ rule with three operating-system implementations.
 | 4.1 | `rules/DOCS.md` | `codex-playbook-documentation` | Direct: write reasoning and gotchas for a new contributor. |
 | 4.2 | `rules/DOCS.md` | `codex-playbook-documentation` | Direct: qualifying ADRs at decision time, permanent and indexed. |
 | 4.3 | `rules/DOCS.md` | `codex-playbook-documentation` | Direct: update changelog, progress, plan, backlog, usage, and architecture. |
-| 5.1 | `rules/REPO.md` | `codex-playbook-repository` | Direct: complete required repository record set and defined contents. |
+| 5.1 | `rules/REPO.md` | `codex-playbook-repository` | Adapted: complete repository record set; plan status records request authorization, never a separate approval gate. Historical approved entries remain records. |
 | 5.2 | `rules/REPO.md` | `codex-playbook-repository` | Direct: conditional security, contribution, runbook, and glossary files. |
 | 5.3 | `rules/REPO.md` | `codex-playbook-repository` | Direct: full documentation taxonomy and dated names. |
-| 6.1 | `rules/WORKFLOW.md` | `codex-playbook-workflow` | Adapted: Codex identity; task checkpoints, team pull requests, allocation, and tag namespaces preserved. |
+| 6.1 | `rules/WORKFLOW.md` | `codex-playbook-workflow` | Adapted: Codex identity; request-authorized task chain, checkpoints, team pull requests, allocation and compatible namespace documentation. Routine version and namespace decisions add no approval gate; SemVer, published identities, exact-candidate checks and history safeguards remain. |
 | 6.2 | `rules/WORKFLOW.md` | `codex-playbook-workflow` | Adapted: model ledger reports actual Codex tiers or models. |
 | 6.3 | `rules/WORKFLOW.md` | `codex-playbook-workflow` | Direct: true merge, audit, exact-candidate checks, tag, push, and GitHub release. |
 | 6.4 | `rules/WORKFLOW.md` | `codex-playbook-workflow` | Direct: published history never moves. |
-| 7.1 | `rules/COLLABORATION.md` | `codex-playbook-collaboration` | Direct: one plan gate authorizes its full chain. |
-| 7.2 | `rules/COLLABORATION.md` | `codex-playbook-collaboration` | Adapted: use Codex collaboration tools when available; autonomy and stall test preserved. |
+| 7.1 | `rules/COLLABORATION.md` | `codex-playbook-collaboration` | Adapted: plans add no approval gate; the request authorizes its scoped chain. Coordinator completes technical review gates autonomously; explicit user holds, genuine blockers and unauthorized destructive actions still stop dependent work. |
+| 7.2 | `rules/COLLABORATION.md` | `codex-playbook-collaboration` | Adapted: use Codex collaboration tools when available; recover existing authorization and execute rather than parking for redundant permission. Ask only for unauthorized destructive effects or deliverable-changing intent ambiguity. |
 | 7.3 | `rules/COLLABORATION.md` | `codex-playbook-collaboration` | Adapted: prose is preferred unless a higher-level client contract requires a chooser. |
 | 7.4 | `rules/COLLABORATION.md` | `codex-playbook-collaboration` | Direct: fix understood local defects; escalate and persist risky or unclear ones. |
 | 7.5 | `rules/COLLABORATION.md` | `codex-playbook-collaboration` | Direct: stay focused without silent scope reduction. |
-| 7.6 | `rules/COLLABORATION.md` | `codex-playbook-collaboration` | Adapted: use Codex context cleanup only after full completion. |
+| 7.6 | `rules/COLLABORATION.md` | `codex-playbook-collaboration` | Adapted: optional Codex context cleanup only after all requested work is complete; no cleanup suggestion or user reply can delay the next authorized task. |
 | 7.7 | `rules/COLLABORATION.md` | `codex-playbook-collaboration` | Direct: dated handoff plus root pointer at every unfinished seam. |
 | 8.1 | `rules/SUBAGENTS.md` and `rules/ROSTER.md` | `codex-playbook-subagents` and its `references/roster.md` | Adapted: capability-based, with the boundary stated — the numbered rules own the assignments, the roster reference owns tier selection, which carries no model product identifiers; operator binding outside the managed packages; escalation, load limits, and planner/coordinator split remain. |
 | 9.1 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Adapted: platform skill supplies commands; owner override uses `~/.config/fleet/ports/`. |

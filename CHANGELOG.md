@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.9 — 2026-09-30
+
+- Complete the destructive-only approval policy: remove the leftover plan gate
+  from rule 5.1 and workflow vocabulary; align version decisions with task
+  authority and preserve published history and automation checks.
+- Clarify rule 7.1 technical review waits and rule 7.6 context handling so
+  neither becomes a request to continue. Correct the visual guide's old
+  publication/configuration asks and the parity matrix.
+- Diagnose local Codex permission prompts separately from skill instructions:
+  full-access defaults and disabled Superpowers apply to new sessions;
+  existing threads can retain older permission policies. See the dated
+  approval interruption report for evidence and limits.
+
 ## 0.1.8 — 2026-09-30
 
 Approvals are destructive-only, on the owner's word ("global agent has rule to

@@ -3,6 +3,11 @@
 New work belongs here only when it is valuable, out-of-scope for the current
 approved phase, and described concretely enough to become a future plan.
 
+- **2026-09-30 · Codex diagnostics · open** — Doctor reported session-index and
+  rollout inventory warnings during the approval diagnosis. Preserve all
+  session records; investigate separately without pruning or rewriting them.
+  Source: the approval interruption repair report.
+
 - **2026-09-28 · privacy · open** — `codex-playbook-environment` rule 9.1 names the owner's private registry path `~/.config/fleet/ports/` in public text, where the source edition uses the generic `~/.config/agent-rules/`. Restore the generic path and move the owner's value to his `playbook-local.md` as a Fill. Source: 0.1.7 local-layer drafting.
 
 - **2026-09-28 · measurement · open** — measure whether Codex loads `codex-playbook-destructive` and `codex-playbook-hygiene` when cleanup is only implied ("free some space"). The source measured 2/5 for implied skills on Claude; ADR 0009 put the two laws in the router as the backstop until this edition has its own number. Source: 0.1.7.

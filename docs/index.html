@@ -118,7 +118,7 @@
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="topbar">
-    <a class="wordmark" href="#top">Codex Playbook / 0.1.8</a>
+    <a class="wordmark" href="#top">Codex Playbook / 0.1.9</a>
     <nav class="toplinks" aria-label="Primary">
       <a href="#mantra">Mantra</a><a href="#authority">Authority</a><a href="#rules">Rules</a><a href="#native">Codex-native</a>
       <a class="install" href="https://github.com/michelabboud/codex-playbook/blob/main/INSTALL.md">Install</a>
@@ -149,11 +149,11 @@
       <div class="section-head"><div class="kicker">Authority</div><div><h2>Decide by default.</h2><p>Only destructive actions need approval. Plans, designs, publication, dependencies and ordinary configuration are decided, recorded and executed.</p></div></div>
       <div class="gates">
         <article class="gate"><div class="number">01</div><h3>Read-only work</h3><p>Proceed inside the request. A review reports findings; it does not silently become implementation.</p></article>
-        <article class="gate"><div class="number">02</div><h3>Ordinary implementation</h3><p>Proceed through the full close-out chain once the task or plan is approved.</p></article>
-        <article class="gate"><div class="number">03</div><h3>Architecture and plans</h3><p>Bring a concrete design once. The approved design authorizes its implied work.</p></article>
-        <article class="gate"><div class="number">04</div><h3>Source checkpoints</h3><p>Routine commits, checkpoint tags, source pushes, and approved releases proceed after checks.</p></article>
-        <article class="gate"><div class="number">05</div><h3>First external publication</h3><p>Ask once before a registry publish, live deploy, or off-machine release asset.</p></article>
-        <article class="gate"><div class="number">06</div><h3>Sensitive configuration</h3><p>Ask for native services and system, security, destructive, or production-performance changes.</p></article>
+        <article class="gate"><div class="number">02</div><h3>Ordinary implementation</h3><p>The task request authorizes its full close-out chain. Proceed within that scope after the required checks.</p></article>
+        <article class="gate"><div class="number">03</div><h3>Architecture and plans</h3><p>Write down the design, then execute within the requested scope. Plans add no approval gate.</p></article>
+        <article class="gate"><div class="number">04</div><h3>Source checkpoints</h3><p>Routine commits, checkpoint tags, source pushes, and phase releases proceed after the required checks and reviews.</p></article>
+        <article class="gate"><div class="number">05</div><h3>Publication and deployment</h3><p>Name the destination and effect in the close-out, then execute within the requested scope after checks and reviews pass.</p></article>
+        <article class="gate"><div class="number">06</div><h3>Sensitive configuration</h3><p>Record and execute non-destructive service, system, security, and performance changes within scope. Ask only for an unauthorized destructive effect.</p></article>
         <article class="gate"><div class="number">07</div><h3>Protected data</h3><p>Ask before deleting or replacing credentials, state, logs, backups, databases, or user-created files.</p></article>
         <article class="gate"><div class="number">08</div><h3>Proven disposable output</h3><p>Proceed only after proving generated output or this run's fixture is idle and recoverable.</p></article>
         <article class="gate"><div class="number">09</div><h3>Uncertainty</h3><p>Inspect read-only. If ownership or recovery remains unclear, leave it or quarantine it.</p></article>
@@ -322,7 +322,7 @@
           [
             "5.1",
             "Every repository starts complete",
-            "Carry the required project, plan, handoff, backlog, environment, license, and version records."
+            "Carry the required project, plan, handoff, backlog, environment, license, and version records. A missing plan entry or draft status adds no approval gate; update the record and execute within the requested scope."
           ],
           [
             "5.2",
@@ -368,8 +368,8 @@
         "rules": [
           [
             "7.1",
-            "The plan is the normal gate",
-            "One approved design authorizes its full implied implementation and close-out. Record task owners, dependencies, evidence, next tasks, and capability-checked agent communication; a message is not completion evidence."
+            "Plans carry no approval gate",
+            "Write the plan and execute the requested scope through its full close-out chain. Complete technical review gates autonomously, preserve explicit user holds and destructive safeguards, and do not revive superseded approval asks from old records. Record owners, dependencies, evidence, next tasks, and capability-checked communication; a message is not completion evidence."
           ],
           [
             "7.2",
@@ -394,7 +394,7 @@
           [
             "7.6",
             "Clean context only after delivery",
-            "After the full task close-out, suggest /compact or /clear before beginning the next approved task; never interrupt work or stop at a checkpoint."
+            "Only after all requested work is complete may you mention optional /compact or /clear. Never make context cleanup or a user reply a prerequisite for the next authorized task; continue the task chain at close-out."
           ],
           [
             "7.7",
