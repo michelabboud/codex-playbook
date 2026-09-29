@@ -9,7 +9,7 @@ exactly one file beside them belongs to the user.
 
 ```text
 ${CODEX_HOME:-$HOME/.codex}/AGENTS.md
-  partnership · precedence · request classification · approval table
+  partnership · precedence · request classification · approval table (destructive only)
   critical rules 0.1–0.4 · mandatory trigger router
 
 ${CODEX_HOME:-$HOME/.codex}/playbook-local.md
@@ -52,7 +52,7 @@ Loading them after the action would be too late. `AGENTS.md` therefore retains:
 - the five partnership principles and production motto;
 - the owner/agent relationship and precedence;
 - the review-versus-implementation classification;
-- the complete approval table;
+- the approval table, which gates destructive actions only;
 - critical rules 0.1–0.4; and
 - the skill trigger index.
 

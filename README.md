@@ -65,7 +65,7 @@ matches or the skill is explicitly selected.
 Codex Playbook uses that progressive-disclosure model:
 
 - `AGENTS.md` stays small and always available. It carries the five partnership
-  principles, precedence, request classification, the complete approval table,
+  principles, precedence, request classification, the approval table (destructive actions only),
   critical rules 0.1–0.4, and the mandatory skill router.
 - Seventeen skills carry the full subject rules and procedures for code, testing,
   reviews, documentation, repository structure, workflow, collaboration,
@@ -182,7 +182,7 @@ docs/plans/               approved designs and implementation plans
 
 ## Version
 
-Current: **v0.1.7**. `VERSION` is the source of truth; release detail lives in
+Current: **v0.1.8**. `VERSION` is the source of truth; release detail lives in
 [`CHANGELOG.md`](CHANGELOG.md).
 
 ## License

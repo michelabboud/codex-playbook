@@ -1,5 +1,7 @@
 # Progress
 
+**0.1.8, 2026-09-30 — approvals are destructive-only:** the plan gate, the publication ask, the datastore ban and the system/security/performance-configuration asks are gone from the router and the skills; the destructive-action gate stays whole. ADR 0010.
+
 **0.1.7, 2026-09-28 — hygiene and the refusal rule, ported from source 0.1.21:** a seventeenth skill, rules 13.1–13.6; two destructive laws in the router; economy mode. ADR 0009.
 
 **Source publication verified, 2026-09-23:** remote `main` and peeled
@@ -10,7 +12,7 @@ local-layer, and 673 installer lifecycle checks with direct exit 0. See
 installation and native macOS acceptance remain unverified and were outside
 this two-playbook publication scope. Older gate notes below are historical.
 
-**Current version:** 0.1.7
+**Current version:** 0.1.8
 
 **Last updated:** 2026-09-23
 

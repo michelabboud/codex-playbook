@@ -520,7 +520,7 @@ A **Fill** supplies only a value a rule leaves open
 An **Add** supplies non-authorizing guidance or a stricter constraint
 under `L1`, `L2`, and onward
 An **Override** changes one named rule
-A local entry may never expand authority, remove an approval, relax a safety, destructive, security, or secret-handling constraint, change precedence, or override this paragraph
+A local entry may never expand authority, weaken the destructive-action gate, relax a safety, destructive, security, or secret-handling constraint, change precedence, or override this paragraph
 Its authority comes only from this paragraph and never extends beyond it
 A stale Override is **suspended**: tell me before relying on it
 if its scope or freshness is unclear, do not rely on it, apply the stricter constraint, and hold the affected action for my direction
@@ -1013,6 +1013,34 @@ if [ "$(grep -Fc -- 'then whoever runs the plan starts the next approved task at
 else
   fail '6.2 the hygiene checkpoint hands on to the next task'
 fi
+
+# Approvals are destructive-only (0.1.8): each clause must exist exactly once,
+# and every retired ask must be gone from the router and every skill.
+need_once() { # file phrase name
+  if [ "$(grep -Fc -- "$2" "$1")" -eq 1 ]; then pass "$3"; else fail "$3"; fi
+}
+need_absent() { # phrase name
+  if grep -rFq -- "$1" AGENTS.md .agents/skills; then fail "$2"; else pass "$2"; fi
+}
+COLLAB=.agents/skills/codex-playbook-collaboration/SKILL.md
+need_once AGENTS.md '## Approval Table — Destructive Actions Only' 'router names destructive actions as the only approval'
+need_once AGENTS.md 'Destructive actions are the only thing that needs my OK.' 'router says destructive actions are the only gate'
+need_once AGENTS.md 'Write the design down (`PLAN.md`, an ADR where rule 4.2 applies), then execute. Do not wait for a go.' 'router: plans and designs never wait for a go'
+need_once AGENTS.md 'Name the destination and effect in the close-out, then execute.' 'router: publication and configuration need no ask'
+need_once AGENTS.md 'configuration that drops or migrates data; any mass or irreversible operation | Ask, naming exact targets.' 'router keeps the destructive ask with exact targets'
+need_once "$COLLAB" '7.1 **Plans carry no approval gate.**' '7.1 plans carry no approval gate'
+need_once "$COLLAB" 'a destructive action my request did not already cover (rule 10.1); or my word.' '7.1 the last stop is a destructive action not covered'
+need_once "$COLLAB" 'Interrupt me only for a **destructive or irreversible action** (rule 10.1) or a **genuine intent ambiguity**' '7.2 interrupts only for destruction or ambiguity'
+need_once .agents/skills/codex-playbook-environment/SKILL.md 'is your call when the task needs one' '9.3 a native datastore is the agent call'
+need_once .agents/skills/codex-playbook-destructive/SKILL.md 'Changing system, security-sensitive, or performance configuration that destroys nothing needs no ask' '10.2 non-destructive configuration needs no ask'
+need_once .agents/skills/codex-playbook-workflow/SKILL.md 'The first `v` tag that publishes off this machine in a repo needs no ask' '6.4 first publish needs no ask'
+need_absent 'Ask with a concrete reviewable design' 'retired: ask with a reviewable design'
+need_absent 'Ask once, naming destination and effect' 'retired: ask once before publishing'
+need_absent 'waits for my go before implementation begins' 'retired: plan waits for my go'
+need_absent 'an action on the approval table the plan did not already cover' 'retired: approval-table stop in 7.1'
+need_absent 'never introduce a native datastore' 'retired: datastore ban'
+need_absent 'or **performance-affecting production** configuration (resource caps, swap, scheduling)' 'retired: performance-configuration ask'
+need_absent 'the approval table'"'"'s seventh row' 'retired: seventh-row reference'
 
 if [ "$failures" -ne 0 ]; then
   printf '\n%s rulebook verification check(s) failed.\n' "$failures" >&2

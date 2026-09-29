@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.1.8 — 2026-09-30
+
+Approvals are destructive-only, on the owner's word ("global agent has rule to
+ask for approvals all the times ... only keep the non-destructive actions
+prevention" — meaning: keep the destructive-action prevention, remove the rest).
+
+- **Router:** the approval table is now "Destructive Actions Only". Plans,
+  designs, architecture, publication, live deployment, dependencies, datastores
+  and non-destructive system/security/performance configuration are decided,
+  recorded in the close-out, and executed. The destructive row stays whole,
+  now also naming destructive migrations, history rewrites and configuration
+  that drops or migrates data.
+- **7.1** "The plan gate" is now "Plans carry no approval gate"; the closed stop
+  list keeps every review gate and ends with "a destructive action my request
+  did not already cover". **7.2** interrupts only for destruction or genuine
+  intent ambiguity. **9.3** a native datastore is the agent's call, recorded in
+  an ADR. **10.2** drops the system/security/performance-configuration asks.
+  **6.x** the first publishing tag needs no ask.
+- Kept on purpose: rules 10.1–10.2 and the refusal-is-stop law, quarantine,
+  worktrees only through git, the self-update replacement gate (a wholesale
+  replacement of managed files is destructive), and the local layer's ban on
+  weakening the destructive-action gate.
+- Tests: 140 rulebook checks (18 new, each shown to fail by mutation).
+- ADR 0010.
+
 ## 0.1.7 — 2026-09-28
 
 Ports Claude Code Playbook 0.1.19–0.1.21 (`checkpoint/0.1.21`, `570e7dd`).
