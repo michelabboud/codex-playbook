@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.1.10 — 2026-10-02
+
+Ports Claude Code Playbook 0.1.23 (dev modes, source ADR 0015), on the owner's
+go for both playbooks.
+
+- **`codex-playbook-dev-modes`** (rules 14.1–14.8): a project's dev mode —
+  spike, poc, mvp, production, sensitive — is one line in its `AGENTS.md`, set
+  only by the owner, with real personal, financial or health data forcing
+  sensitive. The mode scales the review ladder; a floor holds in every mode; no
+  attack story, no blocker; a security backlog keeps every finding; moving up
+  starts a hardening phase; extra hardening is its own phase after production;
+  every plan opens with a threat sketch.
+- **`codex-playbook-dev-mode`**, the owner command (`$codex-playbook-dev-mode
+  [status|<mode>|harden]`). Its `agents/openai.yaml` sets
+  `policy.allow_implicit_invocation: false`, which Codex documents as "not
+  injected into the model context by default, but can still be invoked
+  explicitly via `$skill`" — so only the owner starts it.
+- **Reviews 3.1–3.5, collaboration 7.1 and 7.4:** the same edits as the source:
+  the mode decides how much of the ladder runs; per-task deep review on security
+  only for floor work from MVP up; security findings classed by attack story,
+  only realistic ones validated; the release review re-reads the backlog; more
+  lines, not bigger batches; plans open with the mode and a threat sketch.
+- Router: two rows. Inventory: 19 skills; the policy file joins
+  `config/managed-resources.txt`; rule manifest 64 IDs. The router-mention test
+  now matches whole names (`grep -w`), since `codex-playbook-dev-mode` is a
+  prefix of `codex-playbook-dev-modes`.
+- ADR 0011. Verified by the suites only; no independent review was run.
+
 ## 0.1.9 — 2026-09-30
 
 - Complete the destructive-only approval policy: remove the leftover plan gate

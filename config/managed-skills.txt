@@ -1,6 +1,8 @@
 codex-playbook-code
 codex-playbook-collaboration
 codex-playbook-destructive
+codex-playbook-dev-mode
+codex-playbook-dev-modes
 codex-playbook-documentation
 codex-playbook-environment
 codex-playbook-hygiene

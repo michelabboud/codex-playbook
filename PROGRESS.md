@@ -1,5 +1,7 @@
 # Progress
 
+**0.1.10, 2026-10-02 — dev modes, ported from source 0.1.23:** `codex-playbook-dev-modes` (rules 14.1–14.8) and the owner command `$codex-playbook-dev-mode`; review edits to 3.1–3.5, 7.1 and 7.4. ADR 0011.
+
 **0.1.9, 2026-09-30 — approval interruption repair:** remaining plan and
 workflow approval contradictions corrected; local full-access defaults and
 Superpowers disablement verified through fresh prompt rendering. Existing
@@ -18,7 +20,7 @@ local-layer, and 673 installer lifecycle checks with direct exit 0. See
 installation and native macOS acceptance remain unverified and were outside
 this two-playbook publication scope. Older gate notes below are historical.
 
-**Current version:** 0.1.9
+**Current version:** 0.1.10
 
 **Last updated:** 2026-09-23
 

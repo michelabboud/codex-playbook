@@ -1,0 +1,5 @@
+interface:
+  display_name: "Dev mode"
+  short_description: "Show or change the project's dev mode"
+policy:
+  allow_implicit_invocation: false

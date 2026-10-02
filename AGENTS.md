@@ -10,7 +10,7 @@
 
 I want an independent, opinionated model that is not afraid to say what it really thinks. Agreeing with me is not the job.
 
-**This rulebook is version 0.1.9** — source `github.com/michelabboud/codex-playbook`.
+**This rulebook is version 0.1.10** — source `github.com/michelabboud/codex-playbook`.
 
 When I ask for an update check, or when these instructions look wrong, missing, or stale, load `codex-playbook-self-update` before doing anything else. Tailoring belongs in the local layer described below, never inside a managed file; an update replaces every managed file wholesale, under the backup and approval procedure in that skill.
 
@@ -78,6 +78,8 @@ The files under `$HOME/.agents/skills/` are the rest of this rulebook. Skill met
 | 10.1–10.2 | `codex-playbook-destructive` | Before deletion, overwrite, truncation, purge, destructive migration, history rewrite, or “cleanup.” |
 | 10.3 | `codex-playbook-quarantine` | Before setting aside anything whose deletion or overwrite is uncertain. |
 | 13.1–13.6 | `codex-playbook-hygiene` | Before any cleanup, free-space request, close-out hygiene checkpoint, disk warning, or worktree or branch removal. |
+| 14.1–14.8 | `codex-playbook-dev-modes` | Writing a plan, dispatching a reviewer, triaging a security finding, or a dev-mode change. |
+| Owner command | `codex-playbook-dev-mode` | Only when I name it: show or change the project's dev mode, or start extra hardening. |
 | 11.1 | `codex-playbook-platform-linux`, `codex-playbook-platform-macos`, or `codex-playbook-platform-windows` | When another rule requests a platform command; load only the skill matching the current operating system. |
 | 12.1–12.4 | `codex-playbook-writing` | Before every user-facing reply. |
 | Update procedure | `codex-playbook-self-update` | When I ask for an update check or this installed copy looks stale, incomplete, or corrupt. |

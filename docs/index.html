@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A visual map of Codex Playbook: five partnership principles and 56 faithful, modular rules for production-grade work with Codex.">
+  <meta name="description" content="A visual map of Codex Playbook: five partnership principles and 64 faithful, modular rules for production-grade work with Codex.">
   <meta name="theme-color" content="#173f9f">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23173f9f'/%3E%3Cpath d='M18 19h28v8H27v10h19v8H18z' fill='%23fffdf7'/%3E%3C/svg%3E">
-  <title>Codex Playbook — 56 modular rules for work that matters</title>
+  <title>Codex Playbook — 64 modular rules for work that matters</title>
   <style>
     :root {
       color-scheme: light;
@@ -118,7 +118,7 @@
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="topbar">
-    <a class="wordmark" href="#top">Codex Playbook / 0.1.9</a>
+    <a class="wordmark" href="#top">Codex Playbook / 0.1.10</a>
     <nav class="toplinks" aria-label="Primary">
       <a href="#mantra">Mantra</a><a href="#authority">Authority</a><a href="#rules">Rules</a><a href="#native">Codex-native</a>
       <a class="install" href="https://github.com/michelabboud/codex-playbook/blob/main/INSTALL.md">Install</a>
@@ -127,7 +127,7 @@
   <main id="main">
     <section class="hero" id="top" aria-labelledby="hero-title">
       <div class="hero-inner"><div class="hero-copy">
-        <p class="eyebrow">56 rules · 17 skills · one working agreement</p>
+        <p class="eyebrow">64 rules · 19 skills · one working agreement</p>
         <h1 id="hero-title">Work that holds up.</h1>
         <p>A production-grade rulebook for Codex: finish the work, prove the claims, preserve the user's authority.</p>
         <div class="actions"><a class="action primary" href="https://github.com/michelabboud/codex-playbook">View repository</a><a class="action" href="#rules">Explore all rules</a></div>
@@ -160,7 +160,7 @@
       </div>
     </section>
     <section class="section" id="rules">
-      <div class="section-head"><div class="kicker">The rulebook</div><div><h2>Every rule earns its context.</h2><p>Search the complete map or move by subject. Authority remains in <code>AGENTS.md</code>; full subject rules live in seventeen skills and load only when triggered.</p></div></div>
+      <div class="section-head"><div class="kicker">The rulebook</div><div><h2>Every rule earns its context.</h2><p>Search the complete map or move by subject. Authority remains in <code>AGENTS.md</code>; full subject rules live in nineteen skills and load only when triggered.</p></div></div>
       <div class="rules-wrap">
         <aside class="rule-nav" aria-label="Rule sections"><label for="rule-search">Find a rule</label><input id="rule-search" type="search" placeholder="verification, secrets, Git…" autocomplete="off"><div class="section-buttons" id="section-buttons"></div></aside>
         <div aria-live="polite"><div class="rules-header"><h3 id="rules-title">Critical rules</h3><span id="rules-count">4 rules</span></div><ol class="rule-list" id="rule-list"></ol></div>
@@ -171,7 +171,7 @@
       <div class="flow">
         <article class="flow-step"><div class="mono">01 / AUTHORITY</div><h3>~/.codex/AGENTS.md</h3><p>A compact router keeps partnership, classification, approval, and trigger rules always available.</p></article>
         <article class="flow-step"><div class="mono">02 / PROJECT</div><h3>repo/AGENTS.md</h3><p>Local commands and conventions layer closer to the code and override broader guidance.</p></article>
-        <article class="flow-step"><div class="mono">03 / SUBJECTS</div><h3>17 Codex skills</h3><p>The complete 56-rule corpus arrives by trigger through progressive disclosure, including one matching platform skill.</p></article>
+        <article class="flow-step"><div class="mono">03 / SUBJECTS</div><h3>19 Codex skills</h3><p>The complete 64-rule corpus arrives by trigger through progressive disclosure, including one matching platform skill.</p></article>
         <article class="flow-step"><div class="mono">04 / YOURS</div><h3>~/.codex/playbook-local.md</h3><p>Your own file, which the playbook never ships and the installer never creates, writes to, or deletes — it reads it only to check it. Fill, Add, and Override entries apply only within the non-authorizing, never-weaken boundary in <code>AGENTS.md</code>. An Override needs a unique heading, section digest, and unique quote of at least 16 non-whitespace bytes; a stale Override is suspended, with the stricter constraint applied pending owner direction. A successful freshness check never grants authority.</p></article>
       </div>
     </section>
@@ -541,6 +541,52 @@
             "13.6",
             "A refusal ends the attempt",
             "Never re-issue a refused removal in another form; reclassify, quarantine, or report it."
+          ]
+        ]
+      },
+      {
+        "key": "dev-modes",
+        "title": "14 · Dev modes",
+        "rules": [
+          [
+            "14.1",
+            "Every project has a dev mode",
+            "Spike, poc, mvp, production or sensitive; only the owner changes it, and real personal data sets the minimum."
+          ],
+          [
+            "14.2",
+            "The mode sets the review",
+            "From no review in a spike to per-task deep reviews on floor work in sensitive; an MVP milestone review is pipelined."
+          ],
+          [
+            "14.3",
+            "The floor holds in every mode",
+            "No secret in code or logs, no injection, nothing exposed without login, no data-loss path, dependencies vetted."
+          ],
+          [
+            "14.4",
+            "No attack story, no blocker",
+            "Who, through what, what they get; only a path open at this mode blocks, and downgrading takes a reason."
+          ],
+          [
+            "14.5",
+            "Every finding goes to the security backlog",
+            "With the mode it is due at; open realistic entries stay out of a public tree."
+          ],
+          [
+            "14.6",
+            "Moving up starts a hardening phase",
+            "The owner moves the mode; the planner hardens every backlog entry due at the new mode."
+          ],
+          [
+            "14.7",
+            "Extra hardening after production",
+            "Its own phase, on its own line beside feature work, never blocking a release."
+          ],
+          [
+            "14.8",
+            "Security is designed in",
+            "Every plan opens with a threat sketch of ten lines at most."
           ]
         ]
       }

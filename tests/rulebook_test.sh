@@ -77,6 +77,14 @@ cat > "$test_root/expected-ids" <<'EOF'
 13.4
 13.5
 13.6
+14.1
+14.2
+14.3
+14.4
+14.5
+14.6
+14.7
+14.8
 EOF
 
 agents_bytes=$(wc -c < AGENTS.md | tr -d ' ')
@@ -102,13 +110,13 @@ fi
 
 managed_count=$(wc -l < config/managed-skills.txt | tr -d ' ')
 managed_unique=$(LC_ALL=C sort -u config/managed-skills.txt | wc -l | tr -d ' ')
-if [ "$managed_count" -eq 17 ] &&
-   [ "$managed_unique" -eq 17 ] &&
+if [ "$managed_count" -eq 19 ] &&
+   [ "$managed_unique" -eq 19 ] &&
    [ "$(LC_ALL=C sort config/managed-skills.txt)" = "$(cat config/managed-skills.txt)" ] &&
    ! grep -Evq '^codex-playbook-[a-z]+(-[a-z]+)*$' config/managed-skills.txt; then
-  pass 'managed skill inventory is sorted, valid, unique, and contains 17 skills'
+  pass 'managed skill inventory is sorted, valid, unique, and contains 19 skills'
 else
-  fail 'managed skill inventory must be sorted, valid, unique, and contain 17 skills'
+  fail 'managed skill inventory must be sorted, valid, unique, and contain 19 skills'
 fi
 
 metadata_chars=0
@@ -127,7 +135,7 @@ do
   fi
   router_mentions=$(
     sed -n '/^## Mandatory Skill Router$/,/^## Codex Loading Model$/p' AGENTS.md |
-      grep -Foc "$skill_name" || true
+      grep -Fwoc "$skill_name" || true
   )
   if [ "$router_mentions" -eq 1 ]; then
     pass "$skill_name appears exactly once in the mandatory router"
@@ -139,10 +147,10 @@ do
 done < config/managed-skills.txt
 
 actual_skill_count=$(find .agents/skills -mindepth 2 -maxdepth 2 -name SKILL.md -path '*/codex-playbook-*/*' | wc -l | tr -d ' ')
-if [ "$actual_skill_count" -eq 17 ]; then
-  pass 'the repository contains all and only 17 Codex Playbook skills'
+if [ "$actual_skill_count" -eq 19 ]; then
+  pass 'the repository contains all and only 19 Codex Playbook skills'
 else
-  fail "the repository contains $actual_skill_count Codex Playbook skills; expected 17"
+  fail "the repository contains $actual_skill_count Codex Playbook skills; expected 19"
 fi
 
 if [ "$metadata_chars" -le 8000 ]; then
@@ -154,9 +162,9 @@ fi
 manifest_ids="$test_root/manifest-ids"
 cut -f1 config/rule-manifest.tsv > "$manifest_ids"
 if cmp -s "$test_root/expected-ids" "$manifest_ids"; then
-  pass 'rule manifest contains the canonical 56 IDs in order'
+  pass 'rule manifest contains the canonical 64 IDs in order'
 else
-  fail 'rule manifest does not match the canonical 56-ID set'
+  fail 'rule manifest does not match the canonical 64-ID set'
 fi
 
 occurrences="$test_root/rule-occurrences"
@@ -213,12 +221,12 @@ fi
 
 grep -Eo '"[0-9]+\.[0-9]+",' docs/index.html |
   sed -e 's/^"//' -e 's/",$//' > "$test_root/site-ids"
-if [ "$(wc -l < "$test_root/site-ids" | tr -d ' ')" -eq 56 ] &&
-   [ "$(LC_ALL=C sort -V -u "$test_root/site-ids" | wc -l | tr -d ' ')" -eq 56 ] &&
+if [ "$(wc -l < "$test_root/site-ids" | tr -d ' ')" -eq 64 ] &&
+   [ "$(LC_ALL=C sort -V -u "$test_root/site-ids" | wc -l | tr -d ' ')" -eq 64 ] &&
    cmp -s "$test_root/expected-ids" "$test_root/site-ids"; then
-  pass 'visual playbook contains the exact canonical 56-ID set'
+  pass 'visual playbook contains the exact canonical 64-ID set'
 else
-  fail 'visual playbook rule IDs do not match the canonical 56-ID set'
+  fail 'visual playbook rule IDs do not match the canonical 64-ID set'
 fi
 
 cat > "$test_root/expected-mantra-headings" <<'EOF'
@@ -262,14 +270,15 @@ fi
 
 grep -E '^\| [0-9]+\.[0-9]+ \|' docs/reports/2026-09-17-rule-parity-matrix.md |
   sed -E 's/^\| ([0-9]+\.[0-9]+) \|.*$/\1/' > "$test_root/report-ids"
-if [ "$(wc -l < "$test_root/report-ids" | tr -d ' ')" -eq 56 ] &&
+if [ "$(wc -l < "$test_root/report-ids" | tr -d ' ')" -eq 64 ] &&
    cmp -s "$test_root/expected-ids" "$test_root/report-ids"; then
-  pass 'human-readable parity matrix contains the canonical 56 IDs in order'
+  pass 'human-readable parity matrix contains the canonical 64 IDs in order'
 else
-  fail 'human-readable parity matrix does not match the canonical 56-ID set'
+  fail 'human-readable parity matrix does not match the canonical 64-ID set'
 fi
 
 roster_file=.agents/skills/codex-playbook-subagents/references/roster.md
+dev_mode_policy_file=.agents/skills/codex-playbook-dev-mode/agents/openai.yaml
 reviews_file=.agents/skills/codex-playbook-reviews/SKILL.md
 subagents_file=.agents/skills/codex-playbook-subagents/SKILL.md
 
@@ -467,8 +476,8 @@ if [ -f "$resource_inventory" ] && [ ! -L "$resource_inventory" ] && [ -s "$reso
       resource_failures=$((resource_failures + 1))
     fi
   done
-  if [ "$(cat "$resource_inventory")" != "$roster_file" ]; then
-    printf '%s must list exactly %s\n' "$resource_inventory" "$roster_file" >&2
+  if [ "$(cat "$resource_inventory")" != "$(printf '%s\n%s' "$dev_mode_policy_file" "$roster_file")" ]; then
+    printf '%s must list exactly %s and %s\n' "$resource_inventory" "$dev_mode_policy_file" "$roster_file" >&2
     resource_failures=$((resource_failures + 1))
   fi
 else
@@ -476,7 +485,7 @@ else
   resource_failures=$((resource_failures + 1))
 fi
 if [ "$resource_failures" -eq 0 ]; then
-  pass 'the nested-resource inventory lists exactly the roster reference, as a sorted set of real files owned by active skills, with no symlink under .agents/skills and neither .agents nor .agents/skills a symbolic link itself'
+  pass 'the nested-resource inventory lists exactly the dev-mode invocation policy and the roster reference, as a sorted set of real files owned by active skills, with no symlink under .agents/skills and neither .agents nor .agents/skills a symbolic link itself'
 else
   fail "$resource_failures nested-resource inventory check(s) failed"
 fi
@@ -1041,6 +1050,39 @@ need_absent 'an action on the approval table the plan did not already cover' 're
 need_absent 'never introduce a native datastore' 'retired: datastore ban'
 need_absent 'or **performance-affecting production** configuration (resource caps, swap, scheduling)' 'retired: performance-configuration ask'
 need_absent 'the approval table'"'"'s seventh row' 'retired: seventh-row reference'
+
+# Dev modes (0.1.10): every new clause exactly once.
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md '**Every project has a dev mode, and only I change it.**' "14.1 only the owner changes the dev mode"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md 'It is one line in the project'"'"'s `AGENTS.md`' "14.1 the mode line lives in the project AGENTS.md"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md '**The data sets the minimum, not the schedule:**' "14.1 the data sets the minimum mode"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md 'you never change it yourself, and you never read a deadline as permission to lower it' "14.1 an agent never changes the mode"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md '**The mode sets the amount and the kind of review**' "14.2 the mode sets the amount and kind of review"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md 'high deep, **pipelined like a deep review — not a gate**' "14.2 an mvp milestone review is pipelined"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md '**Risk overrides cadence from mvp upward** (rule 3.2)' "14.2 risk overrides cadence from mvp upward"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md '**The floor — every mode, never deferred, never parked in the backlog.**' "14.3 the floor holds in every mode"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md 'A floor finding is blocking in every mode, a spike included.' "14.3 a floor finding blocks even in a spike"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md '**No attack story, no blocker.**' "14.4 no attack story means no blocker"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md '**Downgrading takes a reason:**' "14.4 downgrading a finding takes a reason"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md 'counts as realistic until someone completes it' "14.4 an incomplete story counts as realistic"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md 'no proof of concept, no deep dive, no fix proposal' "14.4 hardening findings get one line of effort"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md '**The security backlog — every finding kept, none ignored.**' "14.5 every security finding is kept"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md '**In a public repository an open realistic finding is a map for an attacker:**' "14.5 open realistic findings stay out of a public tree"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md '**Moving up a mode is mine, and it starts a hardening phase.**' "14.6 moving up starts a hardening phase"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md '**Extra hardening is its own phase, after production.**' "14.7 extra hardening is its own phase after production"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md 'nothing in it blocks a feature release' "14.7 extra hardening never blocks a feature release"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md '**Security is designed in, from the first plan.**' "14.8 security is designed in from the first plan"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md 'Every plan opens with a **threat sketch**, ten lines at most' "14.8 every plan opens with a threat sketch"
+need_once .agents/skills/codex-playbook-reviews/SKILL.md '**The project'"'"'s dev mode decides how much of this ladder runs**' "3.1 the dev mode scales the review ladder"
+need_once .agents/skills/codex-playbook-reviews/SKILL.md '**Risk overrides cadence, from MVP upward** (rule 14.2)' "3.2 risk overrides cadence from MVP upward"
+need_once .agents/skills/codex-playbook-reviews/SKILL.md '**A security finding is classed by its attack story (rule 14.4):**' "3.3 security findings are classed by attack story"
+need_once .agents/skills/codex-playbook-reviews/SKILL.md 'It also reads the security backlog:' "3.4 the release review reads the security backlog"
+need_once .agents/skills/codex-playbook-reviews/SKILL.md '**More lines, not bigger batches, is how development keeps moving.**' "3.5 more lines keep development moving"
+need_once .agents/skills/codex-playbook-collaboration/SKILL.md 'The plan opens with the project'"'"'s dev mode and a threat sketch' "7.1 a plan opens with the dev mode and a threat sketch"
+need_once .agents/skills/codex-playbook-collaboration/SKILL.md '**A security defect is triaged by its attack story instead (rule 14.4):**' "7.4 security defects are triaged by attack story"
+need_once .agents/skills/codex-playbook-dev-mode/agents/openai.yaml 'allow_implicit_invocation: false' "the dev-mode command disables implicit invocation"
+need_once .agents/skills/codex-playbook-dev-mode/SKILL.md 'If you are reading this without my having named it, stop here.' "the dev-mode command stops when not named by the owner"
+need_once .agents/skills/codex-playbook-dev-mode/SKILL.md '**Lowering below the data minimum is refused**' "the dev-mode command refuses to go below the data minimum"
+need_once AGENTS.md '| Owner command | `codex-playbook-dev-mode` | Only when I name it:' "router marks dev-mode as an owner command"
 
 if [ "$failures" -ne 0 ]; then
   printf '\n%s rulebook verification check(s) failed.\n' "$failures" >&2

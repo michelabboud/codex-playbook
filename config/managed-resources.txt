@@ -1,1 +1,2 @@
+.agents/skills/codex-playbook-dev-mode/agents/openai.yaml
 .agents/skills/codex-playbook-subagents/references/roster.md

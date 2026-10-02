@@ -112,6 +112,14 @@ rule with three operating-system implementations.
 | 13.4 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Direct: `.hygiene.json` marker, evidence not permission. |
 | 13.5 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Adapted: the disk floor is set in `playbook-local.md`; the platform skill gives the commands. |
 | 13.6 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Adapted: a sandbox or approval-policy refusal counts as a refusal. |
+| 14.1 | `rules/DEV_MODES.md` | `codex-playbook-dev-modes` | Adapted: the mode line lives in the project's `AGENTS.md`; the owner's switch is `$codex-playbook-dev-mode`. |
+| 14.2 | `rules/DEV_MODES.md` | `codex-playbook-dev-modes` | Direct: the review table by mode. |
+| 14.3 | `rules/DEV_MODES.md` | `codex-playbook-dev-modes` | Direct: the floor, every mode. |
+| 14.4 | `rules/DEV_MODES.md` | `codex-playbook-dev-modes` | Direct: no attack story, no blocker; downgrading takes a reason. |
+| 14.5 | `rules/DEV_MODES.md` | `codex-playbook-dev-modes` | Direct: the security backlog; open realistic entries out of public trees. |
+| 14.6 | `rules/DEV_MODES.md` | `codex-playbook-dev-modes` | Adapted: the owner's move is the instruction for the hardening plan (plans carry no approval gate here). |
+| 14.7 | `rules/DEV_MODES.md` | `codex-playbook-dev-modes` | Adapted: started by `$codex-playbook-dev-mode harden`. |
+| 14.8 | `rules/DEV_MODES.md` | `codex-playbook-dev-modes` | Direct: every plan opens with a threat sketch. |
 
 ## Unnumbered source contract
 
