@@ -1084,6 +1084,17 @@ need_once .agents/skills/codex-playbook-dev-mode/SKILL.md 'If you are reading th
 need_once .agents/skills/codex-playbook-dev-mode/SKILL.md '**Lowering below the data minimum is refused**' "the dev-mode command refuses to go below the data minimum"
 need_once AGENTS.md '| Owner command | `codex-playbook-dev-mode` | Only when I name it:' "router marks dev-mode as an owner command"
 
+# Committing and pushing is a standing request (0.1.11).
+WF=.agents/skills/codex-playbook-workflow/SKILL.md
+need_once AGENTS.md '**Committing and pushing is my standing request:**' 'router makes commit and push a standing request'
+need_once AGENTS.md 'never wait to be asked. Exceptions are mine: local-only, review-only, or a pause.' 'router never waits to be asked to commit'
+need_once AGENTS.md 'A failed commit or push is reported with its error.' 'router reports a failed commit or push'
+need_once AGENTS.md 'When a task'"'"'s work is done, to run its close-out chain;' 'router loads the workflow skill when work is done'
+need_once "$WF" '**This is my explicit, standing request — given once, for every session**' '6.1 commit and push is a standing request'
+need_once "$WF" 'never end a task'"'"'s turn with its work uncommitted' '6.1 never ends a task uncommitted'
+need_once "$WF" 'is reported with the error, never left silent' '6.1 reports a failed commit or push'
+need_absent 'Before the first version, commit, tag, push, pull request, merge, or release operation of a task.' 'retired: workflow loads only before a commit'
+
 if [ "$failures" -ne 0 ]; then
   printf '\n%s rulebook verification check(s) failed.\n' "$failures" >&2
   exit 1

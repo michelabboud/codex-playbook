@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.11 — 2026-10-04
+
+Ported from Claude Code Playbook 0.1.24. Sessions had stopped committing after
+each task: the duty lived only in `codex-playbook-workflow`, which loaded
+"before the first commit", so a model that never thought of committing never
+read it; the router only listed commits as permitted.
+
+- **Router:** committing, tagging `checkpoint/<VERSION>` and pushing is the
+  owner's standing request; exceptions are the owner's (local-only,
+  review-only, a pause); a failed commit or push is reported with its error.
+  The workflow skill now loads when a task's work is done.
+- **Rule 6.1** (`codex-playbook-workflow`): the same standing request, and a
+  read-only `.git` in the sandbox is named as a failure to report.
+- Tests: 183 rulebook checks (8 new, each shown to fail by mutation).
+
 ## 0.1.10 — 2026-10-02
 
 Ports Claude Code Playbook 0.1.23 (dev modes, source ADR 0015), on the owner's
