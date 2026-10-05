@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.1.12 — 2026-10-05
+
+Ported from Claude Code Playbook 0.1.25. A Codex release session stopped at
+31.97 GB free, under its 32.43 GB floor: Codex's built-in check rejected
+`rm -rf` on 1.5 GB of idle compiler cache ("rm -f style commands are not
+permitted. Use a safer approach"), and rule 10.1 forbade every other route,
+`cargo clean` by name. Measured with codex-cli 0.159.1 on 2026-10-05: `rm -rf`
+is rejected even under `never` and full access; `rm -r`, `find -delete` and
+`cargo clean` are not.
+
+- **Rule 10.1 and the router's refusal law:** build output proven regenerable
+  and idle, whose command form alone was refused, goes once by its toolchain's
+  clean command or the form the refusal leaves open. A second refusal, a
+  refusal naming the target, or the owner's no is a stop.
+- **Rule 13.5:** the floor never stops work by itself; only a step whose
+  measured need will not fit does. **Rule 13.6** points to the exception.
+- Tests: 191 rulebook checks (8 new, each shown to fail by mutation).
+
 ## 0.1.11 — 2026-10-04
 
 Ported from Claude Code Playbook 0.1.24. Sessions had stopped committing after

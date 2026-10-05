@@ -720,7 +720,7 @@ if [ "$(grep -Fc -- 'When a guard, the sandbox, an approval policy, a permission
 else
   fail 'rule 10.1 counts a sandbox or approval-policy refusal'
 fi
-if [ "$(grep -Fc -- '`rm -r` or `cargo clean` for a refused `rm -rf target/`' .agents/skills/codex-playbook-destructive/SKILL.md)" -eq 1 ]; then
+if [ "$(grep -Fc -- '`rm -r` for a refused `rm -rf logs/`' .agents/skills/codex-playbook-destructive/SKILL.md)" -eq 1 ]; then
   pass 'rule 10.1 names same-effect examples'
 else
   fail 'rule 10.1 names same-effect examples'
@@ -1094,6 +1094,18 @@ need_once "$WF" '**This is my explicit, standing request — given once, for eve
 need_once "$WF" 'never end a task'"'"'s turn with its work uncommitted' '6.1 never ends a task uncommitted'
 need_once "$WF" 'is reported with the error, never left silent' '6.1 reports a failed commit or push'
 need_absent 'Before the first version, commit, tag, push, pull request, merge, or release operation of a task.' 'retired: workflow loads only before a commit'
+
+# Cleanup never stalls on a spelling; the floor is not a stop (0.1.12).
+DS=.agents/skills/codex-playbook-destructive/SKILL.md
+HY=.agents/skills/codex-playbook-hygiene/SKILL.md
+need_once "$DS" '**Build output is the one exception, so cleanup never stalls on a spelling.**' '10.1 build output is the one exception'
+need_once "$DS" 'remove it once by the toolchain'"'"'s own clean command (`cargo clean`, `go clean -cache`)' '10.1 build output goes by the toolchain clean command'
+need_once "$DS" 'a flag such as `-f`, not the target' '10.1 the exception covers only a refused form'
+need_once "$DS" 'If that is refused too, or the refusal named the target, or I declined, it is a stop.' '10.1 the exception ends at a second refusal'
+need_once AGENTS.md 'whose command form alone was refused goes once by its toolchain'"'"'s clean command' 'router carries the build-output exception'
+need_once "$HY" '**The floor never stops work by itself:**' '13.5 the floor never stops work by itself'
+need_once "$HY" 'Stop only for a step whose measured need will not fit in the space left' '13.5 stops only for a step that will not fit'
+need_once "$HY" 'except rule 10.1'"'"'s route for build output proven regenerable and idle, once' '13.6 allows only the build-output route'
 
 if [ "$failures" -ne 0 ]; then
   printf '\n%s rulebook verification check(s) failed.\n' "$failures" >&2

@@ -1,5 +1,7 @@
 # Progress
 
+**0.1.12, 2026-10-05 — cleanup never stalls on a spelling;** the disk floor triggers cleanup and never stops work by itself. Ported from source 0.1.25.
+
 **0.1.11, 2026-10-04 — commit and push is a standing request**, stated in the always-loaded router; the workflow skill now loads when a task's work is done. Ported from source 0.1.24.
 
 **0.1.10, 2026-10-02 — dev modes, ported from source 0.1.23:** `codex-playbook-dev-modes` (rules 14.1–14.8) and the owner command `$codex-playbook-dev-mode`; review edits to 3.1–3.5, 7.1 and 7.4. ADR 0011.
@@ -22,7 +24,7 @@ local-layer, and 673 installer lifecycle checks with direct exit 0. See
 installation and native macOS acceptance remain unverified and were outside
 this two-playbook publication scope. Older gate notes below are historical.
 
-**Current version:** 0.1.11
+**Current version:** 0.1.12
 
 **Last updated:** 2026-09-23
 

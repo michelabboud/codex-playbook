@@ -183,7 +183,7 @@ docs/plans/               approved designs and implementation plans
 
 ## Version
 
-Current: **v0.1.11**. `VERSION` is the source of truth; release detail lives in
+Current: **v0.1.12**. `VERSION` is the source of truth; release detail lives in
 [`CHANGELOG.md`](CHANGELOG.md).
 
 ## License
