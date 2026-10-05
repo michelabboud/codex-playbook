@@ -4,7 +4,8 @@
 
 Accepted for implementation, 2026-10-05, at Michel's request for a persistent
 refreshing build task view across Codex sessions and distribution in this
-repository. Source checkpoint and independent review remain pending.
+repository. Independent source review accepts the final 1378f4f repair;
+combined-tree verification and source checkpoint push remain pending.
 
 ## Context
 

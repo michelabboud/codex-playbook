@@ -2,8 +2,8 @@
 
 **Current handoff:** [shared build dashboard, 2026-10-05](docs/handoffs/2026-10-05-shared-build-dashboard.md).
 
-- Version0.1.13 prepares the managed shared build dashboard skill and installer coverage.
-- The shared local browser window is open and real automatic refresh is verified; independent review and source checkpoint push remain pending.
+- Version 0.1.13 prepares the managed shared build dashboard skill and installer coverage.
+- The shared local browser window is open and real automatic refresh is verified; independent mechanical and deep reviews accept the final 1378f4f repair, with source checkpoint push pending.
 - No whole live rulebook upgrade was performed. Resume final verification and checkpoint close-out; NHB release acceptance is separate.
 
 The remaining installation and publication notes below are historical.

@@ -3,6 +3,17 @@
 New work belongs here only when it is valuable, out-of-scope for the current
 approved phase, and described concretely enough to become a future plan.
 
+- **2026-10-05 · dashboard portability · open** — actual WSL-to-Windows
+  browser opening and refresh passed; native macOS/Linux opening and native
+  Windows filesystem locking were not executed. Preserve this distinction
+  before claiming cross-platform native acceptance. Source: the shared dashboard
+  close-out record.
+- **2026-10-05 · dashboard hardening · unverified** — same-user filesystem
+  ancestor substitution between path checks and I/O was observed as a possible
+  hardening path on264c4b1, not reproduced. It requires an attacker already
+  able to mutate the operator's private filesystem identity/parent tree,
+  outside this ownership convention. Due: hardening; see the security record.
+
 - **2026-09-30 · Codex diagnostics · open** — Doctor reported session-index and
   rollout inventory warnings during the approval diagnosis. Preserve all
   session records; investigate separately without pruning or rewriting them.

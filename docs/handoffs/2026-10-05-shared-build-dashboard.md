@@ -25,7 +25,10 @@ Each producer must update only its own complete project/run/session identity.
 Use the helper relative to the actual skill folder. Preserve history and
 state on any validation/lock error; do not bypass the lock or hand-edit JSON.
 
-Next: finish frozen-source review and verification, commit source close-out,
+Final helper source 1378f4f has 24 passing tests and accepted independent
+mechanical/deep focused reviews. All earlier failures and seals are retained.
+
+Next: finish combined-tree verification, commit source close-out,
 annotate checkpoint0.1.13, push and directly verify remote refs. The NHB stable
-release is separately active, with frozen candidate bcc7182c; it is not
+release is separately active, with frozen candidate 0316b9ac and a hosted Linux billing/spending blocker; it is not
 accepted by this dashboard's source checkpoint.

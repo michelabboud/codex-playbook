@@ -2,6 +2,11 @@
 
 ## 0.1.13 — 2026-10-05
 
+- Preserve template-looking user text exactly, admit Unicode-expanded HTML
+  before committing state, retain the post-registry generated-file guard,
+  and handle WSL conversion timeouts through available opener fallbacks.
+  Regression coverage preserves original failed attempts and user-file bytes.
+
 - Add the Codex-native shared build dashboard skill: one local browser view,
   automatically refreshed, with independent project/run/session task posts.
 - Serialize concurrent registry updates, retain failures and task history,

@@ -24,6 +24,13 @@ session is alive: show snapshot time and staleness explicitly. Root local skill
 is already authorized; copying it here does not authorize a whole playbook
 upgrade on the owner's machine. Installer tests use run-owned fake homes.
 
+Review ledger (one task/batch): initial 264c source review returned two blocking
+functional defects; both were repaired in bb2271. Independent successor review
+found the removed post-registry HTML recognition check; 1378f4f restores it.
+All original cold notes and failed fixtures remain retained. The final helper
+suite has 24 passing tests; independent mechanical and deep focused reviews
+accept 1378f4f. Final combined-tree verification and source push remain open. See the close-out record for evidence paths.
+
 
 ## Task — Approval interruption repair (0.1.9)
 

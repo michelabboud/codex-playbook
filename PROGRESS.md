@@ -1,14 +1,17 @@
 # Progress
 
-**0.1.13, 2026-10-05 — shared build task dashboard preparation.** The new
-Codex-native skill maintains one refreshing local browser view for independent
-project/run/session posts, with concurrent updates, retained history, staleness
-and separate build/review/publication gates. Initial focused package checks
-passed 193 rulebook checks, 789 installer assertions and 17 helper tests.
-Actual WSL opening then failed because the path was not exported to Windows;
-that defect is repaired and final helper, live browser and pinned-source review
-checks remain in progress. Source checkpoint publication is pending.
-
+**0.1.13, 2026-10-05 — shared build task dashboard.** Implemented a
+reusable, refreshing local browser view across projects and sessions, with
+locked updates, retained failures, timestamps and separate acceptance gates.
+The packaged candidate passed 193 rulebook checks, 217 local-layer assertions,
+789 installer assertions and 19 initial dashboard tests. Independent reviews
+found template substitution, Unicode capacity and an HTML ownership-guard
+regression; baseline-failing tests and narrow repairs are preserved. The final
+helper has 24 passing tests and is pinned at `1378f4f`; independent mechanical
+and deep focused reviews accept it. Final combined-tree verification and
+source checkpoint push remain open. Actual Windows Chrome opening
+and automatic refresh passed. No whole live Playbook upgrade was performed.
+See [the close-out record](docs/reports/2026-10-05-shared-build-dashboard.md).
 
 **0.1.12, 2026-10-05 — cleanup never stalls on a spelling;** the disk floor triggers cleanup and never stops work by itself. Ported from source 0.1.25.
 
@@ -35,6 +38,8 @@ installation and native macOS acceptance remain unverified and were outside
 this two-playbook publication scope. Older gate notes below are historical.
 
 **Current version:** 0.1.13
+
+## Historical 0.1.6 publication and repair notes
 
 **Last updated:** 2026-09-23
 
