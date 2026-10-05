@@ -1,3 +1,4 @@
+codex-playbook-build-dashboard
 codex-playbook-code
 codex-playbook-collaboration
 codex-playbook-destructive

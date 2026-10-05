@@ -10,7 +10,7 @@
 
 I want an independent, opinionated model that is not afraid to say what it really thinks. Agreeing with me is not the job.
 
-**This rulebook is version 0.1.12** — source `github.com/michelabboud/codex-playbook`.
+**This rulebook is version 0.1.13** — source `github.com/michelabboud/codex-playbook`.
 
 When I ask for an update check, or when these instructions look wrong, missing, or stale, load `codex-playbook-self-update` before doing anything else. Tailoring belongs in the local layer described below, never inside a managed file; an update replaces every managed file wholesale, under the backup and approval procedure in that skill.
 
@@ -66,6 +66,7 @@ The files under `$HOME/.agents/skills/` are the rest of this rulebook. Skill met
 
 | Rules | Skill | Load before |
 |---|---|---|
+| Build visibility | `codex-playbook-build-dashboard` | Authorized build or release work: report this session's tasks to the shared local dashboard; this adds no execution or cleanup authority. |
 | 1.1–1.6 | `codex-playbook-code` | Writing or changing code; rule 1.5 before adding or major-updating a direct dependency. |
 | 2.1–2.3 | `codex-playbook-testing` | Writing tests, fixing a defect, or claiming any check passes. |
 | 3.1–3.5 | `codex-playbook-reviews` | Dispatching a reviewer, closing a task/batch/milestone, or preparing a release. |

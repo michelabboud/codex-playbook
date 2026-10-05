@@ -1,5 +1,15 @@
 # Progress
 
+**0.1.13, 2026-10-05 — shared build task dashboard preparation.** The new
+Codex-native skill maintains one refreshing local browser view for independent
+project/run/session posts, with concurrent updates, retained history, staleness
+and separate build/review/publication gates. Initial focused package checks
+passed 193 rulebook checks, 789 installer assertions and 17 helper tests.
+Actual WSL opening then failed because the path was not exported to Windows;
+that defect is repaired and final helper, live browser and pinned-source review
+checks remain in progress. Source checkpoint publication is pending.
+
+
 **0.1.12, 2026-10-05 — cleanup never stalls on a spelling;** the disk floor triggers cleanup and never stops work by itself. Ported from source 0.1.25.
 
 **0.1.11, 2026-10-04 — commit and push is a standing request**, stated in the always-loaded router; the workflow skill now loads when a task's work is done. Ported from source 0.1.24.
@@ -24,7 +34,7 @@ local-layer, and 673 installer lifecycle checks with direct exit 0. See
 installation and native macOS acceptance remain unverified and were outside
 this two-playbook publication scope. Older gate notes below are historical.
 
-**Current version:** 0.1.12
+**Current version:** 0.1.13
 
 **Last updated:** 2026-09-23
 

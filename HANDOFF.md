@@ -1,5 +1,15 @@
 # Handoff
 
+**Current handoff:** [shared build dashboard, 2026-10-05](docs/handoffs/2026-10-05-shared-build-dashboard.md).
+
+- Version0.1.13 prepares the managed shared build dashboard skill and installer coverage.
+- The shared local browser window is open and real automatic refresh is verified; independent review and source checkpoint push remain pending.
+- No whole live rulebook upgrade was performed. Resume final verification and checkpoint close-out; NHB release acceptance is separate.
+
+The remaining installation and publication notes below are historical.
+
+---
+
 **Owner installation, 2026-09-28:** 0.1.7 installed with `scripts/install.sh --replace-agents` (previous state was the published 0.1.6, byte-identical); router and 17 skills byte-identical to `checkpoint/0.1.7`; recovery checkpoint `~/.codex/backups/codex-playbook-preinstall-20260928T141644Z-0MXwrI`. The owner's first `playbook-local.md` was written the same day at his request (Mai boundary as rule M.1, git identity, Task Orc, the model binding, quarantine, owner channels, disk floor); the checker passes it 3/3.
 
 **0.1.7, 2026-09-28:** ports source 0.1.19–0.1.21 — hygiene (seventeenth skill), the refusal and worktree laws in the router, economy mode (ADR 0009). Next owed: a measurement of Codex skill loading when the need is only implied.

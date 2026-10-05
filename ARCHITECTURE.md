@@ -68,12 +68,12 @@ to execute an approved action; it cannot add a reason to stop or ask.
 
 Three files are authoritative:
 
-- `config/managed-skills.txt` lists the exact nineteen active skill packages. One of them, `codex-playbook-dev-mode`, is an owner command whose `agents/openai.yaml` disables implicit invocation; `config/managed-resources.txt` lists that file beside the roster reference.
+- `config/managed-skills.txt` lists the exact twenty active skill packages. One of them, `codex-playbook-dev-mode`, is an owner command whose `agents/openai.yaml` disables implicit invocation; `config/managed-resources.txt` lists that file beside the roster reference and the dashboard helper, template, tests and invocation metadata.
   Install, restore, tests, and verification read this file rather than
   duplicating shell lists.
 - `config/managed-resources.txt` lists the repository-relative path of every
-  nested file inside those packages that an installation depends on — today,
-  the roster reference the reviews and subagents skills both read. The installer
+  nested file inside those packages that an installation depends on, including
+  the roster, invocation metadata and shared dashboard resources. The installer
   consumes it during source preflight and refuses, before any backup or
   destination write, when a listed file is missing or is not a regular file,
   when any symbolic link exists inside an active skill's source directory, when
@@ -196,3 +196,21 @@ This remains a separate repository from `claude-code-playbook` because the two
 clients discover and install instructions differently. The doctrine is now
 one-to-one; the delivery mechanism is client-native. ADR 0002 supersedes ADR
 0001's v0.1.0 decision to accept deliberate rule differences.
+
+## Shared local build dashboard
+
+The Codex-native `codex-playbook-build-dashboard` package adds no numbered
+rules or authority. Its Python standard-library helper owns a versioned,
+lock-protected registry and generated static HTML under XDG state. A complete
+canonical project/run/session identity scopes every update; one session cannot
+accidentally replace another's tasks. Atomic registry and HTML writes happen
+under one shared lock. Registry state is authoritative and render can recover
+HTML after interruption. No daemon or web listener is started.
+
+Each producer posts explicit task and acceptance state. Browser reloads read
+the saved snapshot every ten seconds; activity is never inferred from reloads.
+History retains failed attempts and completed sessions. Invalid or unexpected
+state is refused, not overwritten. WSL browser opening translates the local
+path and passes it to Windows as child environment data through WSLENV; the
+path never becomes PowerShell code. State is outside the managed skill tree
+and is not part of installer replacement, rollback or restoration.

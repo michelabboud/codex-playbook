@@ -1,2 +1,6 @@
+.agents/skills/codex-playbook-build-dashboard/agents/openai.yaml
+.agents/skills/codex-playbook-build-dashboard/assets/dashboard.html
+.agents/skills/codex-playbook-build-dashboard/scripts/dashboard.py
+.agents/skills/codex-playbook-build-dashboard/scripts/test_dashboard.py
 .agents/skills/codex-playbook-dev-mode/agents/openai.yaml
 .agents/skills/codex-playbook-subagents/references/roster.md

@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.13 — 2026-10-05
+
+- Add the Codex-native shared build dashboard skill: one local browser view,
+  automatically refreshed, with independent project/run/session task posts.
+- Serialize concurrent registry updates, retain failures and task history,
+  show snapshot staleness, and separate build/review/publication acceptance.
+- Bundle the Python standard-library helper, static template, invocation
+  metadata and behavioral tests in the managed installer resource inventory.
+- Cover resource installation, tailored prior files, rollback and restore.
+  WSL exports only the dashboard path through a child-specific WSLENV entry.
+- Keep all 64 numbered rule bodies unchanged; add a non-authorizing dashboard
+  trigger for approved build work. This is a source checkpoint task, not a
+  GitHub phase release or a whole live rulebook upgrade.
+
+
 ## 0.1.12 — 2026-10-05
 
 Ported from Claude Code Playbook 0.1.25. A Codex release session stopped at

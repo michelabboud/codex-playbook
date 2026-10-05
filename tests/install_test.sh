@@ -111,7 +111,12 @@ assert_active_install() {
   do
     assert_absent "$skill_root/$skill_name"       "$label_prefix: retired $skill_name is inactive"
   done
-  assert_file_equal "$repo_root/.agents/skills/$nested_roster"     "$skill_root/$nested_roster"     "$label_prefix: nested roster reference is byte-identical"
+  while IFS= read -r resource_path
+  do
+    installed_resource=${resource_path#.agents/skills/}
+    assert_file_equal "$repo_root/$resource_path" "$skill_root/$installed_resource" \
+      "$label_prefix: $installed_resource is byte-identical"
+  done < "$repo_root/config/managed-resources.txt"
 }
 
 reported_path() {
@@ -141,8 +146,8 @@ run_first_install_and_restore_test() {
   [ -n "$backup_dir" ] || fail 'first installation creates a recovery checkpoint'
   assert_contains 'format=2' "$backup_dir/manifest"     'first-install checkpoint uses format 2'
   managed_count=$(grep -c '^managed_skill=' "$backup_dir/manifest")
-  if [ "$managed_count" -eq 21 ]; then
-    pass 'format-2 checkpoint records the 19 active and two retired skill names'
+  if [ "$managed_count" -eq 22 ]; then
+    pass 'format-2 checkpoint records the 20 active and two retired skill names'
   else
     fail 'format-2 checkpoint inventory is incomplete'
   fi
@@ -649,6 +654,13 @@ prepare_restore_case() {
 
   printf 'current rules\n' > "$codex_home/AGENTS.md"
   printf 'current code\n' > "$skill_root/codex-playbook-code/SKILL.md"
+  dashboard_tree="$skill_root/codex-playbook-build-dashboard"
+  mkdir -p "$dashboard_tree/references"
+  printf 'current dashboard helper\n' > "$dashboard_tree/scripts/dashboard.py"
+  printf 'current dashboard extra\n' > "$dashboard_tree/references/operator.md"
+  chmod 640 "$dashboard_tree/scripts/dashboard.py"
+  chmod 750 "$dashboard_tree/scripts"
+  cp -pR "$dashboard_tree" "$case_root/expected-dashboard"
 }
 
 assert_current_restore_state() {
@@ -657,6 +669,16 @@ assert_current_restore_state() {
   label_prefix=$3
   assert_contains 'current rules' "$codex_home/AGENTS.md"     "$label_prefix: current global rules retained"
   assert_contains 'current code' "$skill_root/codex-playbook-code/SKILL.md"     "$label_prefix: current skill retained"
+  if diff -qr "$case_root/expected-dashboard" \
+      "$skill_root/codex-playbook-build-dashboard" >/dev/null; then
+    pass "$label_prefix: complete current dashboard tree retained"
+  else
+    fail "$label_prefix: current dashboard resources changed"
+  fi
+  assert_mode 640 "$skill_root/codex-playbook-build-dashboard/scripts/dashboard.py" \
+    "$label_prefix: current dashboard helper mode retained"
+  assert_mode 750 "$skill_root/codex-playbook-build-dashboard/scripts" \
+    "$label_prefix: current dashboard directory mode retained"
 }
 
 run_restore_copy_failure_test() {
@@ -877,6 +899,102 @@ seed_tailored_nested_subagents() {
   printf 'tailored extra\n' > "$skill_root/codex-playbook-subagents/references/extra.md"
   chmod 640 "$skill_root/$nested_roster"
   chmod 750 "$skill_root/codex-playbook-subagents/references"
+}
+
+seed_tailored_dashboard() {
+  skill_root=$1
+  codex_home=$2
+  dashboard_tree="$skill_root/codex-playbook-build-dashboard"
+  mkdir -p "$dashboard_tree/scripts" "$dashboard_tree/references" "$codex_home"
+  printf 'original rules\n' > "$codex_home/AGENTS.md"
+  printf 'tailored dashboard skill\n' > "$dashboard_tree/SKILL.md"
+  printf 'tailored dashboard helper\n' > "$dashboard_tree/scripts/dashboard.py"
+  printf 'tailored dashboard extra\n' > "$dashboard_tree/references/operator.md"
+  chmod 640 "$dashboard_tree/scripts/dashboard.py"
+  chmod 750 "$dashboard_tree/scripts"
+}
+
+assert_tailored_dashboard() {
+  dashboard_tree=$1
+  label_prefix=$2
+  assert_contains 'tailored dashboard skill' "$dashboard_tree/SKILL.md" \
+    "$label_prefix: dashboard skill retained"
+  assert_contains 'tailored dashboard helper' "$dashboard_tree/scripts/dashboard.py" \
+    "$label_prefix: prior helper retained"
+  assert_contains 'tailored dashboard extra' "$dashboard_tree/references/operator.md" \
+    "$label_prefix: unlisted prior resource retained"
+  assert_mode 640 "$dashboard_tree/scripts/dashboard.py" \
+    "$label_prefix: helper mode retained"
+  assert_mode 750 "$dashboard_tree/scripts" \
+    "$label_prefix: helper directory mode retained"
+}
+
+run_dashboard_replacement_and_restore_test() {
+  case_root="$test_root/dashboard-replacement"
+  dashboard_test_home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$dashboard_test_home/.agents/skills"
+  seed_tailored_dashboard "$skill_root" "$codex_home"
+
+  HOME="$dashboard_test_home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/install.sh" --replace-agents > "$case_root/install.log"
+  backup_dir=$(reported_path 'Recovery checkpoint' "$case_root/install.log")
+  assert_tailored_dashboard "$backup_dir/codex-playbook-build-dashboard" \
+    'dashboard replacement checkpoint'
+  if diff -qr "$repo_root/.agents/skills/codex-playbook-build-dashboard" \
+      "$skill_root/codex-playbook-build-dashboard" >/dev/null; then
+    pass 'installed dashboard contains exactly the source helper, template, tests, and invocation policy'
+  else
+    fail 'installed dashboard tree differs from source'
+  fi
+  assert_absent "$skill_root/codex-playbook-build-dashboard/references/operator.md" \
+    'replacement removes stale dashboard resources from the active tree'
+
+  HOME="$dashboard_test_home" CODEX_HOME="$codex_home" \
+    "$repo_root/scripts/restore.sh" "$backup_dir" > "$case_root/restore.log"
+  assert_tailored_dashboard "$skill_root/codex-playbook-build-dashboard" \
+    'dashboard restore'
+  if diff -qr "$backup_dir/codex-playbook-build-dashboard" \
+      "$skill_root/codex-playbook-build-dashboard" >/dev/null; then
+    pass 'dashboard restore reinstates the entire prior tree without added resources'
+  else
+    fail 'dashboard restore differs from its checkpoint'
+  fi
+}
+
+run_dashboard_rollback_test() {
+  case_root="$test_root/dashboard-rollback"
+  dashboard_test_home="$case_root/home"
+  codex_home="$case_root/codex"
+  skill_root="$dashboard_test_home/.agents/skills"
+  fake_bin="$case_root/fake-bin"
+  marker="$case_root/fail-once"
+  seed_tailored_dashboard "$skill_root" "$codex_home"
+  cp -pR "$skill_root/codex-playbook-build-dashboard" "$case_root/expected-dashboard"
+  mkdir -p "$fake_bin"
+  write_fail_once_mv_for_skill "$fake_bin/mv"
+
+  if PATH="$fake_bin:$PATH" FAIL_ONCE_MARKER="$marker" \
+      FAIL_ONCE_SKILL=codex-playbook-code HOME="$dashboard_test_home" CODEX_HOME="$codex_home" \
+      "$repo_root/scripts/install.sh" --replace-agents > "$case_root/install.log" 2>&1; then
+    fail 'failure after dashboard activation aborts installation'
+  else
+    pass 'failure after dashboard activation aborts installation'
+  fi
+  assert_contains 'verified checkpoint was restored' "$case_root/install.log" \
+    'dashboard activation rollback reports verified recovery'
+  assert_tailored_dashboard "$skill_root/codex-playbook-build-dashboard" \
+    'dashboard activation rollback'
+  if diff -qr "$case_root/expected-dashboard" \
+      "$skill_root/codex-playbook-build-dashboard" >/dev/null; then
+    pass 'dashboard activation rollback reinstates exactly the prior tree'
+  else
+    fail 'dashboard activation rollback leaves altered or additional resources'
+  fi
+  assert_contains 'original rules' "$codex_home/AGENTS.md" \
+    'dashboard activation rollback retains prior global rules'
+  assert_absent "$skill_root/codex-playbook-code" \
+    'dashboard activation rollback removes the partially installed successor'
 }
 
 run_nested_reference_upgrade_test() {
@@ -2119,6 +2237,8 @@ run_legacy_format_one_restore_test
 run_invalid_complete_marker_test
 run_invalid_manifest_state_test
 run_untrusted_restore_test
+run_dashboard_replacement_and_restore_test
+run_dashboard_rollback_test
 run_nested_reference_upgrade_test
 run_nested_reference_replacement_and_restore_test
 run_nested_reference_rollback_test

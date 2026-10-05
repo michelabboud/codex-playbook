@@ -13,3 +13,5 @@
 | [0009](0009-hygiene-and-router-laws.md) | Port source 0.1.20–0.1.21: hygiene as a seventeenth skill, the refusal and worktree laws in the always-loaded router, economy mode defined by capability | Accepted |
 | [0010](0010-approvals-are-destructive-only.md) | Only destructive actions need approval: plan gate, publication, datastore and configuration asks removed from the router and skills | Accepted |
 | [0011](0011-dev-modes.md) | Port source 0.1.23: dev modes as rules 14.1–14.8 in their own skill, and an owner-only `$codex-playbook-dev-mode` command whose `agents/openai.yaml` disables implicit invocation | Accepted |
+
+- [0012 — Shared file task dashboard](0012-shared-file-task-dashboard.md): concurrent Codex task snapshots in one refreshing local browser view.

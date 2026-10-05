@@ -1,5 +1,30 @@
 # Plan
 
+## Task — Shared browser build dashboard (authorized 2026-10-05)
+
+**Status:** running. Michel requested a reusable skill so all build work has
+an automatically refreshing local browser task view, then extended it to
+multiple Codex sessions posting to one shared board and distribution through
+this repository. This is a Codex-native addition; the 64 numbered rule bodies
+remain unchanged. It grants no new access or execution permissions.
+
+- A scoped Sol implementation lane owns the self-contained dashboard skill,
+  file-only shared state, session isolation, browser opening and behavioral
+  checks. Producers post truthful snapshots; there is no autonomous scheduler.
+- A second scoped Sol lane owns package inventory, router integration and
+  isolated install/rollback/restore coverage. It copies validated skill files
+  into `.agents/skills/codex-playbook-build-dashboard`.
+- The coordinator owns version allocation, public records, live local board,
+  independent forward validation, pinned-source review and checkpoint push.
+
+Preserve concurrent session entries, original failure evidence and the
+operator's local layer. Use standard-library Python and static HTML; no web
+server or extra datastore is required. Browser refresh cannot prove that a
+session is alive: show snapshot time and staleness explicitly. Root local skill
+is already authorized; copying it here does not authorize a whole playbook
+upgrade on the owner's machine. Installer tests use run-owned fake homes.
+
+
 ## Task — Approval interruption repair (0.1.9)
 
 **Status:** done 2026-09-30 — authorized by the owner's request to fix the

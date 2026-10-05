@@ -40,11 +40,13 @@ for required_file in \
   CONTRIBUTING.md \
   SECURITY.md \
   config/managed-skills.txt \
+  config/managed-resources.txt \
   config/retired-skills.txt \
   config/rule-manifest.tsv \
   docs/index.html \
   docs/assets/codex-playbook-hero.png \
   docs/runbooks/github-pages.md \
+  docs/guides/shared-build-dashboard.md \
   docs/reports/2026-09-17-rule-parity-matrix.md \
   scripts/check-local.sh \
   scripts/install.sh \
@@ -105,6 +107,17 @@ if ./tests/install_test.sh; then
   pass "installer lifecycle tests pass"
 else
   fail "installer lifecycle tests fail"
+fi
+
+if command -v python3 >/dev/null 2>&1; then
+  if PYTHONDONTWRITEBYTECODE=1 python3 \
+      .agents/skills/codex-playbook-build-dashboard/scripts/test_dashboard.py; then
+    pass "shared build dashboard behavioral tests pass"
+  else
+    fail "shared build dashboard behavioral tests fail"
+  fi
+else
+  fail "Python 3.9 or later is required for dashboard behavioral verification"
 fi
 
 if grep -Eq '~/.codex/skills|\$CODEX_HOME/skills' \

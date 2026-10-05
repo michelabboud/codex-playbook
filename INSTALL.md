@@ -15,7 +15,7 @@ replaced.
 | Repository source | Destination |
 |---|---|
 | `AGENTS.md` | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
-| Seventeen names from `config/managed-skills.txt` | `$HOME/.agents/skills/<name>/` |
+| Twenty names from `config/managed-skills.txt` | `$HOME/.agents/skills/<name>/` |
 | Every nested file listed in `config/managed-resources.txt` | inside its skill's destination directory |
 | Recovery checkpoint | `${CODEX_HOME:-$HOME/.codex}/backups/codex-playbook-preinstall-*` |
 
@@ -355,3 +355,10 @@ exactly: validate, create a unique private checkpoint, copy and compare every
 managed destination, mark it complete, stage, swap, compare live state, and
 roll back on failure. Never translate the procedure into unconditional
 `Copy-Item -Force` operations.
+
+The managed shared-dashboard skill includes its Python helper, static HTML
+and behavioral tests. Running the helper requires Python 3.9+; installation
+itself remains a shell transaction. Dashboard state is created only when the
+skill is used, outside the managed package, and survives package updates.
+The installer does not write the operator's standing dashboard preferences
+into `playbook-local.md`.

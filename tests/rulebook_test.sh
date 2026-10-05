@@ -110,13 +110,13 @@ fi
 
 managed_count=$(wc -l < config/managed-skills.txt | tr -d ' ')
 managed_unique=$(LC_ALL=C sort -u config/managed-skills.txt | wc -l | tr -d ' ')
-if [ "$managed_count" -eq 19 ] &&
-   [ "$managed_unique" -eq 19 ] &&
+if [ "$managed_count" -eq 20 ] &&
+   [ "$managed_unique" -eq 20 ] &&
    [ "$(LC_ALL=C sort config/managed-skills.txt)" = "$(cat config/managed-skills.txt)" ] &&
    ! grep -Evq '^codex-playbook-[a-z]+(-[a-z]+)*$' config/managed-skills.txt; then
-  pass 'managed skill inventory is sorted, valid, unique, and contains 19 skills'
+  pass 'managed skill inventory is sorted, valid, unique, and contains 20 skills'
 else
-  fail 'managed skill inventory must be sorted, valid, unique, and contain 19 skills'
+  fail 'managed skill inventory must be sorted, valid, unique, and contain 20 skills'
 fi
 
 metadata_chars=0
@@ -147,10 +147,10 @@ do
 done < config/managed-skills.txt
 
 actual_skill_count=$(find .agents/skills -mindepth 2 -maxdepth 2 -name SKILL.md -path '*/codex-playbook-*/*' | wc -l | tr -d ' ')
-if [ "$actual_skill_count" -eq 19 ]; then
-  pass 'the repository contains all and only 19 Codex Playbook skills'
+if [ "$actual_skill_count" -eq 20 ]; then
+  pass 'the repository contains all and only 20 Codex Playbook skills'
 else
-  fail "the repository contains $actual_skill_count Codex Playbook skills; expected 19"
+  fail "the repository contains $actual_skill_count Codex Playbook skills; expected 20"
 fi
 
 if [ "$metadata_chars" -le 8000 ]; then
@@ -476,8 +476,31 @@ if [ -f "$resource_inventory" ] && [ ! -L "$resource_inventory" ] && [ -s "$reso
       resource_failures=$((resource_failures + 1))
     fi
   done
-  if [ "$(cat "$resource_inventory")" != "$(printf '%s\n%s' "$dev_mode_policy_file" "$roster_file")" ]; then
-    printf '%s must list exactly %s and %s\n' "$resource_inventory" "$dev_mode_policy_file" "$roster_file" >&2
+  : > "$test_root/actual-resources"
+  while IFS= read -r skill_name
+  do
+    if [ -d ".agents/skills/$skill_name" ]; then
+      find ".agents/skills/$skill_name" -type f ! -path ".agents/skills/$skill_name/SKILL.md" \
+        >> "$test_root/actual-resources"
+    fi
+  done < "$active_inventory"
+  LC_ALL=C sort "$test_root/actual-resources" > "$test_root/actual-resources-sorted"
+  if ! cmp -s "$resource_inventory" "$test_root/actual-resources-sorted"; then
+    printf '%s does not match every file shipped inside active skills:\n' "$resource_inventory" >&2
+    diff "$resource_inventory" "$test_root/actual-resources-sorted" >&2 || true
+    resource_failures=$((resource_failures + 1))
+  fi
+  cat > "$test_root/expected-resources" <<'EOF'
+.agents/skills/codex-playbook-build-dashboard/agents/openai.yaml
+.agents/skills/codex-playbook-build-dashboard/assets/dashboard.html
+.agents/skills/codex-playbook-build-dashboard/scripts/dashboard.py
+.agents/skills/codex-playbook-build-dashboard/scripts/test_dashboard.py
+.agents/skills/codex-playbook-dev-mode/agents/openai.yaml
+.agents/skills/codex-playbook-subagents/references/roster.md
+EOF
+  if ! cmp -s "$resource_inventory" "$test_root/expected-resources"; then
+    printf '%s must list exactly the dashboard resources, dev-mode policy, and roster reference\n' \
+      "$resource_inventory" >&2
     resource_failures=$((resource_failures + 1))
   fi
 else
@@ -485,7 +508,7 @@ else
   resource_failures=$((resource_failures + 1))
 fi
 if [ "$resource_failures" -eq 0 ]; then
-  pass 'the nested-resource inventory lists exactly the dev-mode invocation policy and the roster reference, as a sorted set of real files owned by active skills, with no symlink under .agents/skills and neither .agents nor .agents/skills a symbolic link itself'
+  pass 'the nested-resource inventory lists exactly every dashboard resource, the dev-mode invocation policy, and the roster reference, as a sorted set of real files owned by active skills, with no symlink under .agents/skills and neither .agents nor .agents/skills a symbolic link itself'
 else
   fail "$resource_failures nested-resource inventory check(s) failed"
 fi

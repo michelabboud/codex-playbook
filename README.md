@@ -23,7 +23,7 @@ collaboration.
 
 The dependency-free visual map presents the five partnership principles, all
 64 rules, the complete approval matrix, the fifteen rule sections, and the
-split between the always-loaded authority router and nineteen on-demand skills.
+split between the always-loaded authority router and twenty on-demand skills.
 It uses no framework, build step, cookies, or analytics.
 
 ## Review without stalling development
@@ -57,6 +57,18 @@ requires; this note does not lower the Standard review floor.
 For plan execution, subagent communication, and Herdr when it hosts the
 session, see the [capability guide](docs/guides/advanced-task-execution-and-communication.md).
 
+## Keep build work visible
+
+The shared local browser task board shows build work from multiple Codex
+sessions and projects. Sessions post their own task statuses, evidence links,
+acceptance gates and update times. The browser refreshes the saved view every
+ten seconds; stale snapshots remain visible and failures stay in history.
+
+The `codex-playbook-build-dashboard` skill ships with a standard-library
+Python helper and static HTML template. It needs Python 3.9+ to run, no server
+or port, and supports WSL, Linux, macOS and Windows browser opening. See
+[the shared dashboard guide](docs/guides/shared-build-dashboard.md).
+
 ## Why it is modular
 
 Codex loads the applicable `AGENTS.md` chain into every session. It discovers
@@ -68,7 +80,7 @@ Codex Playbook uses that progressive-disclosure model:
 - `AGENTS.md` stays small and always available. It carries the five partnership
   principles, precedence, request classification, the approval table (destructive actions only),
   critical rules 0.1–0.4, and the mandatory skill router.
-- Nineteen skills carry the full subject rules and procedures for code, testing,
+- Twenty skills carry the full subject rules and procedures for code, testing,
   reviews, documentation, repository structure, workflow, collaboration,
   subagents, operations, destructive actions, quarantine, hygiene, platform commands,
   writing, and self-update.
@@ -107,7 +119,7 @@ upgrade, restore, and Windows guidance is in [`INSTALL.md`](INSTALL.md).
 | Layer | Destination | Purpose |
 |---|---|---|
 | Global authority router | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` | Always-loaded partnership, authority, classification, approval, and trigger routing |
-| Seventeen personal skills | `$HOME/.agents/skills/codex-playbook-*/` | Full subject procedures loaded through progressive disclosure |
+| Twenty personal skills | `$HOME/.agents/skills/codex-playbook-*/` | Full subject procedures loaded through progressive disclosure |
 | Recovery checkpoint | `${CODEX_HOME:-$HOME/.codex}/backups/` | Verified pre-install state for exact restoration |
 | **Never shipped, never written** | `${CODEX_HOME:-$HOME/.codex}/playbook-local.md` | Your local layer: the one file the scripts only ever read, and only to check it |
 
@@ -163,7 +175,7 @@ and the update source.
 
 ```text
 AGENTS.md                 lean global authority and trigger router
-.agents/skills/           nineteen on-demand skills: rule sections and the dev-mode command
+.agents/skills/           twenty on-demand skills: rule sections and the dev-mode command
 config/managed-skills.txt authoritative installed-skill inventory
 config/managed-resources.txt  nested files an installation depends on
 config/rule-manifest.tsv  authoritative 50-rule ownership map
@@ -183,7 +195,7 @@ docs/plans/               approved designs and implementation plans
 
 ## Version
 
-Current: **v0.1.12**. `VERSION` is the source of truth; release detail lives in
+Current: **v0.1.13**. `VERSION` is the source of truth; release detail lives in
 [`CHANGELOG.md`](CHANGELOG.md).
 
 ## License
