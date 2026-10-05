@@ -305,10 +305,11 @@ class Store:
         content = json.dumps(board, ensure_ascii=False, indent=2) + "\n"
         if len(content.encode()) > MAX_FILE_BYTES:
             raise DashboardError("Registry capacity reached; preserve it and use a new explicit state directory")
+        rendered = self.prepare_html(board)
         self.check_html()
         # Registry is authoritative; render can recover after interruption between replacements.
         atomic_write(self.board_path, content)
-        self.render(board)
+        atomic_write(self.html_path, rendered)
 
     def check_html(self):
         safe_path(self.html_path, missing=True)
@@ -317,10 +318,18 @@ class Store:
 
     def render(self, board):
         self.check_html()
+        atomic_write(self.html_path, self.prepare_html(board))
+
+    def prepare_html(self, board):
         template = (Path(__file__).resolve().parent.parent / "assets" / "dashboard.html").read_text(encoding="utf-8")
+        # Resolve static configuration before inserting user data, which may contain template markers.
+        template = template.replace("__STALE_SECONDS__", str(STALE_SECONDS))
         # Escape HTML delimiters inside a JSON script element, even though rendering uses textContent.
         payload = json.dumps(board, ensure_ascii=True).replace("&", "\\u0026").replace("<", "\\u003c").replace(">", "\\u003e")
-        atomic_write(self.html_path, template.replace('"__BOARD_JSON__"', payload).replace("__STALE_SECONDS__", str(STALE_SECONDS)))
+        rendered = template.replace('"__BOARD_JSON__"', payload)
+        if len(rendered.encode()) > MAX_FILE_BYTES:
+            raise DashboardError("HTML capacity reached; preserve it and use a new explicit state directory")
+        return rendered
 
 
 def browser_commands(path):
@@ -333,9 +342,13 @@ def browser_commands(path):
         commands.append((["open", uri], None, None))
     elif os.environ.get("WSL_DISTRO_NAME") or "microsoft" in os.uname().release.lower():
         if shutil.which("wslpath") and shutil.which("powershell.exe"):
-            result = subprocess.run(["wslpath", "-w", str(path)], capture_output=True, text=True, timeout=10, check=False)
-            windows_path = result.stdout.rstrip("\r\n")
-            if result.returncode == 0 and windows_path and not any(ord(c) < 32 for c in windows_path):
+            try:
+                result = subprocess.run(["wslpath", "-w", str(path)], capture_output=True, text=True, timeout=10, check=False)
+                windows_path = result.stdout.rstrip("\r\n")
+            except (OSError, subprocess.TimeoutExpired):
+                result = None
+                windows_path = ""
+            if result is not None and result.returncode == 0 and windows_path and not any(ord(c) < 32 for c in windows_path):
                 env = os.environ.copy()
                 env["CODEX_BUILD_DASHBOARD_PATH"] = windows_path
                 # WSL does not export arbitrary Linux environment variables to Windows.

@@ -35,7 +35,7 @@ python3 "$DASHBOARD_HELPER" open
 
 Use the actual agreed tasks, dependencies and owners. Add the platform, release or runtime gates required by the current task; a local-only configuration change does not acquire repository or release work. `init` with `--title`/`--tasks` refuses to replace an existing session. Resume without those flags, then post explicit changes.
 
-`open` opens the central file once across all sessions. WSL uses `wslpath` and PowerShell with the path passed as data through a child-only `WSLENV` entry; unrelated bridge entries remain intact. Linux uses `xdg-open`/`gio`, macOS uses `open`, native Windows uses its default file handler. Launch failures report the file to open manually and do not mark it opened. If the user closed the window, `open --again` deliberately reopens it. Never repeat that flag on every session or status update.
+`open` records a successful launch so later calls avoid reopening the central file across sessions. This is best effort: a crash after browser launch but before recording success can cause a later `open` to launch again. WSL uses `wslpath` and PowerShell with the path passed as data through a child-only `WSLENV` entry; unrelated bridge entries remain intact. Linux uses `xdg-open`/`gio`, macOS uses `open`, native Windows uses its default file handler. Launch failures report the file to open manually and do not mark it opened. If the user closed the window, `open --again` deliberately reopens it. Never repeat that flag on every session or status update.
 
 ## Post truthful transitions
 

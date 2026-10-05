@@ -150,6 +150,67 @@ class DashboardBehavior(unittest.TestCase):
         self.assertEqual(next(iter(restored["sessions"].values()))["title"], attack)
         self.assertNotIn("<", encoded[1])
 
+    def test_template_markers_and_markup_preserve_complete_embedded_board(self):
+        self.project = self.base / "__BOARD_JSON__-__STALE_SECONDS__"
+        self.project.mkdir()
+        self.identity[1] = str(self.project)
+        summary = '"__BOARD_JSON__" __STALE_SECONDS__ </script><script>alert("data")</script>&'
+        links = [
+            "https://example.com/__BOARD_JSON__/__STALE_SECONDS__?detail=%3Ctag%3E%26",
+            (self.project / "__STALE_SECONDS__-__BOARD_JSON__.md").as_uri(),
+        ]
+        self.init(None, "--title", summary)
+        self.update("--title", summary, "--note", summary, "--task", "tokens", "--add",
+                    "--task-title", summary, "--owner", summary, "--detail", summary,
+                    "--evidence", links[0], "--evidence", links[1])
+        expected = self.board()
+        registry_bytes = (self.state / "board.json").read_bytes()
+        for rerender in (False, True):
+            with self.subTest(rerender=rerender):
+                if rerender:
+                    self.cli("render")
+                self.assertEqual((self.state / "board.json").read_bytes(), registry_bytes)
+                html = (self.state / "tasks.html").read_text()
+                embedded = re.search(r'id="board-data">(.*?)</script>', html, re.S)
+                self.assertIsNotNone(embedded)
+                assert embedded is not None
+                self.assertNotIn("<", embedded[1])
+                self.assertEqual(json.loads(embedded[1]), expected)
+
+    def test_unicode_html_capacity_refusal_preserves_state_and_next_post(self):
+        # UTF-8 registry text fits this limit, but ASCII-escaped HTML expands past it.
+        for existing in (False, True):
+            self.state = self.base / f"unicode-state-{existing}"
+            with self.subTest(existing=existing), mock.patch.object(dashboard, "MAX_FILE_BYTES", 32 * 1024):
+                def invoke(*args):
+                    parsed = dashboard.parser().parse_args(["--state-dir", str(self.state), *args])
+                    return dashboard.run(parsed)
+                if existing:
+                    invoke("init", *self.identity)
+                before = {
+                    name: (self.state / name).read_bytes() if (self.state / name).exists() else None
+                    for name in ("board.json", "tasks.html")
+                }
+                if existing:
+                    proposed = ("update", *self.identity, "--task", "unicode", "--add", "--task-title", "é" * 2000)
+                else:
+                    proposed = ("init", *self.identity, "--title", "é" * 2000)
+                with self.assertRaisesRegex(dashboard.DashboardError, "capacity"):
+                    invoke(*proposed)
+                after = {
+                    name: (self.state / name).read_bytes() if (self.state / name).exists() else None
+                    for name in ("board.json", "tasks.html")
+                }
+                self.assertEqual(after, before)
+                if not existing:
+                    invoke("init", *self.identity)
+                invoke("update", *self.identity, "--note", "A valid post still works after capacity refusal")
+                invoke("render")
+                html = (self.state / "tasks.html").read_text()
+                embedded = re.search(r'id="board-data">(.*?)</script>', html, re.S)
+                assert embedded is not None
+                self.assertEqual(json.loads(embedded[1]), self.board())
+
     def test_staleness_is_per_session_and_completed_is_not_live(self):
         self.init()
         other = self.identity[:-1] + ["codex-b"]
@@ -241,6 +302,44 @@ class DashboardBehavior(unittest.TestCase):
         with mock.patch.object(dashboard.sys, "platform", "linux"), mock.patch.dict(os.environ, {"WSL_DISTRO_NAME": ""}), mock.patch.object(dashboard.os, "uname", return_value=type("Uname", (), {"release": "linux"})()), mock.patch.object(dashboard.shutil, "which", return_value="/mock/launcher"), mock.patch.object(dashboard.subprocess, "run", side_effect=[subprocess.CompletedProcess([], 1, "", ""), subprocess.CompletedProcess([], 0, "", "")]) as launch:
             self.assertEqual(dashboard.launch_browser(path), "gio")
             self.assertEqual(launch.call_args.args[0], ["gio", "open", path.as_uri()])
+
+    @unittest.skipIf(os.name == "nt", "WSL conversion fallback fixture")
+    def test_wsl_conversion_failure_uses_available_linux_fallback(self):
+        for error in (subprocess.TimeoutExpired(["wslpath"], 10), OSError("conversion unavailable")):
+            with self.subTest(error=type(error).__name__):
+                self.state = self.base / type(error).__name__
+                self.init()
+                args = dashboard.parser().parse_args(["--state-dir", str(self.state), "open"])
+                def response(argv, **kwargs):
+                    if argv[0] == "wslpath":
+                        raise error
+                    self.assertEqual(argv, ["xdg-open", (self.state / "tasks.html").as_uri()])
+                    return subprocess.CompletedProcess(argv, 0, "", "")
+                with mock.patch.object(dashboard.sys, "platform", "linux"), mock.patch.dict(os.environ, {"WSL_DISTRO_NAME": "Ubuntu"}), mock.patch.object(dashboard.shutil, "which", return_value="/mock/launcher"), mock.patch.object(dashboard.subprocess, "run", side_effect=response):
+                    result = dashboard.run(args)
+                self.assertTrue(result["opened"])
+                self.assertEqual(result["launcher"], "xdg-open")
+                self.assertIsNotNone(self.board()["opened"])
+
+    @unittest.skipIf(os.name == "nt", "WSL conversion fallback fixture")
+    def test_wsl_conversion_timeout_and_failed_fallbacks_keep_manual_hint(self):
+        self.init()
+        before = self.snapshot()
+        args = dashboard.parser().parse_args(["--state-dir", str(self.state), "open"])
+        attempted = []
+        def response(argv, **kwargs):
+            attempted.append(argv[0])
+            if argv[0] == "wslpath":
+                raise subprocess.TimeoutExpired(argv, 10, output="do-not-expose-output", stderr="do-not-expose-stderr")
+            return subprocess.CompletedProcess(argv, 1, "do-not-expose-output", "do-not-expose-stderr")
+        with mock.patch.object(dashboard.sys, "platform", "linux"), mock.patch.dict(os.environ, {"WSL_DISTRO_NAME": "Ubuntu"}), mock.patch.object(dashboard.shutil, "which", return_value="/mock/launcher"), mock.patch.object(dashboard.subprocess, "run", side_effect=response):
+            with self.assertRaises(dashboard.DashboardError) as failed:
+                dashboard.run(args)
+        self.assertEqual(attempted, ["wslpath", "xdg-open", "gio"])
+        self.assertIn("Open this file manually: " + str(self.state / "tasks.html"), str(failed.exception))
+        self.assertNotIn("do-not-expose", str(failed.exception))
+        self.assertIsNone(self.board()["opened"])
+        self.assertEqual(self.snapshot(), before)
 
     def test_wsl_powershell_path_not_interpolated_into_code(self):
         path = self.base / "page '$([System.IO.File]::Delete('x')).html"

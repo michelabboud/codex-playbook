@@ -52,8 +52,10 @@ python3 "$DASHBOARD_HELPER" read --project "$PROJECT" --run "$RUN" --session "$S
 
 Use `init --tasks /absolute/path/tasks.json` to start with the agreed task list.
 Resuming an existing identity with plain `init` preserves its tasks and prior
-timestamps. The `open` command opens the shared view once across sessions;
-`open --again` deliberately reopens a window the user closed. Failed launches
+timestamps. The `open` command records successful launches so later calls avoid
+reopening the shared view across sessions. This is best effort: a crash after
+browser launch but before recording success can cause a later `open` to launch
+again. `open --again` deliberately reopens a window the user closed. Failed launches
 leave the board eligible to open later and report its path for manual opening.
 
 Task updates append history and evidence. Report actual gate results with
