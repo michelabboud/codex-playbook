@@ -269,6 +269,33 @@ class DashboardBehavior(unittest.TestCase):
         self.assertEqual(list(self.state.iterdir()), [self.state / "notes.txt"])
         self.assertRaises(dashboard.DashboardError, dashboard.state_root, "relative-dir")
 
+    def test_user_html_swapped_after_registry_commit_is_preserved(self):
+        self.init()
+        previous_revision = self.board()["revision"]
+        user_html = b"<!doctype html><title>User-authored page</title><p>Preserve this page.</p>"
+        actual_write = dashboard.atomic_write
+        writes = []
+        def swap_after_registry(path, content):
+            writes.append(path)
+            actual_write(path, content)
+            if path == self.state / "board.json":
+                (self.state / "tasks.html").write_bytes(user_html)
+        note = "Registry update committed before the ownership change"
+        args = dashboard.parser().parse_args(["--state-dir", str(self.state), "update", *self.identity, "--note", note])
+        with mock.patch.object(dashboard, "atomic_write", side_effect=swap_after_registry):
+            with self.assertRaisesRegex(dashboard.DashboardError, "unrecognized HTML file") as refused:
+                dashboard.run(args)
+        self.assertEqual(writes, [self.state / "board.json"])
+        self.assertEqual((self.state / "tasks.html").read_bytes(), user_html)
+        self.assertNotIn(user_html.decode(), str(refused.exception))
+        self.assertNotIn(note, str(refused.exception))
+        committed = (self.state / "board.json").read_bytes()
+        self.assertEqual(self.board()["revision"], previous_revision + 1)
+        self.assertEqual(self.cli("read")["sessions"][0]["note"], note)
+        self.cli("render", expected=2)
+        self.assertEqual((self.state / "tasks.html").read_bytes(), user_html)
+        self.assertEqual((self.state / "board.json").read_bytes(), committed)
+
     def test_render_recovers_missing_html_without_changing_registry(self):
         self.init()
         before = (self.state / "board.json").read_bytes()

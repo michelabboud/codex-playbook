@@ -309,6 +309,7 @@ class Store:
         self.check_html()
         # Registry is authoritative; render can recover after interruption between replacements.
         atomic_write(self.board_path, content)
+        self.check_html()
         atomic_write(self.html_path, rendered)
 
     def check_html(self):
