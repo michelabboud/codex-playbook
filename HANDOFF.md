@@ -2,9 +2,9 @@
 
 **Current handoff:** [shared build dashboard, 2026-10-05](docs/handoffs/2026-10-05-shared-build-dashboard.md).
 
-- Version 0.1.13 prepares the managed shared build dashboard skill and installer coverage.
-- The shared local browser window is open and real automatic refresh is verified; independent mechanical and deep reviews accept the final 1378f4f repair, with source checkpoint push pending.
-- No whole live rulebook upgrade was performed. Resume final verification and checkpoint close-out; NHB release acceptance is separate.
+- Version 0.1.13 ships the shared dashboard skill; annotated `checkpoint/0.1.13` is published at `f70ca00b684bb5d5eecf5c509a1753cd31ebf9c4`.
+- The local browser window is open and automatic refresh is verified. Independent mechanical/deep reviews accepted the repair, and all package gates passed.
+- No whole live rulebook upgrade was performed. This main-line publication receipt preserves the source tag. NHB hosted Linux remains billing-blocked; its release acceptance is separate.
 
 The remaining installation and publication notes below are historical.
 

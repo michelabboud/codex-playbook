@@ -40,8 +40,8 @@ introduced unrecognized file. The original 264c guard preserved that file.
 Repair 1378f4f restores the guard after registry commit without moving the
 capacity checks. Its regression fails on bb2271 and passes on 264c and the
 repair. All 24 helper tests pass; independent mechanical and deep focused
-reviews accept 1378f4f with no open blocker. Final combined-tree verification
-and checkpoint source push remain open. Fixtures,
+reviews accept 1378f4f with no open blocker. Final combined-tree verification passed on `f70ca00`; source checkpoint
+publication is directly verified below. Fixtures,
 red/green logs and hashes are retained in
 `../nhb-lanes/dashboard-html-swap-repair-20261005/`.
 
@@ -95,8 +95,12 @@ is proposed as part of this feature.
 
 Version 0.1.13 is allocated under the shared version lease. Documentation,
 architecture, decision, installer inventory and handoff are updated. Source
-review is accepted on 1378f4f; final combined-tree verification and checkpoint
-push remain pending in this record.
+review is accepted on `1378f4f`. Final combined-tree verification passed with
+193 rulebook checks, 217 local-layer and 789 installer assertions, and
+24 helper tests (6.195 s), exit 0. The final skill metadata validator passed.
+Annotated `checkpoint/0.1.13` and main were pushed atomically; direct remote
+inspection resolved both to `f70ca00b684bb5d5eecf5c509a1753cd31ebf9c4`. This main-line receipt
+follow-up preserves that tag and the verified helper/template/test bytes.
 The solo-owner repository uses main. There are no repository workflows or
 active local hooks; hooksPath is unset. Existing GitHub Pages publishes /docs
 from main to https://michelabboud.github.io/codex-playbook/, so pushing the
@@ -129,3 +133,19 @@ Resume identity and source links are in
 The final combined-tree diff after 1378f4f consists only of public records,
 backlog and a corrected public skill count. Helper, tests and template bytes
 remain identical to the reviewed source and installed local skill.
+
+
+### Publication receipt
+
+- Verified checkpoint tree: `f70ca00b684bb5d5eecf5c509a1753cd31ebf9c4`.
+- Annotated tag object: `0cf75f470e5276955727502a72b260da76e0b088`.
+- Remote peeled tag and main immediately after push both matched the tree.
+- Final full log: `~/.local/state/nhb-release-0.53.6-20261005/playbook-final-verify-0.1.13.log`.
+- Final local/source skill trees match byte-for-byte. Runtime state and history
+  are retained, with no cleanup and zero bytes reclaimed.
+- Native WSL opening/refresh were verified against the unchanged HTML asset.
+  Native macOS acceptance remains unverified. No phase release was requested
+  or published for this task.
+- Existing GitHub Pages reported checkpoint commit built, with no error, at
+  https://michelabboud.github.io/codex-playbook/. The main-line receipt follow-up
+  is a separate automatic site rebuild, whose completion is not inferred here.

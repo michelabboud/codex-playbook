@@ -28,7 +28,14 @@ state on any validation/lock error; do not bypass the lock or hand-edit JSON.
 Final helper source 1378f4f has 24 passing tests and accepted independent
 mechanical/deep focused reviews. All earlier failures and seals are retained.
 
-Next: finish combined-tree verification, commit source close-out,
-annotate checkpoint0.1.13, push and directly verify remote refs. The NHB stable
-release is separately active, with frozen candidate 0316b9ac and a hosted Linux billing/spending blocker; it is not
-accepted by this dashboard's source checkpoint.
+Source `checkpoint/0.1.13` is published at
+`f70ca00b684bb5d5eecf5c509a1753cd31ebf9c4`. The final tree passed 193
+rulebook checks, 217 local-layer and 789 installer assertions, and 24 dashboard
+tests, exit 0. Atomic push and remote peeled-tag/main equality were directly
+verified. This main-line receipt does not move the source tag. The existing
+GitHub Pages site also reports this commit built without an error.
+
+The dashboard task is complete. Next approved work is the separate NHB stable
+release: frozen candidate 0316b9ac passed local checks, while hosted Linux cannot
+start until GitHub billing/spending admission is restored. Source mechanical
+and final release acceptance remain separate. Keep producer IDs and state.

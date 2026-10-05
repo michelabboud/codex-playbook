@@ -5,7 +5,8 @@
 Accepted for implementation, 2026-10-05, at Michel's request for a persistent
 refreshing build task view across Codex sessions and distribution in this
 repository. Independent source review accepts the final 1378f4f repair;
-combined-tree verification and source checkpoint push remain pending.
+combined-tree verification passed and annotated `checkpoint/0.1.13` is pushed
+at `f70ca00b684bb5d5eecf5c509a1753cd31ebf9c4`. No v-tag release is implied.
 
 ## Context
 

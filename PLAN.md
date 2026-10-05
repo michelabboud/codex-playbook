@@ -29,9 +29,9 @@ functional defects; both were repaired in bb2271. Independent successor review
 found the removed post-registry HTML recognition check; 1378f4f restores it.
 All original cold notes and failed fixtures remain retained. The final helper
 suite has 24 passing tests; independent mechanical and deep focused reviews
-accept 1378f4f. Final combined-tree verification passed193rulebook,217local-layer,789installer
-checks and24helper tests. Remote main and peeledcheckpoint0.1.13 both
-resolved tof70ca00 immediately after the atomic push. This main-line receipt
+accept 1378f4f. Final combined-tree verification passed 193 rulebook, 217 local-layer, 789 installer
+checks and 24 helper tests. Remote main and peeled `checkpoint/0.1.13` both
+resolved to f70ca00 immediately after the atomic push. This main-line receipt
 follow-up retains the tag unchanged. See the close-out record for evidence paths.
 
 
