@@ -2,7 +2,7 @@
 
 ## Task — Shared browser build dashboard (authorized 2026-10-05)
 
-**Status:** running. Michel requested a reusable skill so all build work has
+**Status:** done, source published as `checkpoint/0.1.13`. Michel requested a reusable skill so all build work has
 an automatically refreshing local browser task view, then extended it to
 multiple Codex sessions posting to one shared board and distribution through
 this repository. This is a Codex-native addition; the 64 numbered rule bodies
@@ -29,7 +29,10 @@ functional defects; both were repaired in bb2271. Independent successor review
 found the removed post-registry HTML recognition check; 1378f4f restores it.
 All original cold notes and failed fixtures remain retained. The final helper
 suite has 24 passing tests; independent mechanical and deep focused reviews
-accept 1378f4f. Final combined-tree verification and source push remain open. See the close-out record for evidence paths.
+accept 1378f4f. Final combined-tree verification passed193rulebook,217local-layer,789installer
+checks and24helper tests. Remote main and peeledcheckpoint0.1.13 both
+resolved tof70ca00 immediately after the atomic push. This main-line receipt
+follow-up retains the tag unchanged. See the close-out record for evidence paths.
 
 
 ## Task — Approval interruption repair (0.1.9)

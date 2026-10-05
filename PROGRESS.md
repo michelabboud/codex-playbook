@@ -8,8 +8,10 @@ The packaged candidate passed 193 rulebook checks, 217 local-layer assertions,
 found template substitution, Unicode capacity and an HTML ownership-guard
 regression; baseline-failing tests and narrow repairs are preserved. The final
 helper has 24 passing tests and is pinned at `1378f4f`; independent mechanical
-and deep focused reviews accept it. Final combined-tree verification and
-source checkpoint push remain open. Actual Windows Chrome opening
+and deep focused reviews accept it. Final combined-tree verification passed onf70ca00 with193rulebook,217local-
+layer,789installer and24helper checks. Annotatedcheckpoint0.1.13 and main
+were pushed atomically and directly verified at that SHA. The tag stays fixed
+while this main-line publication receipt is committed. Actual Windows Chrome opening
 and automatic refresh passed. No whole live Playbook upgrade was performed.
 See [the close-out record](docs/reports/2026-10-05-shared-build-dashboard.md).
 
