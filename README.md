@@ -33,8 +33,8 @@ sits waiting for is a stall, so the rulebook pipelines them:
 
 | Kind | Closes | While it runs, development… |
 |---|---|---|
-| **Mechanical** | every task | never waits |
-| **Deep** | every batch of 3–10 tasks | keeps going — a line carries at most **three unruled** batches, the one being built included (*unruled*: started, and not yet settled — a review that has returned with open findings still counts); every landing belongs to the open batch — an ad-hoc one for unplanned work — except a reviewed fix for a recorded finding, so at three with none open only fixes land; counted by git ancestry as a set, against a ledger the coordinator keeps; twenty worked cases are part of the rule |
+| **Automated checks** | every task — tests, lint, type checks | never waits |
+| **Mechanical** and **deep**, side by side | every batch of 5–15 tasks, or about 2,000 changed lines | keeps going — a line carries at most **three unruled** batches, the one being built included (*unruled*: started, and not yet settled — a review that has returned with open findings still counts); every landing belongs to the open batch — an ad-hoc one for unplanned work — except a reviewed fix for a recorded finding, so at three with none open only fixes land; counted by git ancestry as a set, against a ledger the coordinator keeps; twenty worked cases are part of the rule |
 | **High deep** | a milestone or a release | waits — it may revise the plan, every lower review is settled first, and the wait works the queue of minor findings |
 
 What makes that safe is mechanics, not optimism: **a review's input is a commit,
@@ -195,7 +195,7 @@ docs/plans/               approved designs and implementation plans
 
 ## Version
 
-Current: **v0.1.14**. `VERSION` is the source of truth; release detail lives in
+Current: **v0.1.15**. `VERSION` is the source of truth; release detail lives in
 [`CHANGELOG.md`](CHANGELOG.md).
 
 ## License

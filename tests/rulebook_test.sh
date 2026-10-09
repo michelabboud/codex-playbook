@@ -1139,6 +1139,20 @@ need_once .agents/skills/codex-playbook-destructive/SKILL.md '**An identical ret
 need_once .agents/skills/codex-playbook-hygiene/SKILL.md '**A refusal is not a classification:**' '13.6 a refusal is not a classification'
 need_once .agents/skills/codex-playbook-hygiene/SKILL.md 'never turns it into something to keep' '13.6 a recorded refusal never makes a keep'
 need_absent 'one escalated request for the refused command itself, unchanged and stating the refusal, is asking' 'retired: router retry-unchanged clause'
+# Reviews batch more: automated checks per task, mechanical and deep side by side per batch (0.1.15).
+REV=.agents/skills/codex-playbook-reviews/SKILL.md
+DM=.agents/skills/codex-playbook-dev-modes/SKILL.md
+need_once "$REV" '| **task** | one unit of work, rules 6.1–6.2 | automated checks — tests, lint, type checks (rule 2.2) |' '3.1 the task row is gated by automated checks'
+need_once "$REV" '| mechanical and deep, side by side on the same range |' '3.1 mechanical and deep run side by side per batch'
+need_once "$REV" '**Per batch**, side by side with the deep review on the same pinned range' '3.1 mechanical review is per batch'
+need_once "$REV" '**Per task, the automated checks are the gate:**' '3.1 the automated checks gate each task'
+need_once "$REV" '**Per batch** of 5–15 tasks, or about 2,000 changed lines, whichever comes first' '3.1 a deep batch is 5 to 15 tasks or about 2,000 lines'
+need_once "$REV" '(b) the diff passes about 2,000 changed lines — a starting value, not a measurement' '3.2 a batch closes at about 2,000 changed lines'
+need_once "$REV" 'or unsafe code gets the deep review at task grain, always' '3.2 only floor and unsafe-code tasks get task-grain deep review'
+need_once "$REV" '**Concurrency, public-API and other data-path tasks stay in the batch:**' '3.2 concurrency, API and data tasks stay in the batch'
+need_once "$DM" '| **production** | automated checks | mechanical and deep, 5–15 tasks or about 2,000 lines |' '14.2 production batches mechanical and deep'
+need_once "$DM" 'mechanical and deep, 3–6 tasks or about 1,000 lines' '14.2 sensitive keeps smaller batches'
+need_absent 'concurrency, data-safety, unsafe-code and public-API tasks get the deep review at task grain' 'retired: deep review per task for concurrency, data and API'
 
 if [ "$failures" -ne 0 ]; then
   printf '\n%s rulebook verification check(s) failed.\n' "$failures" >&2

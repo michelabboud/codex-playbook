@@ -118,7 +118,7 @@
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="topbar">
-    <a class="wordmark" href="#top">Codex Playbook / 0.1.14</a>
+    <a class="wordmark" href="#top">Codex Playbook / 0.1.15</a>
     <nav class="toplinks" aria-label="Primary">
       <a href="#mantra">Mantra</a><a href="#authority">Authority</a><a href="#rules">Rules</a><a href="#native">Codex-native</a>
       <a class="install" href="https://github.com/michelabboud/codex-playbook/blob/main/INSTALL.md">Install</a>
@@ -270,12 +270,12 @@
           [
             "3.1",
             "Three kinds of review, and a tier that climbs",
-            "Mechanical per task — a pending one never delays the next reversible task, a returned blocker stops the line like any other; deep per batch of 3–10 on the Strong tier, pipelined with development; high deep — the Top tier, two independent passes — at milestones and the release gate. Levels collapse on small plans; the tier of the level that closes never drops."
+            "Automated checks per task; mechanical and deep side by side per batch of 5–15 tasks or about 2,000 changed lines, pipelined with development — a pending review never delays the next reversible task, a returned blocker stops the line like any other; high deep — the Top tier, two independent passes — at milestones and the release gate. Levels collapse on small plans; the tier of the level that closes never drops."
           ],
           [
             "3.2",
             "Dependencies and risk bound batches",
-            "Review before downstream work becomes expensive; sensitive paths get task-grain depth."
+            "Review before downstream work becomes expensive; security-floor and unsafe-code tasks get task-grain depth, concurrency, data and API tasks go early in the batch."
           ],
           [
             "3.3",

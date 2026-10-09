@@ -1,5 +1,12 @@
 # Progress
 
+**0.1.15, 2026-10-09 — reviews batch more.** Ported from Claude Code Playbook
+0.1.27. Each task is gated by its automated checks; the mechanical review runs
+per batch, side by side with the deep review; a batch is 5–15 tasks or about
+2,000 changed lines; task-grain deep review only for the security floor and
+unsafe code. ADR 0013. 212 rulebook checks pass; the 11 new ones were
+mutation-verified.
+
 **0.1.14, 2026-10-09 — a refused cleanup no longer loops.** Ported from
 Claude Code Playbook 0.1.26. A Codex coordinator re-ran an identical
 `rm -rf` on idle compiler cache after Codex had already rejected it, and its
@@ -50,7 +57,7 @@ local-layer, and 673 installer lifecycle checks with direct exit 0. See
 installation and native macOS acceptance remain unverified and were outside
 this two-playbook publication scope. Older gate notes below are historical.
 
-**Current version:** 0.1.14
+**Current version:** 0.1.15
 
 ## Historical 0.1.6 publication and repair notes
 

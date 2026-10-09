@@ -15,3 +15,4 @@
 | [0011](0011-dev-modes.md) | Port source 0.1.23: dev modes as rules 14.1–14.8 in their own skill, and an owner-only `$codex-playbook-dev-mode` command whose `agents/openai.yaml` disables implicit invocation | Accepted |
 
 - [0012 — Shared file task dashboard](0012-shared-file-task-dashboard.md): concurrent Codex task snapshots in one refreshing local browser view.
+- [0013 — Batch the mechanical review](0013-batch-the-mechanical-review.md): automated checks per task; mechanical and deep review side by side per batch of 5–15 tasks or about 2,000 lines.

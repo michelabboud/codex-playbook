@@ -116,7 +116,7 @@ review plus the one being built is the expected shape, and three closed is also 
 *Corrected in 0.1.14. The first version of this section said the ceiling's cost was that
 "worst-case rework doubles". It does not double; see the last paragraph.*
 
-A batch is 3–10 tasks and a deep review lasts about one to three tasks, so in
+A batch is 5–15 tasks (3–10 before 0.1.15) and a deep review lasts about one to three tasks, so in
 normal running batch N's review lands long before batch N+1 is finished. A
 ceiling of one is therefore never reached in normal running. It is reached only
 when the review lane is abnormally slow — an exhausted allowance, a dead lane, a

@@ -18,12 +18,12 @@ description: Apply Codex Playbook dev-mode rules 14.1-14.8 before writing a plan
 | Mode | Per task | Per batch | Milestone | Release | Reviewers look for |
 |---|---|---|---|---|---|
 | **spike** | none | none | none | none; one mechanical review if the code outlives the test | the floor (rule 14.3) |
-| **poc** | mechanical | none; one deep review when the work is done | none | deep | the floor, and anything reachable beyond localhost without login |
-| **mvp** | mechanical | deep, batches of up to 10 tasks | high deep, **pipelined like a deep review — not a gate** | high deep, a gate | realistic findings (rule 14.4) |
-| **production** | mechanical | deep, 3–10 tasks | high deep, a gate | high deep, a gate | realistic findings, and the backlog entries due at production |
-| **sensitive** | mechanical; deep for every task that touches the floor | deep, 3–6 tasks | high deep, a gate | high deep, a gate | as production, plus medium-likelihood findings on a data path |
+| **poc** | automated checks | mechanical per batch; one deep review when the work is done | none | deep | the floor, and anything reachable beyond localhost without login |
+| **mvp** | automated checks | mechanical and deep, up to 15 tasks or about 2,000 lines | high deep, **pipelined like a deep review — not a gate** | high deep, a gate | realistic findings (rule 14.4) |
+| **production** | automated checks | mechanical and deep, 5–15 tasks or about 2,000 lines | high deep, a gate | high deep, a gate | realistic findings, and the backlog entries due at production |
+| **sensitive** | automated checks; deep for every task that touches the floor | mechanical and deep, 3–6 tasks or about 1,000 lines | high deep, a gate | high deep, a gate | as production, plus medium-likelihood findings on a data path |
 
-    Section 3 runs unchanged inside each row: the tiers, pipelining, stop-the-line, the ledger and the three-batch ceiling. **Risk overrides cadence from mvp upward** (rule 3.2); in a poc a task that touches the floor gets its mechanical review with the floor named in the brief. Economy mode (rule 3.1) is separate, and still my word only.
+    Section 3 runs unchanged inside each row: the tiers, pipelining, stop-the-line, the ledger and the three-batch ceiling. **Risk overrides cadence from mvp upward** (rule 3.2); in a poc a task that touches the floor gets a mechanical review of its own, with the floor named in the brief. Economy mode (rule 3.1) is separate, and still my word only.
 
 14.3 **The floor — every mode, never deferred, never parked in the backlog.**
     - No secret in code, a commit, a log, or an error message (rule 9.5, `codex-playbook-environment`).

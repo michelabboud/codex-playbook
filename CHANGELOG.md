@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.1.15 — 2026-10-09
+
+Ported from Claude Code Playbook 0.1.27. Reviews were slowing development:
+a mechanical review ran after every task, and nearly every concurrency, data
+or API task got its own deep review.
+
+- Rule 3.1: each task is gated by its automated checks (tests, lint, type
+  checks); the mechanical review moves to the batch, side by side with the
+  deep review on the same pinned range.
+- Rules 3.1–3.2: a batch is 5–15 tasks or about 2,000 changed lines; deep
+  review at task grain only for the security floor and unsafe code;
+  concurrency, public-API and data-path tasks go early in the batch, named in
+  its brief. Worked case 10 and its fixture follow.
+- Rule 14.2: the dev-mode table follows; sensitive keeps 3–6 tasks or about
+  1,000 lines. README, site and the pipeline guide follow. ADR 0013.
+- Tests: 11 new checks, all mutation-verified. 212 pass.
+
 ## 0.1.14 — 2026-10-09
 
 Ported from Claude Code Playbook 0.1.26. A Codex session stuck on cleanup

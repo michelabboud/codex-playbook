@@ -1300,7 +1300,7 @@ write_fresh_local_layer() {
       '  **Anchor:** `# 3 · Code reviews — rules 3.1–3.5` (in `codex-playbook-reviews/SKILL.md`)'
     printf '  **Rule digest:** `sha256:%s`\n' "$reviews_digest"
     printf '%s\n' \
-      '  **Dead words:** `Per task**, on the Standard tier and never the Fast one` (in `codex-playbook-reviews/SKILL.md`)' \
+      '  **Dead words:** `Per batch**, side by side with the deep review on the same pinned range` (in `codex-playbook-reviews/SKILL.md`)' \
       '- **Override — the version line.** Whatever I decided instead.' \
       '  **Anchor:** `# My Global Rules — Codex` (in `AGENTS.md`)'
     printf '  **Rule digest:** `sha256:%s`\n' "$agents_digest"
