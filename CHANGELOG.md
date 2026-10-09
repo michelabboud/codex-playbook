@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.1.14 — 2026-10-09
+
+Ported from Claude Code Playbook 0.1.26. A Codex session stuck on cleanup
+re-ran the same refused `rm -rf` on 3.3 GB of idle incremental cache when told
+to "try again", and its coordinator notes had recorded the cache as
+"historical refused incremental deletion, must keep".
+
+- Router: **an identical retry is never a route** — Codex's built-in rejection
+  answers the same way every time, and under `never` there is no one to ask;
+  under `on-request`, one escalated request stating the refusal is how you ask.
+- Router: the build-output exception names its routes — `cargo clean` or
+  `rm -r`, once — and notes that Codex rejects every `rm -rf`.
+- Router and rule 13.6: **a refusal is not a classification**; a refusal
+  recorded in a note or handoff never turns build output into a keep.
+- Rule 10.1 (destructive skill): the identical-retry sentence.
+- Tests: 8 new checks plus 2 rewritten; all 10 mutation-verified. 201 pass.
+
 ## 0.1.13 — 2026-10-05
 
 - Preserve template-looking user text exactly, admit Unicode-expanded HTML

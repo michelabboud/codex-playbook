@@ -913,7 +913,7 @@ if [ "$(grep -Fc -- 'take the route the refusal names, quarantine, or ask' AGENT
 else
   fail 'the router names the three routes after a refusal'
 fi
-if [ "$(grep -Fc -- 'one escalated request for the refused command itself, unchanged and stating the refusal, is asking' AGENTS.md)" -eq 1 ]; then
+if [ "$(grep -Fc -- 'under `on-request`, one escalated request stating the refusal is how you ask me, never after I decline' AGENTS.md)" -eq 1 ]; then
   pass 'the router treats one escalated request as asking'
 else
   fail 'the router treats one escalated request as asking'
@@ -1125,10 +1125,20 @@ need_once "$DS" '**Build output is the one exception, so cleanup never stalls on
 need_once "$DS" 'remove it once by the toolchain'"'"'s own clean command (`cargo clean`, `go clean -cache`)' '10.1 build output goes by the toolchain clean command'
 need_once "$DS" 'a flag such as `-f`, not the target' '10.1 the exception covers only a refused form'
 need_once "$DS" 'If that is refused too, or the refusal named the target, or I declined, it is a stop.' '10.1 the exception ends at a second refusal'
-need_once AGENTS.md 'whose command form alone was refused goes once by its toolchain'"'"'s clean command' 'router carries the build-output exception'
+need_once AGENTS.md 'build output proven regenerable and idle whose command form alone was refused (Codex rejects every `rm -rf`)' 'router carries the build-output exception'
 need_once "$HY" '**The floor never stops work by itself:**' '13.5 the floor never stops work by itself'
 need_once "$HY" 'Stop only for a step whose measured need will not fit in the space left' '13.5 stops only for a step that will not fit'
 need_once "$HY" 'except rule 10.1'"'"'s route for build output proven regenerable and idle, once' '13.6 allows only the build-output route'
+
+# An identical retry is never a route; a refusal is not a classification (0.1.14).
+need_once AGENTS.md '**An identical retry is never a route:**' 'router says an identical retry is never a route'
+need_once AGENTS.md 'under `never` there is no one to ask' 'router says never has no one to ask'
+need_once AGENTS.md 'goes once by `cargo clean` or `rm -r`' 'router names the build-output routes'
+need_once AGENTS.md 'A refusal is not a classification.' 'router says a refusal is not a classification'
+need_once .agents/skills/codex-playbook-destructive/SKILL.md '**An identical retry is never a route on its own:**' '10.1 an identical retry is never a route'
+need_once .agents/skills/codex-playbook-hygiene/SKILL.md '**A refusal is not a classification:**' '13.6 a refusal is not a classification'
+need_once .agents/skills/codex-playbook-hygiene/SKILL.md 'never turns it into something to keep' '13.6 a recorded refusal never makes a keep'
+need_absent 'one escalated request for the refused command itself, unchanged and stating the refusal, is asking' 'retired: router retry-unchanged clause'
 
 if [ "$failures" -ne 0 ]; then
   printf '\n%s rulebook verification check(s) failed.\n' "$failures" >&2

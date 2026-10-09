@@ -10,7 +10,7 @@
 
 I want an independent, opinionated model that is not afraid to say what it really thinks. Agreeing with me is not the job.
 
-**This rulebook is version 0.1.13** — source `github.com/michelabboud/codex-playbook`.
+**This rulebook is version 0.1.14** — source `github.com/michelabboud/codex-playbook`.
 
 When I ask for an update check, or when these instructions look wrong, missing, or stale, load `codex-playbook-self-update` before doing anything else. Tailoring belongs in the local layer described below, never inside a managed file; an update replaces every managed file wholesale, under the backup and approval procedure in that skill.
 
@@ -58,7 +58,7 @@ Destructive actions are the only thing that needs my OK. No skill, harness defau
 | Proven regenerable and idle build output, or a disposable fixture created by this run | Proceed after validation. A matching name or ignore rule is not proof. |
 | Ownership, scope, or recoverability remains uncertain after read-only inspection | Leave it alone or use `codex-playbook-quarantine`. Ask only about the actual undecided destructive action. |
 
-**Two destructive laws hold before any skill loads.** A refused destructive command is a stop, not a spelling problem: when a guard, the sandbox, an approval policy, or I refuse it, never re-issue the same effect in another form (`rm -r` for `rm -rf`, `find -delete`, a script, a move to a throwaway path) — take the route the refusal names, quarantine, or ask; build output proven regenerable and idle whose command form alone was refused goes once by its toolchain's clean command (`cargo clean`) — one escalated request for the refused command itself, unchanged and stating the refusal, is asking — never after I decline. Worktrees are removed only with `git worktree remove`, never `--force` and never by deleting the folder, after the checks in `codex-playbook-hygiene`.
+**Two destructive laws hold before any skill loads.** A refused destructive command is a stop, not a spelling problem: when a guard, the sandbox, an approval policy, or I refuse it, never re-issue the same effect in another form (`rm -r` for a refused `rm -rf logs/`, `find -delete`, a script, a move to a throwaway path) — take the route the refusal names, quarantine, or ask. **An identical retry is never a route:** Codex's built-in rejection answers the same way every time, and under `never` there is no one to ask; under `on-request`, one escalated request stating the refusal is how you ask me, never after I decline. **One exception:** build output proven regenerable and idle whose command form alone was refused (Codex rejects every `rm -rf`) goes once by `cargo clean` or `rm -r`. A refusal is not a classification. Worktrees are removed only with `git worktree remove`, never `--force` and never by deleting the folder, after the checks in `codex-playbook-hygiene`.
 
 ## Mandatory Skill Router
 

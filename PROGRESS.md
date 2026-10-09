@@ -1,5 +1,16 @@
 # Progress
 
+**0.1.14, 2026-10-09 — a refused cleanup no longer loops.** Ported from
+Claude Code Playbook 0.1.26. A Codex coordinator re-ran an identical
+`rm -rf` on idle compiler cache after Codex had already rejected it, and its
+notes had turned the refusal into "must keep". The router now says an
+identical retry is never a route (the built-in rejection answers the same way
+every time, and under `never` there is no one to ask), names `cargo clean` and
+`rm -r` as the build-output routes, and says a refusal is not a
+classification; the destructive and hygiene skills carry the same law. 201
+rulebook checks pass; each of the ten new or changed assertions was
+mutation-verified to fail when its clause is removed.
+
 **0.1.13, 2026-10-05 — shared build task dashboard.** Implemented a
 reusable, refreshing local browser view across projects and sessions, with
 locked updates, retained failures, timestamps and separate acceptance gates.
@@ -39,7 +50,7 @@ local-layer, and 673 installer lifecycle checks with direct exit 0. See
 installation and native macOS acceptance remain unverified and were outside
 this two-playbook publication scope. Older gate notes below are historical.
 
-**Current version:** 0.1.13
+**Current version:** 0.1.14
 
 ## Historical 0.1.6 publication and repair notes
 
