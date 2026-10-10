@@ -1,5 +1,10 @@
 # Progress
 
+**0.1.16, 2026-10-10 — a qualified Fast configuration may run mechanical review.**
+Ported from Claude Code Playbook 0.1.28. The roster states the test (owner's
+admission and a recorded comparison) and records Claude Haiku 5.5. ADR 0014.
+219 rulebook checks pass; the 7 new ones were mutation-verified.
+
 **0.1.15, 2026-10-09 — reviews batch more.** Ported from Claude Code Playbook
 0.1.27. Each task is gated by its automated checks; the mechanical review runs
 per batch, side by side with the deep review; a batch is 5–15 tasks or about
@@ -57,7 +62,7 @@ local-layer, and 673 installer lifecycle checks with direct exit 0. See
 installation and native macOS acceptance remain unverified and were outside
 this two-playbook publication scope. Older gate notes below are historical.
 
-**Current version:** 0.1.15
+**Current version:** 0.1.16
 
 ## Historical 0.1.6 publication and repair notes
 

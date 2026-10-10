@@ -54,6 +54,14 @@ erase it: your personal global `AGENTS.md` notes or a file beside them. Review h
 close-out ledgers quote the binding that was actually used. The binding also names the economy configuration, one per family, when economy mode is available. Re-examine it whenever the runtime's
 model list changes; a binding older than a few months is a claim, not a fact.
 
+## The mechanical review seat — which configurations qualify (rule 3.1)
+
+The Standard tier always qualifies. A **Fast** configuration qualifies only when the owner admits
+it to the seat **and** a comparison on that exact configuration is recorded below, with its date
+and its limits; the binding then names it beside the Standard tier. Until a broader comparison is
+recorded, a mechanical review run on an admitted Fast configuration says so in its header. Being
+admitted to the seat does not move a configuration up a tier.
+
 ## The measurement behind the mechanical-review floor — and what it does not show
 
 In the source rulebook's benchmark (September 2026), two **Claude** models — its Fast and its
@@ -68,3 +76,11 @@ conservative policy floor, pending a comparative measurement on the configuratio
 actually bind. Reasoning effort alone is not evidence of greater accuracy or of independent
 failure modes. When you take that measurement, record it here with its date and the exact
 configurations.
+
+**Claude Haiku 5.5, admitted by the owner on 2026-10-10.** A first comparison the same day, at
+effort `high` against GPT-6 Luna at `high`: on a 175-line file with ten seeded defects and three
+decoys, Haiku 5.5 found all ten in both runs and reported no decoy; on a real 446-line file it
+found the one known subtle defect in both runs, plus eight or nine further real defects per run
+against two or three for Luna. Limits: two runs, one hard file, not blind — its author wrote the
+fixtures and judged the answers — and Luna ran at `high`, not `max`. Earlier Haiku models remain
+unqualified, and so does GPT-6 Luna until it passes the nine-defect comparison.

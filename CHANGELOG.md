@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.16 — 2026-10-10
+
+Ported from Claude Code Playbook 0.1.28.
+
+- Rules 3.1 and 8.1: mechanical review runs on the Standard tier or on a
+  configuration the roster qualifies for the seat — never an unqualified Fast
+  one.
+- Roster: a new mechanical review seat section — a Fast configuration
+  qualifies only with the owner's admission and a recorded comparison on that
+  exact configuration. Records Claude Haiku 5.5 (admitted 2026-10-10; all ten
+  seeded defects twice, and on one real file the known subtle defect twice plus
+  eight or nine further real defects per run; not blind). Earlier Haiku models
+  and GPT-6 Luna stay unqualified. ADR 0014.
+- Tests: 7 new checks, all mutation-verified. 219 pass.
+
 ## 0.1.15 — 2026-10-09
 
 Ported from Claude Code Playbook 0.1.27. Reviews were slowing development:

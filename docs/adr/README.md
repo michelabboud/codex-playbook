@@ -16,3 +16,4 @@
 
 - [0012 — Shared file task dashboard](0012-shared-file-task-dashboard.md): concurrent Codex task snapshots in one refreshing local browser view.
 - [0013 — Batch the mechanical review](0013-batch-the-mechanical-review.md): automated checks per task; mechanical and deep review side by side per batch of 5–15 tasks or about 2,000 lines.
+- [0014 — Qualified Fast configuration for mechanical review](0014-qualified-fast-configuration-for-mechanical-review.md): the owner's admission plus a recorded comparison qualifies a Fast configuration for the mechanical review seat; Claude Haiku 5.5 recorded.

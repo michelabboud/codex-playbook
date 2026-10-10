@@ -1153,6 +1153,15 @@ need_once "$REV" '**Concurrency, public-API and other data-path tasks stay in th
 need_once "$DM" '| **production** | automated checks | mechanical and deep, 5–15 tasks or about 2,000 lines |' '14.2 production batches mechanical and deep'
 need_once "$DM" 'mechanical and deep, 3–6 tasks or about 1,000 lines' '14.2 sensitive keeps smaller batches'
 need_absent 'concurrency, data-safety, unsafe-code and public-API tasks get the deep review at task grain' 'retired: deep review per task for concurrency, data and API'
+# A qualified Fast configuration may fill the mechanical review seat; Claude Haiku 5.5 admitted (0.1.16).
+ROS=.agents/skills/codex-playbook-subagents/references/roster.md
+need_once "$REV" 'never an unqualified Fast one (a conservative floor' '3.1 mechanical review never on an unqualified Fast configuration'
+need_once .agents/skills/codex-playbook-subagents/SKILL.md 'never an unqualified Fast one, a conservative floor' '8.1 mechanical review never on an unqualified Fast configuration'
+need_once "$ROS" '## The mechanical review seat — which configurations qualify (rule 3.1)' 'roster names the mechanical review seat'
+need_once "$ROS" 'A **Fast** configuration qualifies only when the owner admits' 'roster: a Fast configuration needs admission and a recorded comparison'
+need_once "$ROS" '**Claude Haiku 5.5, admitted by the owner on 2026-10-10.**' 'roster records the Haiku 5.5 admission'
+need_once "$ROS" 'Earlier Haiku models remain' 'roster keeps earlier Haiku models unqualified'
+need_absent 'on the Standard tier and never the Fast one' 'retired: mechanical review never the Fast one'
 
 if [ "$failures" -ne 0 ]; then
   printf '\n%s rulebook verification check(s) failed.\n' "$failures" >&2
