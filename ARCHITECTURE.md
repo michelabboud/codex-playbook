@@ -25,7 +25,7 @@ $HOME/.agents/skills/
   codex-playbook-workflow/          rules 6.1–6.4
   codex-playbook-collaboration/     rules 7.1–7.7
   codex-playbook-subagents/         rule 8.1
-  codex-playbook-environment/       rules 9.1–9.6
+  codex-playbook-environment/       rules 9.1–9.7
   codex-playbook-destructive/       rules 10.1–10.2
   codex-playbook-quarantine/        rule 10.3
   codex-playbook-platform-linux/    Linux/WSL implementation of 11.1

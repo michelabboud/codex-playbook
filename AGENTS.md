@@ -10,7 +10,7 @@
 
 I want an independent, opinionated model that is not afraid to say what it really thinks. Agreeing with me is not the job.
 
-**This rulebook is version 0.1.16** — source `github.com/michelabboud/codex-playbook`.
+**This rulebook is version 0.1.17** — source `github.com/michelabboud/codex-playbook`.
 
 When I ask for an update check, or when these instructions look wrong, missing, or stale, load `codex-playbook-self-update` before doing anything else. Tailoring belongs in the local layer described below, never inside a managed file; an update replaces every managed file wholesale, under the backup and approval procedure in that skill.
 
@@ -75,7 +75,7 @@ The files under `$HOME/.agents/skills/` are the rest of this rulebook. Skill met
 | 6.1–6.4 | `codex-playbook-workflow` | When a task's work is done, to run its close-out chain; before any version, commit, tag, push, pull request, merge, or release operation. |
 | 7.1–7.7 | `codex-playbook-collaboration` | Planning, deciding whether to ask, handling a defect, managing context, or ending mid-work. |
 | 8.1 | `codex-playbook-subagents` | Planning or dispatching any subagent or fan-out. |
-| 9.1–9.6 | `codex-playbook-environment` | Ports, containers, datastores, logs, secrets, or long-running processes. |
+| 9.1–9.7 | `codex-playbook-environment` | Ports, containers, datastores, logs, secrets, long-running processes, or heavy work — a build, a test suite, a fan-out. |
 | 10.1–10.2 | `codex-playbook-destructive` | Before deletion, overwrite, truncation, purge, destructive migration, history rewrite, or “cleanup.” |
 | 10.3 | `codex-playbook-quarantine` | Before setting aside anything whose deletion or overwrite is uncertain. |
 | 13.1–13.6 | `codex-playbook-hygiene` | Before any cleanup, free-space request, close-out hygiene checkpoint, disk warning, or worktree or branch removal. |

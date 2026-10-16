@@ -1,13 +1,13 @@
 ---
 name: codex-playbook-environment
-description: Apply Codex Playbook environment rules 9.1-9.6 before claiming ports, touching containers, adding datastores, handling logs or secrets, or leaving processes running.
+description: Apply Codex Playbook environment rules 9.1-9.7 before claiming ports, touching containers, adding datastores, handling logs or secrets, leaving processes running, or starting a build, a test suite or a fan-out.
 ---
 
-# 9 · Environment & operations — rules 9.1–9.6
+# 9 · Environment & operations — rules 9.1–9.7
 
 *Local layer: if `playbook-local.md` exists in the Codex home, its entries apply only within the non-authorizing, never-weaken boundary in (`AGENTS.md`, "The local layer").*
 
-*Read before claiming a port, touching a container, adding a datastore, handling logs or secrets, or leaving anything running.*
+*Read before claiming a port, touching a container, adding a datastore, handling logs or secrets, leaving anything running, or starting heavy work.*
 
 9.1 **Ports:** before assigning a port, verify it's free — on the machine (the matching platform skill gives the command) *and* against the claims registry at **`~/.config/fleet/ports/`** (one file per project). Claim your port by writing or updating the project's file there; also note it in the project README. Never reuse a conflicting port. The `fleet` path is the Codex owner's explicit override of the Claude source's older `agent-rules` path.
 
@@ -20,3 +20,5 @@ description: Apply Codex Playbook environment rules 9.1-9.6 before claiming port
 9.5 **Secrets:** never commit secrets, keys, or tokens. Secrets come from environment variables or a secrets store, never source. Never log credentials or PII. **Never print or echo a secret's value into the conversation — not even "just to look"; transcripts are archived.** Inspect secrets by name and presence. A length or a hash is a last resort, not a habit — a hash of a short or guessable secret is a lookup away from the secret. Never put one on a message bus or through a collaboration tool.
 
 9.6 **Long-running processes: nothing keeps running silently.** Anything started that outlives the task — containers, soak tests, watchers, dev servers — is either stopped at close-out or explicitly reported as left running, with the reason and the exact teardown command.
+
+9.7 **Heavy work waits for a quiet host.** Before a build, a full test suite, a fan-out, or anything else that will load the machine for more than a moment, measure the host — load, available memory, and what memory-backed filesystems hold; the matching platform skill gives the commands. Read the load as a factor, load ÷ cores, so the bands hold on any machine; the platform skill says how to read it where there is no load average, and your local layer (`playbook-local.md`) may state the bands as absolute numbers for one box. **Green, below 0.9:** start. **Orange, 0.9 to 1.8:** nothing new and heavy starts; what is running finishes. **Red, 1.8 and above, or available memory below rule 13.5's floor:** a running lane pauses before its next heavy step too, and nothing starts until a fresh measurement is out of the red. **In the heavy band the step waits and re-measures; it does not start and hope:** a lane that is already running measures again before each heavy step and pauses when the host has gone heavy under it — the fan-out that measured a quiet machine is not the one running now. Where the host has a shared lease for heavy work, take it before building. Say in the close-out when the measurement changed what you did. A machine at load 130 on 28 cores with its swap full is not a reason to start a fourth compile; it is the reason to stop the third (2026-10-16: four lanes compiled at once on a box that had been at 3 GB free for a day, and none of them had looked).

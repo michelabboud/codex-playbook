@@ -1,5 +1,12 @@
 # Progress
 
+**0.1.17, 2026-10-16 — build output never lives in memory; heavy work waits for a quiet host.**
+Ported from Claude Code Playbook 0.1.29. Rules 13.1, 13.4 and 13.5 keep build
+output off memory-backed filesystems, make a lane remove the private target it
+created, and run hygiene on a memory floor; new rule 9.7 reads load as a factor
+of the cores in three bands and makes a running lane re-measure before each
+heavy step. Every platform skill gains the memory-backed check. ADR 0015.
+
 **0.1.16, 2026-10-10 — a qualified Fast configuration may run mechanical review.**
 Ported from Claude Code Playbook 0.1.28. The roster states the test (owner's
 admission and a recorded comparison) and records Claude Haiku 5.5. ADR 0014.
@@ -62,7 +69,7 @@ local-layer, and 673 installer lifecycle checks with direct exit 0. See
 installation and native macOS acceptance remain unverified and were outside
 this two-playbook publication scope. Older gate notes below are historical.
 
-**Current version:** 0.1.16
+**Current version:** 0.1.17
 
 ## Historical 0.1.6 publication and repair notes
 

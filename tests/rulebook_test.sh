@@ -63,6 +63,7 @@ cat > "$test_root/expected-ids" <<'EOF'
 9.4
 9.5
 9.6
+9.7
 10.1
 10.2
 10.3
@@ -162,9 +163,9 @@ fi
 manifest_ids="$test_root/manifest-ids"
 cut -f1 config/rule-manifest.tsv > "$manifest_ids"
 if cmp -s "$test_root/expected-ids" "$manifest_ids"; then
-  pass 'rule manifest contains the canonical 64 IDs in order'
+  pass 'rule manifest contains the canonical 65 IDs in order'
 else
-  fail 'rule manifest does not match the canonical 64-ID set'
+  fail 'rule manifest does not match the canonical 65-ID set'
 fi
 
 occurrences="$test_root/rule-occurrences"
@@ -221,12 +222,12 @@ fi
 
 grep -Eo '"[0-9]+\.[0-9]+",' docs/index.html |
   sed -e 's/^"//' -e 's/",$//' > "$test_root/site-ids"
-if [ "$(wc -l < "$test_root/site-ids" | tr -d ' ')" -eq 64 ] &&
-   [ "$(LC_ALL=C sort -V -u "$test_root/site-ids" | wc -l | tr -d ' ')" -eq 64 ] &&
+if [ "$(wc -l < "$test_root/site-ids" | tr -d ' ')" -eq 65 ] &&
+   [ "$(LC_ALL=C sort -V -u "$test_root/site-ids" | wc -l | tr -d ' ')" -eq 65 ] &&
    cmp -s "$test_root/expected-ids" "$test_root/site-ids"; then
-  pass 'visual playbook contains the exact canonical 64-ID set'
+  pass 'visual playbook contains the exact canonical 65-ID set'
 else
-  fail 'visual playbook rule IDs do not match the canonical 64-ID set'
+  fail 'visual playbook rule IDs do not match the canonical 65-ID set'
 fi
 
 cat > "$test_root/expected-mantra-headings" <<'EOF'
@@ -270,11 +271,11 @@ fi
 
 grep -E '^\| [0-9]+\.[0-9]+ \|' docs/reports/2026-09-17-rule-parity-matrix.md |
   sed -E 's/^\| ([0-9]+\.[0-9]+) \|.*$/\1/' > "$test_root/report-ids"
-if [ "$(wc -l < "$test_root/report-ids" | tr -d ' ')" -eq 64 ] &&
+if [ "$(wc -l < "$test_root/report-ids" | tr -d ' ')" -eq 65 ] &&
    cmp -s "$test_root/expected-ids" "$test_root/report-ids"; then
-  pass 'human-readable parity matrix contains the canonical 64 IDs in order'
+  pass 'human-readable parity matrix contains the canonical 65 IDs in order'
 else
-  fail 'human-readable parity matrix does not match the canonical 64-ID set'
+  fail 'human-readable parity matrix does not match the canonical 65-ID set'
 fi
 
 roster_file=.agents/skills/codex-playbook-subagents/references/roster.md
@@ -1162,6 +1163,30 @@ need_once "$ROS" 'A **Fast** configuration qualifies only when the owner admits'
 need_once "$ROS" '**Claude Haiku 5.5, admitted by the owner on 2026-10-10.**' 'roster records the Haiku 5.5 admission'
 need_once "$ROS" 'Earlier Haiku models remain' 'roster keeps earlier Haiku models unqualified'
 need_absent 'on the Standard tier and never the Fast one' 'retired: mechanical review never the Fast one'
+
+# Port of source 0.1.29: build output never lives in memory; heavy work waits for a quiet host (0.1.17).
+HYG=.agents/skills/codex-playbook-hygiene/SKILL.md
+ENV=.agents/skills/codex-playbook-environment/SKILL.md
+need_once "$HYG" '**Build output and large scratch never live on a memory-backed filesystem**' '13.4 no build output on a memory-backed filesystem'
+need_once "$HYG" 'Check the filesystem type of a target path before pointing a build at it' '13.4 the filesystem type is checked before a build goes there'
+need_once "$HYG" 'never that memory is the next disk' '13.4 a full disk never makes memory the next disk'
+need_once "$HYG" 'a lane removes its own build target at its close-out and never leaves it for a later sweep' '13.1 a lane removes the private build target it created'
+need_once "$HYG" "the one your local layer sets, or 10 % of the machine's memory when it sets none" '13.5 hygiene runs below the memory floor'
+need_once "$HYG" 'or a memory-backed filesystem holds more than a quarter of its size' '13.5 hygiene runs when a memory-backed filesystem is a quarter full'
+need_once "$ENV" '9.7 **Heavy work waits for a quiet host.**' '9.7 heavy work waits for a quiet host'
+need_once "$ENV" 'Read the load as a factor, load ÷ cores, so the bands hold on any machine' '9.7 load is read as a factor of the core count'
+need_once "$ENV" "**Red, 1.8 and above, or available memory below rule 13.5's floor:**" '9.7 red pauses a running lane before its next heavy step'
+need_once "$ENV" '**In the heavy band the step waits and re-measures; it does not start and hope:**' '9.7 in the heavy band the step waits'
+need_once "$ENV" 'measures again before each heavy step and pauses when the host has gone heavy under it' '9.7 a running lane measures again before each heavy step'
+need_once "$ENV" '# 9 · Environment & operations — rules 9.1–9.7' 'section 9 header counts to 9.7'
+need_once .agents/skills/codex-playbook-subagents/SKILL.md 'a build or a full test suite waits for a quiet host (rule 9.7)' "8.1 sends a lane's own heavy steps to rule 9.7"
+need_once AGENTS.md '| 9.1–9.7 | `codex-playbook-environment` |' 'the router routes heavy work to the environment skill'
+for platform in linux macos windows; do
+  need_once ".agents/skills/codex-playbook-platform-$platform/SKILL.md" '| Is a path memory-backed? |' "platform $platform says how to tell a memory-backed path"
+done
+need_once .agents/skills/codex-playbook-platform-linux/SKILL.md '`findmnt -T <path> -o FSTYPE`' 'linux: findmnt gives the filesystem type'
+need_once .agents/skills/codex-playbook-platform-linux/SKILL.md '| Memory-backed filesystems |' 'linux: tmpfs usage is measured'
+need_once .agents/skills/codex-playbook-platform-windows/SKILL.md "**Rule 9.7's bands on this counter:**" 'windows: the bands are read off the CPU counter'
 
 if [ "$failures" -ne 0 ]; then
   printf '\n%s rulebook verification check(s) failed.\n' "$failures" >&2

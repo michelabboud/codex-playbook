@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.1.17 — 2026-10-16
+
+Ported from Claude Code Playbook 0.1.29. A Codex lane building a Rust project
+had set its cargo target to `/dev/shm` — the only filesystem with room on a
+disk at 96 % — and left 44 GB resident in RAM for 26 hours after it ended. The
+next day four Rust builds started at once with 2.8 GB available and swap full;
+the load reached 145 on 28 cores, and none of the four had measured the host.
+
+- Rule 13.4: build output and large scratch never live on a memory-backed
+  filesystem (`/dev/shm`, any tmpfs, a RAM disk); check a target path's
+  filesystem type first; no room on disk never makes memory the next disk.
+- Rule 13.1: a build target a lane created for itself outside the repo's own
+  output folder is the lane's to remove at its close-out.
+- Rule 13.5: hygiene also runs below a memory floor (the local layer's value,
+  10 % of the machine's memory otherwise) and when a memory-backed filesystem
+  is more than a quarter full; memory-backed items go first.
+- Rule 9.7, new: heavy work — a build, a full test suite, a fan-out — waits for
+  a quiet host. Load is a factor of the core count: green below 0.9 starts;
+  orange, 0.9 to 1.8, starts nothing new and heavy; red, 1.8 and above or
+  memory below the floor, pauses a running lane before its next heavy step
+  too. Rule 8.1 points at it; the router row reads 9.1–9.7; the manifest,
+  site and parity matrix carry 65 rules.
+- Platform skills: every one says how to tell a memory-backed path; Linux adds
+  the tmpfs measurement and the `shared`-column tell; Windows reads the bands
+  off its CPU counter.
+- ADR 0015. Tests: 20 new checks; 239 pass.
+
 ## 0.1.16 — 2026-10-10
 
 Ported from Claude Code Playbook 0.1.28.

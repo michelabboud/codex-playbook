@@ -178,7 +178,7 @@ AGENTS.md                 lean global authority and trigger router
 .agents/skills/           twenty on-demand skills: rule sections and the dev-mode command
 config/managed-skills.txt authoritative installed-skill inventory
 config/managed-resources.txt  nested files an installation depends on
-config/rule-manifest.tsv  authoritative 50-rule ownership map
+config/rule-manifest.tsv  authoritative 65-rule ownership map
 INSTALL.md                backup-first install and recovery procedure
 templates/playbook-local.md  local-layer template; documentation, never installed
 scripts/install.sh        format-2 transactional installer
@@ -195,7 +195,7 @@ docs/plans/               approved designs and implementation plans
 
 ## Version
 
-Current: **v0.1.16**. `VERSION` is the source of truth; release detail lives in
+Current: **v0.1.17**. `VERSION` is the source of truth; release detail lives in
 [`CHANGELOG.md`](CHANGELOG.md).
 
 ## License

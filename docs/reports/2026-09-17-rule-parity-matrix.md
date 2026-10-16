@@ -98,6 +98,7 @@ rule with three operating-system implementations.
 | 9.4 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Direct: logs are never deleted and active logs are never compressed. |
 | 9.5 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Direct: secrets stay out of source, logs, transcripts, and collaboration tools. |
 | 9.6 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Direct: long-running processes are stopped or explicitly reported. |
+| 9.7 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Direct: heavy work waits for a quiet host; load as a factor of the cores in three bands; a running lane re-measures before each heavy step. |
 | 10.1 | `rules/DESTRUCTIVE.md` | `codex-playbook-destructive` | Direct: destructive effect, not command spelling, controls approval. |
 | 10.2 | `rules/DESTRUCTIVE.md` | `codex-playbook-destructive` | Adapted: Codex tool calls retain validate-first and destructive-action-alone semantics. |
 | 10.3 | `rules/QUARANTINE.md` | `codex-playbook-quarantine` | Direct: complete file, database, notification, manifest, and lifecycle procedure. |
@@ -109,8 +110,8 @@ rule with three operating-system implementations.
 | 13.1 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Direct: six classes, most protective wins, name and ignore rules never decide. |
 | 13.2 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Direct: provable ownership; build output follows rule 10.2's carve-out. |
 | 13.3 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Direct: three read-only checks, `git worktree remove` without `--force`, branch deletion needs another ref. |
-| 13.4 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Direct: `.hygiene.json` marker, evidence not permission. |
-| 13.5 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Adapted: the disk floor is set in `playbook-local.md`; the platform skill gives the commands. |
+| 13.4 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Direct: `.hygiene.json` marker, evidence not permission; no build output on a memory-backed filesystem. |
+| 13.5 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Adapted: the disk and memory floors are set in `playbook-local.md`; the platform skill gives the commands. |
 | 13.6 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Adapted: a sandbox or approval-policy refusal counts as a refusal. |
 | 14.1 | `rules/DEV_MODES.md` | `codex-playbook-dev-modes` | Adapted: the mode line lives in the project's `AGENTS.md`; the owner's switch is `$codex-playbook-dev-mode`. |
 | 14.2 | `rules/DEV_MODES.md` | `codex-playbook-dev-modes` | Direct: the review table by mode. |

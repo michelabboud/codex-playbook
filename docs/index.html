@@ -118,7 +118,7 @@
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="topbar">
-    <a class="wordmark" href="#top">Codex Playbook / 0.1.16</a>
+    <a class="wordmark" href="#top">Codex Playbook / 0.1.17</a>
     <nav class="toplinks" aria-label="Primary">
       <a href="#mantra">Mantra</a><a href="#authority">Authority</a><a href="#rules">Rules</a><a href="#native">Codex-native</a>
       <a class="install" href="https://github.com/michelabboud/codex-playbook/blob/main/INSTALL.md">Install</a>
@@ -447,6 +447,11 @@
             "9.6",
             "Nothing runs silently",
             "Stop long-lived processes or report them with exact teardown commands."
+          ],
+          [
+            "9.7",
+            "Heavy work waits for a quiet host",
+            "Measure load as a factor of the cores, memory and memory-backed filesystems before a build, a test suite or a fan-out; green below 0.9 starts, orange to 1.8 starts nothing new, red pauses running lanes before their next heavy step."
           ]
         ]
       },
@@ -530,12 +535,12 @@
           [
             "13.4",
             "Make things cleanable at creation",
-            "A .hygiene.json marker starts classification; it never moves an item out of protected or evidence."
+            "A .hygiene.json marker starts classification; it never moves an item out of protected or evidence. Build output and large scratch never live on a memory-backed filesystem."
           ],
           [
             "13.5",
             "Run on schedule and report",
-            "Every close-out, phase end and disk-floor breach; report removed, kept, and next candidates."
+            "Every close-out, phase end, disk-floor or memory-floor breach, and a memory-backed filesystem a quarter full; report removed, kept, and next candidates."
           ],
           [
             "13.6",
