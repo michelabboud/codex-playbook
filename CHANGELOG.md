@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.1.19 — 2026-10-16
+
+Ported from Claude Code Playbook 0.1.30 as completed. Correction to the
+0.1.18 entry below: asked how it checks load, the lane gave the right
+commands and the right reading. It had decided from the 134 it read before
+the owner's pause, still in its conversation — a stale number, not the
+heading.
+
+- Rule 9.7: the number that decides is the one you read now (the owner:
+  "just take the current state") — run the command at the moment of the
+  decision, before each heavy step and again on resuming after a pause, and
+  read the 1-minute average; a figure already in the conversation is a record
+  of an earlier machine, and the 5- and 15-minute averages are history after
+  a spike. Periodic watching is a daemon's job, not a session's.
+- Tests: two new checks.
+
 ## 0.1.18 — 2026-10-16
 
 Ported from Claude Code Playbook 0.1.30. Within the hour of installing 0.1.17

@@ -1,5 +1,7 @@
 # Progress
 
+**0.1.19, 2026-10-16 — rule 9.7: the number that decides is the one you read now.** Ported from Claude Code Playbook 0.1.30 as completed; corrects the 0.1.18 note — the lane had decided from a reading taken before the owner's pause, not from the heading.
+
 **0.1.18, 2026-10-16 — rule 9.7 reworded: a green host starts at once.** Ported from Claude Code Playbook 0.1.30 after a Codex lane refused `cargo xtask gate` at load 2.5 under the first wording.
 
 **0.1.17, 2026-10-16 — build output never lives in memory; heavy work waits for a quiet host.**
@@ -71,7 +73,7 @@ local-layer, and 673 installer lifecycle checks with direct exit 0. See
 installation and native macOS acceptance remain unverified and were outside
 this two-playbook publication scope. Older gate notes below are historical.
 
-**Current version:** 0.1.18
+**Current version:** 0.1.19
 
 ## Historical 0.1.6 publication and repair notes
 
