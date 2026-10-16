@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.18 — 2026-10-16
+
+Ported from Claude Code Playbook 0.1.30. Within the hour of installing 0.1.17
+a Codex lane classified `cargo xtask gate` as heavy work — correctly — and then
+refused to run it on a host at load 2.5 on 28 cores: the body of rule 9.7 said
+green starts, the heading said wait, and the heading won.
+
+- Rule 9.7 now opens with the outcome: "heavy work measures the host first,
+  and a green host starts at once." A green host is never a reason to wait,
+  the rule never asks anyone's permission, and waiting is only for orange and
+  red — a wait, not a stop. Rule 8.1's clause, the site and the parity matrix
+  follow.
+- Tests: the pinned heading and clause move with it; one new check.
+
 ## 0.1.17 — 2026-10-16
 
 Ported from Claude Code Playbook 0.1.29. A Codex lane building a Rust project

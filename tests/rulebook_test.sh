@@ -1173,13 +1173,14 @@ need_once "$HYG" 'never that memory is the next disk' '13.4 a full disk never ma
 need_once "$HYG" 'a lane removes its own build target at its close-out and never leaves it for a later sweep' '13.1 a lane removes the private build target it created'
 need_once "$HYG" "the one your local layer sets, or 10 % of the machine's memory when it sets none" '13.5 hygiene runs below the memory floor'
 need_once "$HYG" 'or a memory-backed filesystem holds more than a quarter of its size' '13.5 hygiene runs when a memory-backed filesystem is a quarter full'
-need_once "$ENV" '9.7 **Heavy work waits for a quiet host.**' '9.7 heavy work waits for a quiet host'
+need_once "$ENV" '9.7 **Heavy work measures the host first, and a green host starts at once.**' '9.7 heavy work measures first and green starts'
+need_once "$ENV" "a green host is never a reason to wait, and this rule never asks anyone's permission" '9.7 a green host is never a reason to wait'
 need_once "$ENV" 'Read the load as a factor, load ÷ cores, so the bands hold on any machine' '9.7 load is read as a factor of the core count'
 need_once "$ENV" "**Red, 1.8 and above, or available memory below rule 13.5's floor:**" '9.7 red pauses a running lane before its next heavy step'
-need_once "$ENV" '**In the heavy band the step waits and re-measures; it does not start and hope:**' '9.7 in the heavy band the step waits'
+need_once "$ENV" '**Waiting is only for orange and red, and it is a wait, not a stop:**' '9.7 waiting is only for orange and red, a wait not a stop'
 need_once "$ENV" 'measures again before each heavy step and pauses when the host has gone heavy under it' '9.7 a running lane measures again before each heavy step'
 need_once "$ENV" '# 9 · Environment & operations — rules 9.1–9.7' 'section 9 header counts to 9.7'
-need_once .agents/skills/codex-playbook-subagents/SKILL.md 'a build or a full test suite waits for a quiet host (rule 9.7)' "8.1 sends a lane's own heavy steps to rule 9.7"
+need_once .agents/skills/codex-playbook-subagents/SKILL.md 'a build or a full test suite measures the host first and starts when it is green (rule 9.7)' "8.1 sends a lane's own heavy steps to rule 9.7"
 need_once AGENTS.md '| 9.1–9.7 | `codex-playbook-environment` |' 'the router routes heavy work to the environment skill'
 for platform in linux macos windows; do
   need_once ".agents/skills/codex-playbook-platform-$platform/SKILL.md" '| Is a path memory-backed? |' "platform $platform says how to tell a memory-backed path"

@@ -98,7 +98,7 @@ rule with three operating-system implementations.
 | 9.4 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Direct: logs are never deleted and active logs are never compressed. |
 | 9.5 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Direct: secrets stay out of source, logs, transcripts, and collaboration tools. |
 | 9.6 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Direct: long-running processes are stopped or explicitly reported. |
-| 9.7 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Direct: heavy work waits for a quiet host; load as a factor of the cores in three bands; a running lane re-measures before each heavy step. |
+| 9.7 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Direct: heavy work measures the host first and a green host starts at once; load as a factor of the cores in three bands; a running lane re-measures before each heavy step. |
 | 10.1 | `rules/DESTRUCTIVE.md` | `codex-playbook-destructive` | Direct: destructive effect, not command spelling, controls approval. |
 | 10.2 | `rules/DESTRUCTIVE.md` | `codex-playbook-destructive` | Adapted: Codex tool calls retain validate-first and destructive-action-alone semantics. |
 | 10.3 | `rules/QUARANTINE.md` | `codex-playbook-quarantine` | Direct: complete file, database, notification, manifest, and lifecycle procedure. |

@@ -2,6 +2,7 @@
 
 **Current handoff:** [shared build dashboard, 2026-10-05](docs/handoffs/2026-10-05-shared-build-dashboard.md).
 
+- **0.1.18, 2026-10-16:** rule 9.7 reworded so a green host starts at once; a lane had read "waits for a quiet host" as "wait" and refused a gate at load 2.5. Installed.
 - **0.1.17, 2026-10-16:** build output never lives in memory, a lane removes the private target it created, hygiene runs on a memory floor, and new rule 9.7 makes heavy work wait for a quiet host (ADR 0015, ported from Claude 0.1.29). Not installed into `~/.codex` yet: the owner's `playbook-local.md` Override on rule 8.1 is anchored to the subagents section, whose text changed, so the install must re-anchor it first.
 - Version 0.1.13 ships the shared dashboard skill; annotated `checkpoint/0.1.13` is published at `f70ca00b684bb5d5eecf5c509a1753cd31ebf9c4`.
 - The local browser window is open and automatic refresh is verified. Independent mechanical/deep reviews accepted the repair, and all package gates passed.
