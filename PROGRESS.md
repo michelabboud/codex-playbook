@@ -1,5 +1,12 @@
 # Progress
 
+**0.1.20, 2026-10-25 — live measurements admit builds without a compile lease.**
+Michel requested removal of the workspace compile-lease requirement from the
+repository and local installation. Rule 9.7, its site summary and regression
+checks now express one admission policy for single-crate and workspace commands.
+Source verification, publication and backup-first local installation are in progress.
+
+
 **0.1.19, 2026-10-16 — rule 9.7: the number that decides is the one you read now.** Ported from Claude Code Playbook 0.1.30 as completed; corrects the 0.1.18 note — the lane had decided from a reading taken before the owner's pause, not from the heading.
 
 **0.1.18, 2026-10-16 — rule 9.7 reworded: a green host starts at once.** Ported from Claude Code Playbook 0.1.30 after a Codex lane refused `cargo xtask gate` at load 2.5 under the first wording.
@@ -73,7 +80,7 @@ local-layer, and 673 installer lifecycle checks with direct exit 0. See
 installation and native macOS acceptance remain unverified and were outside
 this two-playbook publication scope. Older gate notes below are historical.
 
-**Current version:** 0.1.19
+**Current version:** 0.1.20
 
 ## Historical 0.1.6 publication and repair notes
 

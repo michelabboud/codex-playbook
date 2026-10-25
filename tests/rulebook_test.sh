@@ -1181,6 +1181,8 @@ need_once "$ENV" 'Read the load as a factor, load ÷ cores, so the bands hold on
 need_once "$ENV" "**Red, 1.8 and above, or available memory below rule 13.5's floor:**" '9.7 red pauses a running lane before its next heavy step'
 need_once "$ENV" '**Waiting is only for orange and red, and it is a wait, not a stop:**' '9.7 waiting is only for orange and red, a wait not a stop'
 need_once "$ENV" 'measures again before each heavy step and pauses when the host has gone heavy under it' '9.7 a running lane measures again before each heavy step'
+need_once "$ENV" 'Build admission depends on these live measurements, not a compile lease; the same rule applies to single-crate and workspace-wide commands.' '9.7 live measurements decide admission without a compile lease'
+need_absent 'Where the host has a shared lease for heavy work, take it before building.' 'retired: mandatory shared compile lease'
 need_once "$ENV" '# 9 · Environment & operations — rules 9.1–9.7' 'section 9 header counts to 9.7'
 need_once .agents/skills/codex-playbook-subagents/SKILL.md 'a build or a full test suite measures the host first and starts when it is green (rule 9.7)' "8.1 sends a lane's own heavy steps to rule 9.7"
 need_once AGENTS.md '| 9.1–9.7 | `codex-playbook-environment` |' 'the router routes heavy work to the environment skill'

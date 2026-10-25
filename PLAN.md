@@ -1,5 +1,14 @@
 # Plan
 
+## Task — Remove mandatory compile leases (authorized 2026-10-25)
+
+**Status:** running. Michel requested the source change and local installation.
+This bounded rule correction changes build admission only: keep live load,
+memory and disk checks and protect foreign processes. Root owns the source,
+verification, checkpoint publication and backup-first installation. Independent
+review reads the committed change. Tasks run back to back through local verification.
+
+
 ## Task — Shared browser build dashboard (authorized 2026-10-05)
 
 **Status:** done, source published as `checkpoint/0.1.13`. Michel requested a reusable skill so all build work has

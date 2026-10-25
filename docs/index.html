@@ -118,7 +118,7 @@
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="topbar">
-    <a class="wordmark" href="#top">Codex Playbook / 0.1.19</a>
+    <a class="wordmark" href="#top">Codex Playbook / 0.1.20</a>
     <nav class="toplinks" aria-label="Primary">
       <a href="#mantra">Mantra</a><a href="#authority">Authority</a><a href="#rules">Rules</a><a href="#native">Codex-native</a>
       <a class="install" href="https://github.com/michelabboud/codex-playbook/blob/main/INSTALL.md">Install</a>
@@ -451,7 +451,7 @@
           [
             "9.7",
             "Heavy work measures the host first; green starts at once",
-            "Measure load as a factor of the cores, memory and memory-backed filesystems before a build, a test suite or a fan-out; a green host is never a reason to wait; green below 0.9 starts, orange to 1.8 starts nothing new, red pauses running lanes before their next heavy step."
+            "Measure load as a factor of the cores, memory and memory-backed filesystems before a build, a test suite or a fan-out; a green host starts without a compile lease for single-crate and workspace-wide commands; green below 0.9 starts, orange to 1.8 starts nothing new, red pauses running lanes before their next heavy step."
           ]
         ]
       },

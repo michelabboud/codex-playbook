@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.20 — 2026-10-25
+
+Michel removed the compile-lease prerequisite. Rule 9.7 now applies the same
+live load and memory admission checks to single-crate and workspace-wide
+commands, without waiting for a shared compiler lease. The green/orange/red
+bands, fresh measurements, disk hygiene, ownership and foreign-process
+protections remain. The site and regression checks follow this policy.
+
 ## 0.1.19 — 2026-10-16
 
 Ported from Claude Code Playbook 0.1.30 as completed. Correction to the
