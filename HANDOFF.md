@@ -1,6 +1,10 @@
 # Handoff
 
-**Current handoff:** [shared build dashboard, 2026-10-05](docs/handoffs/2026-10-05-shared-build-dashboard.md).
+**Current handoff:** [compile-lease removal, 2026-10-25](docs/handoffs/2026-10-25-no-compile-lease.md).
+
+- **0.1.20, 2026-10-25:** source published, independently reviewed and installed. Rule 9.7 uses live host measurements without a compile lease for single-crate or workspace commands; stale mandatory lease notes were removed locally. All checks passed.
+
+Earlier handoff: [shared build dashboard, 2026-10-05](docs/handoffs/2026-10-05-shared-build-dashboard.md).
 
 - **0.1.19, 2026-10-16:** rule 9.7 says the deciding number is read now, on the 1-minute average, before each heavy step and on resuming after a pause; the 0.1.18 diagnosis ("the heading won") is corrected — the lane had decided from a pre-pause reading. Installed.
 - **0.1.18, 2026-10-16:** rule 9.7 reworded so a green host starts at once; a lane had read "waits for a quiet host" as "wait" and refused a gate at load 2.5. Installed.

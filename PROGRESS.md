@@ -4,7 +4,7 @@
 Michel requested removal of the workspace compile-lease requirement from the
 repository and local installation. Rule 9.7, its site summary and regression
 checks now express one admission policy for single-crate and workspace commands.
-Source verification, publication and backup-first local installation are in progress.
+Full verification passed (244 rulebook, 217 local-layer, 789 installer assertions, 24 dashboard tests); both independent source reviews accepted. Checkpoint 0.1.20 is published at e15f1c9 and the local router plus all 20 skills match source. The machine notes no longer impose a mandatory compile lease.
 
 
 **0.1.19, 2026-10-16 — rule 9.7: the number that decides is the one you read now.** Ported from Claude Code Playbook 0.1.30 as completed; corrects the 0.1.18 note — the lane had decided from a reading taken before the owner's pause, not from the heading.

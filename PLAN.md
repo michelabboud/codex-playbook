@@ -2,7 +2,7 @@
 
 ## Task — Remove mandatory compile leases (authorized 2026-10-25)
 
-**Status:** running. Michel requested the source change and local installation.
+**Status:** done 2026-10-25. Michel requested the source change and local installation.
 This bounded rule correction changes build admission only: keep live load,
 memory and disk checks and protect foreign processes. Root owns the source,
 verification, checkpoint publication and backup-first installation. Independent
