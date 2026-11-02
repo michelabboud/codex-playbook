@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.21 — 2026-11-02
+
+Focused affected-behavior checks per task and one broad frozen-candidate run per coherent batch reduce duplicated validation. Mechanical and deep reviewers independently verify shared execution receipts instead of automatically rebuilding twice; required independent execution and risk/dependency gates remain. Workflow batch vocabulary now matches the existing 5–15-task ceiling.
+
+Validation records and disposable working data are separated at creation, redundant immutable source copies are avoided with isolation preserved, and close-out reports include measured retention and review reasons. Advisory budgets never authorize deletion. Existing logs, state, unique failure inputs and historical retention promises stay protected. Changed rules: 2.2, 3.1, 6.1, 6.2, 9.4, 13.1, 13.4 and 13.5; local Overrides of these rules need compatibility review. No automatic cleaner or Genie data deletion.
+
 ## 0.1.20 — 2026-10-25
 
 Michel removed the compile-lease prerequisite. Rule 9.7 now applies the same

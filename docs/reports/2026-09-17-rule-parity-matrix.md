@@ -67,9 +67,9 @@ rule with three operating-system implementations.
 | 1.5 | `rules/CODE.md` | `codex-playbook-code` | Adapted: live web vetting remains mandatory; no separate dependency skill. |
 | 1.6 | `rules/CODE.md` | `codex-playbook-code` | Direct: preserve vendored provenance and licenses. |
 | 2.1 | `rules/TESTING.md` | `codex-playbook-testing` | Direct: happy/failure paths, regression-first fixes, no ceremonial tests. |
-| 2.2 | `rules/TESTING.md` | `codex-playbook-testing` | Direct: decisive evidence and base-commit proof for attributed failures. |
+| 2.2 | `rules/TESTING.md` | `codex-playbook-testing` | Adapted 2026-11-02: focused task checks, broad frozen-candidate batch gates, scoped receipts and retention; original evidence safeguards remain. |
 | 2.3 | `rules/TESTING.md` | `codex-playbook-testing` | Direct: performance claims require measurements. |
-| 3.1 | `rules/REVIEWS.md` | `codex-playbook-reviews` | Adapted: three kinds of review (mechanical, deep, high deep); capability tiers Top/Strong/Standard/Fast in place of source model names. |
+| 3.1 | `rules/REVIEWS.md` | `codex-playbook-reviews` | Adapted: three kinds of review (mechanical, deep, high deep); capability tiers Top/Strong/Standard/Fast in place of source model names; 2026-11-02 one validation owner and independently verified shared receipts. |
 | 3.2 | `rules/REVIEWS.md` | `codex-playbook-reviews` | Direct: dependency, diff-size, planner, and risk-based batch boundaries. |
 | 3.3 | `rules/REVIEWS.md` | `codex-playbook-reviews` | Direct, with Adapted mechanics: completion is registered and handled; the snapshot is prepared by whoever holds the permission; a reviewer that cannot write returns its notes through its reply; no claim about Codex threads from another client's evidence. |
 | 3.4 | `rules/REVIEWS.md` | `codex-playbook-reviews` | Adapted: high deep review on the Top tier with two independent passes. |
@@ -80,8 +80,8 @@ rule with three operating-system implementations.
 | 5.1 | `rules/REPO.md` | `codex-playbook-repository` | Adapted: complete repository record set; plan status records request authorization, never a separate approval gate. Historical approved entries remain records. |
 | 5.2 | `rules/REPO.md` | `codex-playbook-repository` | Direct: conditional security, contribution, runbook, and glossary files. |
 | 5.3 | `rules/REPO.md` | `codex-playbook-repository` | Direct: full documentation taxonomy and dated names. |
-| 6.1 | `rules/WORKFLOW.md` | `codex-playbook-workflow` | Adapted: Codex identity; request-authorized task chain, checkpoints, team pull requests, allocation and compatible namespace documentation. Routine version and namespace decisions add no approval gate; SemVer, published identities, exact-candidate checks and history safeguards remain. |
-| 6.2 | `rules/WORKFLOW.md` | `codex-playbook-workflow` | Adapted: model ledger reports actual Codex tiers or models. |
+| 6.1 | `rules/WORKFLOW.md` | `codex-playbook-workflow` | Adapted: Codex identity; request-authorized task chain, checkpoints, team pull requests, allocation and compatible namespace documentation. 2026-11-02 focused task checks and explicit pending batch gates; batch vocabulary aligned to 5–15. Routine version and namespace decisions add no approval gate; SemVer, published identities, exact-candidate checks and history safeguards remain. |
+| 6.2 | `rules/WORKFLOW.md` | `codex-playbook-workflow` | Adapted: model ledger reports actual Codex tiers or models; 2026-11-02 retained-byte accounting at close-out. |
 | 6.3 | `rules/WORKFLOW.md` | `codex-playbook-workflow` | Direct: true merge, audit, exact-candidate checks, tag, push, and GitHub release. |
 | 6.4 | `rules/WORKFLOW.md` | `codex-playbook-workflow` | Direct: published history never moves. |
 | 7.1 | `rules/COLLABORATION.md` | `codex-playbook-collaboration` | Adapted: plans add no approval gate; the request authorizes its scoped chain. Coordinator completes technical review gates autonomously; explicit user holds, genuine blockers and unauthorized destructive actions still stop dependent work. |
@@ -95,7 +95,7 @@ rule with three operating-system implementations.
 | 9.1 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Adapted: platform skill supplies commands; owner override uses `~/.config/fleet/ports/`. |
 | 9.2 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Direct: a Docker prefix is naming, never permission. |
 | 9.3 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Direct: native datastores require explicit direction. |
-| 9.4 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Direct: logs are never deleted and active logs are never compressed. |
+| 9.4 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Adapted 2026-11-02: durable records separate from working copies; logs remain protected and active logs are never compressed. |
 | 9.5 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Direct: secrets stay out of source, logs, transcripts, and collaboration tools. |
 | 9.6 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Direct: long-running processes are stopped or explicitly reported. |
 | 9.7 | `rules/ENVIRONMENT.md` | `codex-playbook-environment` | Direct: heavy work measures the host first and a green host starts at once; load as a factor of the cores in three bands; a running lane re-measures before each heavy step. |
@@ -107,11 +107,11 @@ rule with three operating-system implementations.
 | 12.2 | `rules/WRITING.md` | `codex-playbook-writing` | Adapted: Codex progress/task UI may carry state when available. |
 | 12.3 | `rules/WRITING.md` | `codex-playbook-writing` | Direct: plain language, expanded acronyms, meaning before labels. |
 | 12.4 | `rules/WRITING.md` | `codex-playbook-writing` | Direct: mechanical pre-send check, no arbitrary list cap or invented estimates. |
-| 13.1 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Direct: six classes, most protective wins, name and ignore rules never decide. |
+| 13.1 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Adapted 2026-11-02: six classes, most protective wins; inspect contents without parent-by-association retention, preserve historical promises. |
 | 13.2 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Direct: provable ownership; build output follows rule 10.2's carve-out. |
 | 13.3 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Direct: three read-only checks, `git worktree remove` without `--force`, branch deletion needs another ref. |
-| 13.4 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Direct: `.hygiene.json` marker, evidence not permission; no build output on a memory-backed filesystem. |
-| 13.5 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Adapted: the disk and memory floors are set in `playbook-local.md`; the platform skill gives the commands. |
+| 13.4 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Adapted 2026-11-02: separate evidence/scratch, avoid redundant copies with isolation; marker is not permission, no builds in RAM. |
+| 13.5 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Adapted: local disk/memory floors and platform commands; 2026-11-02 advisory budgets, measured retention, owner/reason/next review, no automatic deletion. |
 | 13.6 | `rules/HYGIENE.md` | `codex-playbook-hygiene` | Adapted: a sandbox or approval-policy refusal counts as a refusal. |
 | 14.1 | `rules/DEV_MODES.md` | `codex-playbook-dev-modes` | Adapted: the mode line lives in the project's `AGENTS.md`; the owner's switch is `$codex-playbook-dev-mode`. |
 | 14.2 | `rules/DEV_MODES.md` | `codex-playbook-dev-modes` | Direct: the review table by mode. |

@@ -118,7 +118,7 @@
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="topbar">
-    <a class="wordmark" href="#top">Codex Playbook / 0.1.20</a>
+    <a class="wordmark" href="#top">Codex Playbook / 0.1.21</a>
     <nav class="toplinks" aria-label="Primary">
       <a href="#mantra">Mantra</a><a href="#authority">Authority</a><a href="#rules">Rules</a><a href="#native">Codex-native</a>
       <a class="install" href="https://github.com/michelabboud/codex-playbook/blob/main/INSTALL.md">Install</a>
@@ -270,7 +270,7 @@
           [
             "3.1",
             "Three kinds of review, and a tier that climbs",
-            "Automated checks per task; mechanical and deep side by side per batch of 5–15 tasks or about 2,000 changed lines, pipelined with development — a pending review never delays the next reversible task, a returned blocker stops the line like any other; high deep — the Top tier, two independent passes — at milestones and the release gate. Levels collapse on small plans; the tier of the level that closes never drops."
+            "Focused checks per task; one broad frozen-candidate batch run with independently verified receipts; mechanical and deep side by side per batch of 5–15 tasks or about 2,000 changed lines, pipelined with development — a pending review never delays the next reversible task, a returned blocker stops the line like any other; high deep — the Top tier, two independent passes — at milestones and the release gate. Levels collapse on small plans; the tier of the level that closes never drops."
           ],
           [
             "3.2",
@@ -343,12 +343,12 @@
           [
             "6.1",
             "Every task closes completely",
-            "Verify, document, version, commit, checkpoint-tag, push, and use pull requests for shared repositories."
+            "Run affected task checks, record pending broad batch gates, document, version, commit, checkpoint-tag and push. A task checkpoint is not batch or release acceptance."
           ],
           [
             "6.2",
             "Close out in five parts",
-            "Outcome, evidence, assumptions, concerns, and checkpoint confirmation."
+            "Outcome, scoped evidence, assumptions, concerns and checkpoint confirmation; include retained bytes, owners and review reasons."
           ],
           [
             "6.3",
@@ -436,7 +436,7 @@
           [
             "9.4",
             "Logs are not disposable",
-            "Never delete logs or compress one that is active."
+            "Preserve logs and keep validation records separate from working copies. Never compress active logs; compression does not itself reclaim original bytes."
           ],
           [
             "9.5",
@@ -520,7 +520,7 @@
           [
             "13.1",
             "Classify before you remove",
-            "The class decides the action; when two fit, the most protective wins. A name or ignore rule never decides it."
+            "Classify each removal boundary; a log does not make unrelated sibling copies evidence, and scratch names never remove protection. Existing retention promises remain."
           ],
           [
             "13.2",
@@ -535,12 +535,12 @@
           [
             "13.4",
             "Make things cleanable at creation",
-            "A .hygiene.json marker starts classification; it never moves an item out of protected or evidence. Build output and large scratch never live on a memory-backed filesystem."
+            "Separate durable evidence from working fixtures at creation. Avoid duplicate immutable inputs while preserving mutation/build isolation. Markers never override protection; no large scratch or builds in RAM."
           ],
           [
             "13.5",
             "Run on schedule and report",
-            "Every close-out, phase end, disk-floor or memory-floor breach, and a memory-backed filesystem a quarter full; report removed, kept, and next candidates."
+            "At close-out and capacity triggers, report allocated retained bytes, owners, reasons and next review events. Advisory budgets prompt inspection, never automatic deletion."
           ],
           [
             "13.6",

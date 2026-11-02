@@ -17,6 +17,10 @@ The rulebook is written in the first person on purpose. Once installed, “I”
 means you. These are not abstract best practices; they are the terms of the
 collaboration.
 
+## Efficient validation
+
+Run focused checks per task and broad checks once per coherent batch. Independent reviewers verify the same execution receipts; validation records stay separate from disposable working data. See [validation efficiency and retention](docs/guides/validation-efficiency-and-retention.md) for the check matrix, isolation and retention rules.
+
 ## See the whole system
 
 **[Open the visual playbook →](https://michelabboud.github.io/codex-playbook/)**
@@ -195,7 +199,7 @@ docs/plans/               approved designs and implementation plans
 
 ## Version
 
-Current: **v0.1.20**. `VERSION` is the source of truth; release detail lives in
+Current: **v0.1.21**. `VERSION` is the source of truth; release detail lives in
 [`CHANGELOG.md`](CHANGELOG.md).
 
 ## License

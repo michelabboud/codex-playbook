@@ -1,5 +1,7 @@
 # Backlog
 
+- **2026-11-02 · Genie validation storage · separate project scope** — historical approximately 90 GiB inventory and publisher fixture duplication need a Genie-specific retention audit/harness task. This Playbook change does not authorize deletion or modify Genie. Source: ADR0016 and validation efficiency guide.
+
 New work belongs here only when it is valuable, out-of-scope for the current
 approved phase, and described concretely enough to become a future plan.
 

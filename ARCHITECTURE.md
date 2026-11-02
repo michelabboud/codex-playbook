@@ -214,3 +214,7 @@ state is refused, not overwritten. WSL browser opening translates the local
 path and passes it to Windows as child environment data through WSLENV; the
 path never becomes PowerShell code. State is outside the managed skill tree
 and is not part of installer replacement, rollback or restoration.
+
+## Validation and retained artifacts
+
+Rules 2.2 and 3.1 assign scoped task checks and one broad frozen-candidate batch run with independent review of its receipts. Rules 13.1/13.4/13.5 separate durable evidence from working fixtures, preserve isolation and require measured retention accounting. These are procedures within existing deletion authority, with no cleaner or new runtime component. [ADR0016](docs/adr/0016-validation-batching-and-retention.md) records the trade-offs.

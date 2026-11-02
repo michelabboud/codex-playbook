@@ -1,5 +1,8 @@
 # Progress
 
+**0.1.21, 2026-11-02 — efficient validation and explicit retention.**
+Policy source and supporting guide/ADR are implemented; root verification, independent review and publication remain pending. Focused task checks feed one broad integrated batch run, reviewers share verified receipts while retaining independent judgment, and retained artifact bytes/reasons become visible without relaxing deletion safeguards.
+
 **0.1.20, 2026-10-25 — live measurements admit builds without a compile lease.**
 Michel requested removal of the workspace compile-lease requirement from the
 repository and local installation. Rule 9.7, its site summary and regression
