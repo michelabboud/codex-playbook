@@ -100,4 +100,4 @@ approved phase, and described concretely enough to become a future plan.
   Strong rather than Top, keeping Top for planning and review? Wording left as it
   was.
 
-- 2026-11-02 — Local installation compatibility: review-section override in personal playbook-local.md:35 has a stale digest after 0.1.21; accepted-prerequisite meaning is preserved. Reconcile deliberately before any requested installation; owner file unchanged. Source: validation-efficiency close-out. Status: open installation prerequisite.
+- 2026-11-02 — Local installation compatibility: review-section override in personal playbook-local.md:35 has a stale digest after 0.1.21; accepted-prerequisite meaning is preserved. Reconcile deliberately before any requested installation; owner file unchanged. Source: validation-efficiency close-out. Status: resolved by explicitly requested local installation; digest re-anchored without changing the constraint, all three overrides pass.
