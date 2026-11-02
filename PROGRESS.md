@@ -1,7 +1,7 @@
 # Progress
 
 **0.1.21, 2026-11-02 — efficient validation and explicit retention.**
-Policy source and supporting guide/ADR are implemented; root verification, independent review and publication remain pending. Focused task checks feed one broad integrated batch run, reviewers share verified receipts while retaining independent judgment, and retained artifact bytes/reasons become visible without relaxing deletion safeguards.
+Policy source and supporting guide/ADR are implemented; 244 rulebook checks, 217 local-layer assertions, 789 installer assertions and 24 dashboard tests passed across the initial run and focused version-label correction. Independent mechanical/deep reviews accepted successor 8c15e29. Checkpoint publication is recorded in the close-out. Focused task checks feed one broad integrated batch run, reviewers share verified receipts while retaining independent judgment, and retained artifact bytes/reasons become visible without relaxing deletion safeguards.
 
 **0.1.20, 2026-10-25 — live measurements admit builds without a compile lease.**
 Michel requested removal of the workspace compile-lease requirement from the

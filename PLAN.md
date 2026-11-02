@@ -2,7 +2,7 @@
 
 ## Task — Efficient validation and bounded retention (authorized 2026-11-02)
 
-**Status:** implemented; verification and independent review pending. Tasks run back to back through close-out.
+**Status:** done 2026-11-02; composed verification and independent mechanical/deep review accepted. Tasks run back to back through close-out.
 **Mode/threat sketch:** production policy used by real users; data loss from overly broad cleanup and false acceptance from stale/shared evidence are the risks. Existing deletion authority, secret safeguards, isolation and risk/dependency gates remain.
 
 One bounded task, no phase release: the policy lane owns skill text, ADR0016, guide and parity/visual summaries; root owns version allocation, repository verification, pinned independent review and checkpoint publication. Files are shared, so version/checkpoint edits are serialized. Native agent messages carry handbacks; root verifies source and persisted receipts. No Genie cleanup, harness edits, installed-policy replacement or new retention service is included. Existing automated verification covers packaging; do not add prose-matching tests.
