@@ -91,6 +91,35 @@ console.log(JSON.stringify({projects:projects.map(p=>p.project),statuses:records
         self.assertEqual(result['counts']['total'], 0)
         self.assertEqual(result['counts']['remaining'], 0)
 
+    def test_taskless_sessions_remain_inspectable_with_their_own_state(self):
+        board = fixture_board()
+        sessions = list(board['sessions'].values())
+        for session in sessions:
+            session['tasks'] = {}
+        sessions[0]['note'] = 'Completed session evidence retained'
+        sessions[1]['note'] = 'Active session checkpoint due'
+        result = self.execute("const records=sessionOnlyRecords(input);console.log(JSON.stringify(records.map(r=>({key:r.key,task:r.task,status:r.session.status,note:r.session.note,events:r.session.history.length}))));", sessions)
+        self.assertEqual(len(result), 2)
+        self.assertEqual([r['status'] for r in result], ['completed', 'active'])
+        self.assertEqual([r['task'] for r in result], [None, None])
+        self.assertEqual(result[0]['note'], 'Completed session evidence retained')
+        self.assertEqual(result[1]['note'], 'Active session checkpoint due')
+        self.assertEqual(result[1]['events'], 24)
+        self.assertNotEqual(result[0]['key'], result[1]['key'])
+
+    def test_mobile_view_switch_updates_persisted_preference(self):
+        source = TEMPLATE.read_text()
+        switcher = source[source.index('function showView('):source.index('function projectTabs(')]
+        script = r"""
+const workspace={dataset:{}},buttons={};
+const document={getElementById:id=>id==='workspace'?workspace:(buttons[id]??={setAttribute:(key,value)=>{buttons[id][key]=value}})};
+const preferences={view:'tasks'};let savedView=null;
+function persist(){savedView=preferences.view}
+""" + switcher + "showView('details');console.log(JSON.stringify({view:workspace.dataset.view,preference:preferences.view,savedView,pressed:buttons['show-details']['aria-pressed']}));"
+        result = subprocess.run([shutil.which('node'), '-e', script], text=True, capture_output=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout), {'view': 'details', 'preference': 'details', 'savedView': 'details', 'pressed': 'true'})
+
     def test_agent_urls_threads_and_context_are_validated_without_inference(self):
         result = self.execute(r'''
 const urls=['https://example.com/agent','https://user:pass@example.com/agent','javascript:alert(1)','http://example.com/agent','https://example.com/a b','https:example.com','https://@example.com','https:\\example.com'];

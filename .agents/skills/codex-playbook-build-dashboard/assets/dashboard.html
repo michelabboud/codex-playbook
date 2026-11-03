@@ -854,6 +854,12 @@ function filterRecords(records,status,query,current=Date.now()) {
   }
   )=>(status==='all'||status==='active'&&activeTask(task)||status==='attention'&&(['blocked','failed'].includes(task.status)||isStale(task.updated,activeTask(task),current))||task.status===status)&&(!query||[task.title,task.detail,task.owner,session.run,session.session].some(value=>value.toLowerCase().includes(query))))
 }
+// A taskless session still owns gates, notes, history and coordinator identity.
+function sessionOnlyRecords(items) {
+  return items.filter(session=>Object.keys(session.tasks).length===0).map(session=>({
+    session,task:null,key:JSON.stringify([session.project,session.run,session.session,null])
+  }));
+}
 function node(tag,content,cls) {
   const el=document.createElement(tag);
   if(content!==undefined)el.textContent=content;
@@ -890,9 +896,9 @@ try {
 catch {
 }
 const hash=new URLSearchParams(location.hash.slice(1));
-for(const key of ['project','task','run','session','status','search','theme','refresh'])if(hash.has(key))saved[key]=hash.get(key);
+for(const key of ['project','task','run','session','status','search','theme','refresh','view'])if(hash.has(key))saved[key]=hash.get(key);
 const preferences= {
-  project:typeof saved.project==='string'?saved.project:'',task:typeof saved.task==='string'?saved.task:'',run:typeof saved.run==='string'?saved.run:'',session:typeof saved.session==='string'?saved.session:'',status:['all','active','attention','queued','done','cancelled'].includes(saved.status)?saved.status:'all',search:typeof saved.search==='string'?saved.search:'',theme:['system','light','dark'].includes(saved.theme)?saved.theme:'system',refresh:saved.refresh!=='off'
+  project:typeof saved.project==='string'?saved.project:'',task:typeof saved.task==='string'?saved.task:'',run:typeof saved.run==='string'?saved.run:'',session:typeof saved.session==='string'?saved.session:'',status:['all','active','attention','queued','done','cancelled'].includes(saved.status)?saved.status:'all',search:typeof saved.search==='string'?saved.search:'',theme:['system','light','dark'].includes(saved.theme)?saved.theme:'system',refresh:saved.refresh!=='off',view:saved.view==='details'?'details':'tasks'
 };
 const projects=projectEntries(sessions),contexts=new Map(sessions.map(s=>[s,indexContext(s)]));
 if(!projects.some(p=>p.project===preferences.project))preferences.project=projects[0]?.project||'';
@@ -918,8 +924,10 @@ function applyTheme() {
   document.documentElement.dataset.theme=preferences.theme==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):preferences.theme
 }
 function showView(view) {
+  preferences.view=view==='details'?'details':'tasks';
   document.getElementById('workspace').dataset.view=view;
   for(const name of ['tasks','details'])document.getElementById('show-'+name).setAttribute('aria-pressed',String(name===view))
+  persist();
 }
 function projectTabs() {
   const root=document.getElementById('project-tabs');
@@ -1004,7 +1012,9 @@ function render() {
   const root=document.getElementById('task-list');
   root.replaceChildren();
   setText(document.getElementById('task-count'),String(visibleRecords.length));
-  if(!visibleRecords.some(r=>r.key===preferences.task))preferences.task=visibleRecords[0]?.key||'';
+  const sessionRecords=sessionOnlyRecords(selectedSessions);
+  const inspectorRecords=[...visibleRecords,...sessionRecords];
+  if(!inspectorRecords.some(r=>r.key===preferences.task))preferences.task=inspectorRecords[0]?.key||'';
   for(const record of visibleRecords) {
     const  {
       task,session,key
@@ -1038,8 +1048,26 @@ function render() {
     );
     root.append(button)
   }
-  if(!visibleRecords.length)root.append(node('div',records.length?'No matching tasks. Change the status, search, run or session filter.':'No tasks have been posted for this project.','empty'));
-  renderInspector(visibleRecords.find(r=>r.key===preferences.task));
+  for(const record of sessionRecords) {
+    const button=node('button',undefined,'task-row session-row');
+    button.type='button';
+    button.dataset.key=record.key;
+    button.setAttribute('aria-pressed',String(record.key===preferences.task));
+    const top=node('div',undefined,'task-top');
+    top.append(node('span',record.session.title,'task-name'),badge(record.session.status));
+    button.append(top,node('p','Session details · no tasks posted','task-excerpt'),node('p',record.session.run+' / '+record.session.session,'task-meta mono'));
+    button.addEventListener('click',()=>{
+      preferences.task=record.key;
+      render();
+      showView('details');
+      const heading=document.querySelector('.inspector-head h2');
+      heading.tabIndex=-1;
+      heading.focus();
+    });
+    root.append(button);
+  }
+  if(!inspectorRecords.length)root.append(node('div',records.length?'No matching tasks. Change the status, search, run or session filter.':'No tasks have been posted for this project.','empty'));
+  renderInspector(inspectorRecords.find(r=>r.key===preferences.task));
   updateAges();
   persist()
 }
@@ -1060,71 +1088,75 @@ function renderInspector(record) {
   const  {
     task,session
   }
-  =record,context=contexts.get(session).get(task.id),head=node('div',undefined,'inspector-head');
-  head.append(node('h2',task.title));
+  =record,context=task?contexts.get(session).get(task.id):null,head=node('div',undefined,'inspector-head');
+  head.append(node('h2',task?task.title:session.title));
   const meta=node('div',undefined,'task-meta');
-  meta.append(badge(task.status),node('span',task.owner||'Unassigned'),ageNode(task.updated,activeTask(task),'Task'));
+  if(task)meta.append(badge(task.status),node('span',task.owner||'Unassigned'),ageNode(task.updated,activeTask(task),'Task'));
+  else meta.append(badge(session.status),node('span','Session · no tasks posted'),ageNode(session.updated,session.status==='active','Session'));
   head.append(meta,node('p',session.run+' / '+session.session,'task-meta mono'));
   root.append(head);
-  const description=node('section',undefined,'section');
-  const taskFields=node('dl',undefined,'fields');
-  field(taskFields,'Task ID',task.id);
-  field(taskFields,'Updated',task.updated);
-  description.append(node('h3','Task details'),node('p',context?.description||'Description not reported.','full-text description'));
-  if(task.detail)description.append(node('p',task.detail,'full-text'));
-  description.append(taskFields);
-  root.append(description);
-  const agent=node('section',undefined,'section');
-  agent.append(node('h3','Assigned agent'));
-  if(!context)agent.append(node('p','No current agent context was reported for this task. Worker identity is unavailable.','full-text muted'));
-  const fields=node('dl',undefined,'fields');
-  for(const [key,title] of [['model','Model'],['effort','Reasoning effort'],['agent_id','Agent ID'],['codex_thread_id','Codex thread'],['worktree','Worktree'],['agent_url','Agent link'],['last_progress','Last progress'],['next_checkpoint','Next checkpoint'],['blocker','Blocker'],['decision','Decision']])field(fields,title,context?.[key],['worktree','blocker','decision'].includes(key));
-  agent.append(fields);
-  if(context?.command) {
-    agent.append(node('h3','Reported command'),node('pre',context.command,'command'))
-  }
-  const actions=node('div',undefined,'action-row');
-  if(context?.agent_url) {
-    const url=safeURL(context.agent_url,true);
-    if(url) {
-      const a=node('a','Open agent');
-      a.href=url;
-      a.target='_blank';
-      a.rel='noopener noreferrer';
-      actions.append(a)
+  if(task) {
+    const description=node('section',undefined,'section');
+    const taskFields=node('dl',undefined,'fields');
+    field(taskFields,'Task ID',task.id);
+    field(taskFields,'Updated',task.updated);
+    description.append(node('h3','Task details'),node('p',context?.description||'Description not reported.','full-text description'));
+    if(task.detail)description.append(node('p',task.detail,'full-text'));
+    description.append(taskFields);
+    root.append(description);
+    const agent=node('section',undefined,'section');
+    agent.append(node('h3','Assigned agent'));
+    if(!context)agent.append(node('p','No current agent context was reported for this task. Worker identity is unavailable.','full-text muted'));
+    const fields=node('dl',undefined,'fields');
+    for(const [key,title] of [['model','Model'],['effort','Reasoning effort'],['agent_id','Agent ID'],['codex_thread_id','Codex thread'],['worktree','Worktree'],['agent_url','Agent link'],['last_progress','Last progress'],['next_checkpoint','Next checkpoint'],['blocker','Blocker'],['decision','Decision']])field(fields,title,context?.[key],['worktree','blocker','decision'].includes(key));
+    agent.append(fields);
+    if(context?.command) {
+      agent.append(node('h3','Reported command'),node('pre',context.command,'command'))
     }
-  }
-  if(context?.codex_thread_id) {
-    const command='codex resume '+context.codex_thread_id;
-    const code=node('pre',command,'command');
-    code.tabIndex=0;
-    agent.append(code);
-    actions.append(copyButton('Copy resume command',command))
-  }
-  if(context?.agent_id)actions.append(copyButton('Copy agent ID',context.agent_id));
-  if(context?.command)actions.append(copyButton('Copy reported command',context.command));
-  if(!context?.agent_url&&!context?.codex_thread_id)agent.append(node('p','Native agent navigation is unavailable. Agent IDs are copyable when reported.','full-text muted'));
-  if(actions.childElementCount)agent.insertBefore(actions,fields);
-  root.append(agent);
-  const evidence=node('section',undefined,'section');
-  evidence.append(node('h3','Evidence'));
-  const evidenceList=node('ul',undefined,'evidence-list');
-  for(const url of task.evidence) {
-    const safe=safeURL(url);
-    const item=node('li');
-    if(safe) {
-      const a=node('a',url);
-      a.href=safe;
-      a.target='_blank';
-      a.rel='noopener noreferrer';
-      item.append(a)
+    const actions=node('div',undefined,'action-row');
+    if(context?.agent_url) {
+      const url=safeURL(context.agent_url,true);
+      if(url) {
+        const a=node('a','Open agent');
+        a.href=url;
+        a.target='_blank';
+        a.rel='noopener noreferrer';
+        actions.append(a)
+      }
     }
-    else item.append(node('span',url));
-    evidenceList.append(item)
+    if(context?.codex_thread_id) {
+      const command='codex resume '+context.codex_thread_id;
+      const code=node('pre',command,'command');
+      code.tabIndex=0;
+      agent.append(code);
+      actions.append(copyButton('Copy resume command',command))
+    }
+    if(context?.agent_id)actions.append(copyButton('Copy agent ID',context.agent_id));
+    if(context?.command)actions.append(copyButton('Copy reported command',context.command));
+    if(!context?.agent_url&&!context?.codex_thread_id)agent.append(node('p','Native agent navigation is unavailable. Agent IDs are copyable when reported.','full-text muted'));
+    if(actions.childElementCount)agent.insertBefore(actions,fields);
+    root.append(agent);
+    const evidence=node('section',undefined,'section');
+    evidence.append(node('h3','Evidence'));
+    const evidenceList=node('ul',undefined,'evidence-list');
+    for(const url of task.evidence) {
+      const safe=safeURL(url);
+      const item=node('li');
+      if(safe) {
+        const a=node('a',url);
+        a.href=safe;
+        a.target='_blank';
+        a.rel='noopener noreferrer';
+        item.append(a)
+      }
+      else item.append(node('span',url));
+      evidenceList.append(item)
+    }
+    evidence.append(task.evidence.length?evidenceList:node('p','No evidence links reported.','muted'));
+    root.append(evidence);
   }
-  evidence.append(task.evidence.length?evidenceList:node('p','No evidence links reported.','muted'));
-  root.append(evidence);
   const coordinator=node('section',undefined,'section'),details=node('details');
+  details.open=!task;
   details.append(node('summary','Session & coordinator · '+session.session));
   const gates=node('div',undefined,'gate-list');
   for(const [key,title] of [['build','Build'],['review','Review'],['release','Publication']]) {
@@ -1239,6 +1271,7 @@ document.getElementById('show-details').addEventListener('click',()=>showView('d
 document.getElementById('updated').textContent=new Date(board.updated).toLocaleTimeString();
 document.getElementById('updated').dateTime=board.updated;
 applyTheme();
+showView(preferences.view);
 projectTabs();
 populateFilters();
 render();
