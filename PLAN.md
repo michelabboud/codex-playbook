@@ -2,7 +2,7 @@
 
 ## Task — Project dashboard redesign and opener (authorized 2026-11-03)
 
-**Status:** running. Tasks run back to back through checkpoint publication.
+**Status:** done 2026-11-03; composed verification and both focused review repairs accepted. Tasks run back to back through checkpoint publication.
 **Mode/threat sketch:** production local dashboard, reported task data and safe
 links only; preserve state/history, avoid script injection, incorrect worker
 identity, unexpected launches and false live-monitoring claims. ADR0018 is the

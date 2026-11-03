@@ -1,7 +1,7 @@
 # Progress
 
 **0.1.23, 2026-11-03 — project console and packaged opener.**
-Implementation in progress. UI, backend and package lanes have separate ownership; source verification and independent reviews remain pending. Installed replacement remains separate from source publication.
+Implemented and independently reviewed. Verification: 246 rulebook, 217 local-layer and 813 installer assertions; 38 dashboard tests; seven UI tests after two review repairs. Taskless context and mobile refresh regressions are fixed and re-reviewed. Live WSL board rendered/opened; native macOS/Windows remain mock-qualified. Installed rules remain 0.1.21 pending local-override reconciliation and protected replacement.
 
 **0.1.22, 2026-11-03 — bounded execution and task-level visibility.**
 Policy and dashboard implementation complete: aggregate verification passed 244/217/789 assertions and25 dashboard tests; focused accessibility repair passed26 dashboard tests and independent re-review. Mechanical/deep gates accepted. Source publication and installed replacement remain distinct. The local review/subagent Overrides match installed 0.1.21 but are stale against this candidate; no local layer or installed rules changed.
