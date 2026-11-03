@@ -2,7 +2,7 @@
 
 ## Task — All-project activity and declared plans (authorized 2026-11-03)
 
-**Status:** running. Production local dashboard; one task/checkpoint, no phase release.
+**Status:** done 2026-11-03; integrated verification and both independent source reviews accepted. Production local dashboard; one task/checkpoint, no phase release.
 User requested all proposed visual improvements, all-project active work, small
 graphs and an explicitly declared current project plan. Root holds VERSION for
 0.1.24 and owns docs, integration and publication. UI lane owns dashboard.html

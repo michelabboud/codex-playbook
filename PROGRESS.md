@@ -1,7 +1,7 @@
 # Progress
 
 **0.1.24, 2026-11-03 — all-project Now view and declared plans.**
-Implementation in progress. Separate UI and plan-publication lanes; source checks, browser evidence and independent reviews pending. Installed policy remains separate.
+Complete: 246 rulebook, 217 local-layer and 813 installer checks, 43 dashboard tests and 10 UI tests passed on 078b93a. Desktop/mobile browser checks and both independent source reviews accepted. Explicit current-plan publishing preserves v1 history compatibility. Installed policy remains separate.
 
 **0.1.23, 2026-11-03 — project console and packaged opener.**
 Implemented and independently reviewed. Verification: 246 rulebook, 217 local-layer and 813 installer assertions; 38 dashboard tests; seven UI tests after two review repairs. Taskless context and mobile refresh regressions are fixed and re-reviewed. Live WSL board rendered/opened; native macOS/Windows remain mock-qualified. Installed rules remain 0.1.21 pending local-override reconciliation and protected replacement.

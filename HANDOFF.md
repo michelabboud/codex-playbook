@@ -1,7 +1,8 @@
 # Handoff
 
-**Current handoff:** [project dashboard checkpoint](docs/handoffs/2026-11-03-dashboard.md).
+**Current handoff:** [all-project Now dashboard](docs/handoffs/2026-11-03-dashboard-now.md).
 
-- 0.1.23 dashboard source and review repairs accepted; live WSL board rendered/opened.
-- Installed rules remain 0.1.21; exact local reconciliation proposal is prepared.
-- Next: queued read-only codex-lsp hook diagnosis.
+- 0.1.24 source passes integrated checks and independent mechanical/deep review.
+- Shared dashboard supports Now, small charts and explicitly declared current plans.
+- Installed rules remain 0.1.21 pending approved local reconciliation/replacement.
+- LSP repair is complete; live diagnostics and native hook trust verified.
