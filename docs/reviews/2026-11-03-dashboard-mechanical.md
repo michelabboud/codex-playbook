@@ -52,3 +52,15 @@ CONFIRMED: managed inventories include the opener skill, YAML metadata and new U
 REFUTED: no new v1 task fields, inferred worker identity, native deep-link scheme, shell execution UI, transcript bridge or claim of worker liveness is introduced. The failed integrated receipt was not actually a passing full aggregate, and the subsequent 38-test success does not erase it.
 
 UNVERIFIED: automatic startup compliance in a fresh installed Codex session; actual native macOS/Windows end-to-end execution; destination correctness for arbitrary publisher-supplied HTTPS agent links; native client agent routing and OS clipboard permissions. The candidate documentation already distinguishes these limits. These are not additional findings absent a contrary product claim.
+
+## Focused repair ruling — 2026-11-03
+
+**Accepted: M1 resolved** in successor `f2c1ef4fa5f6de810994abfce1f992d85e2523fb`, reviewed against original target `02aa0019a04edd46795a775490774f7fa7c1fd4d`. Original finding and failed receipts remain preserved above. Same configured reviewer and isolation limitations apply. Review scope was only the repair diff and `/home/michel/.local/state/codex-playbook/20261103-dashboard/taskless-mobile-fix-receipt.md`; no other review/findings or coordinator report was read, and no broad check was repeated.
+
+CONFIRMED: taskless sessions now produce separate selectable session rows, scoped to the currently selected project/run/session. Their null-task inspector renders the actual session title/status, coordinator details, note, acceptance gates and paginated history. Worker/task sections remain conditional on a real task, so the repair does not infer a worker from a coordinator. Rows remain available alongside populated task records. The saved selection key distinguishes these records from real task IDs. Mobile view selection now persists and is restored at startup, addressing the affected refresh interaction.
+
+The focused receipt reports both new regressions failing before implementation, seven dedicated UI tests passing afterward and a real file-URL browser check of active/completed taskless sessions. It reports note/gates/history visibility, no inferred worker, preserved exact session selection and Details view after automatic refresh, with zero browser errors/warnings. Its frozen source hashes independently match the successor Git objects: HTML `0e56c723af5e8c73081332ab10d286c1691f38e7d5cc73e0931946f7ae2b296c`; UI helper `f6786f25fcb6c139b1864bbffb01876ff832d72bef647e33b029ea1873c667e4`. This is assessed shared runtime evidence, not a second independent test execution.
+
+REFUTED: a taskless session still losing access to its retained history. M1's original early-return path is no longer reachable for valid selected taskless sessions.
+
+UNVERIFIED: native platform/client routing and fresh installed-session startup behavior remain outside this focused repair scope, as before. No concrete remaining defect was found in the M1 repair or its mobile selection interaction. This ruling accepts the mechanical repair only; it does not convert prior shared receipts into independent execution or native end-to-end qualification.
