@@ -1,7 +1,7 @@
 # Progress
 
 **0.1.22, 2026-11-03 — bounded execution and task-level visibility.**
-Policy and dashboard implementation complete; integrated verification and independent reviews are pending. Source publication and installed replacement remain distinct. The local review/subagent Overrides match installed 0.1.21 but are stale against this candidate; no local layer or installed rules changed.
+Policy and dashboard implementation complete: aggregate verification passed 244/217/789 assertions and25 dashboard tests; focused accessibility repair passed26 dashboard tests and independent re-review. Mechanical/deep gates accepted. Source publication and installed replacement remain distinct. The local review/subagent Overrides match installed 0.1.21 but are stale against this candidate; no local layer or installed rules changed.
 
 **0.1.21, 2026-11-02 — efficient validation and explicit retention.**
 Policy source and supporting guide/ADR are implemented; 244 rulebook checks, 217 local-layer assertions, 789 installer assertions and 24 dashboard tests passed across the initial run and focused version-label correction. Independent mechanical/deep reviews accepted successor 8c15e29. Checkpoint 0.1.21 is published; local installation now matches source and all three overrides pass. See docs/reports/2026-11-02-validation-local-install.md. Focused task checks feed one broad integrated batch run, reviewers share verified receipts while retaining independent judgment, and retained artifact bytes/reasons become visible without relaxing deletion safeguards.

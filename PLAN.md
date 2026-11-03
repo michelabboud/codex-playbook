@@ -2,7 +2,7 @@
 
 ## Task — Bounded execution and visible progress (authorized 2026-11-03)
 
-**Status:** running 2026-11-03. Tasks run back to back through checkpoint publication.
+**Status:** done 2026-11-03; source verification and independent reviews accepted. Tasks run back to back through checkpoint publication.
 **Mode/threat sketch:** production instruction package. Preserve secret handling,
 deletion safeguards, independent review and truthful acceptance. Risks are stalled
 work hidden by fresh heartbeats, duplicate writers, misleading progress, and loss
