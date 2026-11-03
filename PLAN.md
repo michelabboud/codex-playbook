@@ -1,5 +1,30 @@
 # Plan
 
+## Task — All-project activity and declared plans (authorized 2026-11-03)
+
+**Status:** running. Production local dashboard; one task/checkpoint, no phase release.
+User requested all proposed visual improvements, all-project active work, small
+graphs and an explicitly declared current project plan. Root holds VERSION for
+0.1.24 and owns docs, integration and publication. UI lane owns dashboard.html
+and test_dashboard_ui.py; backend lane owns dashboard.py and test_dashboard.py.
+No overlapping writers, new dependencies, worktrees, daemon or transcript bridge.
+
+Default Now view spans every project. Project tabs remain; active tasks, stale
+reported work and blockers are distinct. Small charts count recorded task events
+and current task statuses; no estimated duration, fabricated heartbeat or token
+metrics. Quiet visual hierarchy, responsive bounded panes, keyboard navigation,
+search/filter controls and preserved navigation remain acceptance requirements.
+
+Plans are explicit complete declarations in session history under project_plan,
+with no v1 schema changes or implicit file discovery. Each session owns its
+declaration; competing declarations remain visible rather than silently choosing
+a project owner. Plan phase, steps, source, next action and declaration age are
+visible; missing plans say Not declared. Root documents the exact data contract
+in ADR0019 before workers start. Existing state/history is preserved. Test changed
+behavior, run one aggregate integration check, then independent scoped reviews
+and checkpoint publication. Retain under 10 MiB evidence; installed replacement
+remains separate and no cross-project data is read or deleted.
+
 ## Task — Project dashboard redesign and opener (authorized 2026-11-03)
 
 **Status:** done 2026-11-03; composed verification and both focused review repairs accepted. Tasks run back to back through checkpoint publication.

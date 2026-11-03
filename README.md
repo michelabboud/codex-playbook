@@ -74,8 +74,9 @@ session, see the [capability guide](docs/guides/advanced-task-execution-and-comm
 
 Use `$codex-playbook-open-dashboard` to open the shared board. Fresh sessions
 announce its actual link and this command once, without automatically opening a
-browser. Project tabs prioritize active work; task details and an agent inspector
-keep the page compact. Choose light, dark or system theme. Reported agent links
+browser. The default Now view brings active work across projects together, with
+small recorded-activity charts and explicitly declared current plans. Project
+tabs, task details and an agent inspector keep the page compact. Choose light, dark or system theme. Reported agent links
 open where supported; otherwise copy a verified thread's resume command.
 
 
@@ -215,7 +216,7 @@ docs/plans/               approved designs and implementation plans
 
 ## Version
 
-Current: **v0.1.23**. `VERSION` is the source of truth; release detail lives in
+Current: **v0.1.24**. `VERSION` is the source of truth; release detail lives in
 [`CHANGELOG.md`](CHANGELOG.md).
 
 ## License

@@ -163,3 +163,32 @@ WSL conversion is reported; the helper does not invent a working URL or claim a
 window opened. Python 3 is required; Windows may expose it as `py -3` or `python`.
 Native Windows/macOS execution requires those hosts; mocked platform tests do not
 establish native-machine acceptance.
+
+
+## Now across projects and current plans
+
+The default Now tab brings together reported active tasks across every project.
+Project tabs keep focused views available. Stale reports and blockers stay visible;
+completed work remains inspectable without filling the active-work section. Task
+identities include project, run and session, so repeated names never merge work.
+
+Small charts show current task-status counts and task-update events recorded in
+six ten-minute bins over the last hour. A quiet chart means no recorded events,
+not proof of an idle/dead agent. These charts do not measure productivity, elapsed
+time remaining or token usage. Text counts accompany the visuals.
+
+Every project coordinator explicitly declares its current plan using
+`update --plan-json /absolute/path/to/plan.json` and its project/run/session flags.
+The exact JSON contract and example are in the
+[publisher skill](../../.agents/skills/codex-playbook-build-dashboard/SKILL.md#progress-discipline).
+Declare the actual authorized objective, current phase, steps, current step and
+next action, with a source such as PLAN.md or the current user request. The helper
+reads only the explicitly supplied JSON file; it never discovers a project's plan.
+
+The Current plan view shows declaration age separately from session activity.
+Publish a complete replacement when the plan changes. Ordinary updates retain it;
+`--clear-plan` explicitly withdraws it while preserving history. Mark finished
+plans completed. Missing plans say Not declared; the UI never reconstructs them
+from task names. Multiple sessions can declare plans for one project and remain
+visibly separate, rather than silently assigning one coordinator authority over
+another. Plan completion counts describe steps, not a predicted finish time.

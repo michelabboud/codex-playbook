@@ -57,6 +57,108 @@ class DashboardBehavior(unittest.TestCase):
     def snapshot(self):
         return {name: (self.state / name).read_bytes() for name in ("board.json", "tasks.html")}
 
+    def plan(self) -> dict[str, Any]:
+        return {"id": "dashboard-plan", "title": "Explicit current plan", "objective": "Show what is being built",
+                "source": str(self.base / "not-a-file-to-read" / "PLAN.md"), "status": "active", "phase": "Implement",
+                "current_step": "build", "next_step": "Verify the resulting behavior",
+                "steps": [{"id": "build", "title": "Build the feature", "status": "running"},
+                          {"id": "verify", "title": "Verify the feature", "status": "queued"}]}
+
+    def test_declared_plan_only_replace_clear_and_ordinary_updates_preserve_history(self):
+        self.init()
+        declaration = self.plan()
+        plan_path = self.base / "explicit-plan.json"
+        plan_path.write_text(json.dumps(declaration))
+        first = self.update("--plan-json", str(plan_path))["session"]
+        self.assertEqual(first["history"][-1]["kind"], "session")
+        self.assertEqual(first["history"][-1]["data"], {"project_plan": declaration})
+        self.assertNotIn("project_plan", first)
+        self.assertEqual(first["tasks"], {})
+        first_event = first["history"][-1]
+        self.update("--note", "An ordinary session update leaves the declared plan intact")
+        self.update("--task", "task", "--add", "--task-title", "An independent task snapshot")
+        own = self.cli("read")["sessions"][0]
+        self.assertEqual(own["history"][1], first_event)
+        self.assertNotIn("project_plan", own["history"][-1]["data"])
+        self.assertNotIn("project_plan", own["history"][-2]["data"])
+        replacement = {**declaration, "title": "Updated complete declaration", "phase": "Verify", "current_step": "verify", "next_step": ""}
+        plan_path.write_text(json.dumps(replacement))
+        own = self.update("--plan-json", str(plan_path), "--note", "Replace explicitly")["session"]
+        self.assertEqual(own["history"][-1]["data"], {"note": "Replace explicitly", "project_plan": replacement})
+        own = self.update("--clear-plan")["session"]
+        self.assertEqual(own["history"][-1]["data"], {"project_plan": None})
+        self.assertEqual(own["history"][1], first_event)
+        self.assertFalse(Path(declaration["source"]).exists())
+        dashboard.validate_board(self.board())
+
+    def test_plan_declarations_remain_scoped_to_exact_project_run_and_session(self):
+        self.init()
+        other = self.identity[:-1] + ["codex-b"]
+        self.init(other)
+        sibling_before = self.cli("read", "--session", "codex-b")["sessions"][0]
+        path = self.base / "plan.json"
+        path.write_text(json.dumps(self.plan()))
+        self.update("--plan-json", str(path))
+        self.update("--clear-plan")
+        self.assertEqual(self.cli("read", "--session", "codex-b")["sessions"][0], sibling_before)
+        before = self.snapshot()
+        wrong = self.identity[:-1] + ["not-initialized"]
+        self.cli("update", *wrong, "--plan-json", str(path), expected=2)
+        self.assertEqual(self.snapshot(), before)
+
+    def test_invalid_declared_plans_leave_state_unchanged_and_read_validation_rejects_them(self):
+        self.init()
+        valid = self.plan()
+        path = self.base / "plan.json"
+        invalid = [None, [], {}, {**valid, "extra": "not allowed"}, {k: v for k, v in valid.items() if k != "phase"},
+                   {**valid, "id": "../escape"}, {**valid, "title": " "}, {**valid, "objective": "x" * (dashboard.MAX_TEXT + 1)},
+                   {**valid, "source": 12}, {**valid, "phase": "bad\x01control"}, {**valid, "status": "running"},
+                   {**valid, "current_step": "undeclared"}, {**valid, "current_step": None}, {**valid, "steps": {}},
+                   {**valid, "steps": valid["steps"] * 51}, {**valid, "steps": valid["steps"] + [valid["steps"][0]]},
+                   {**valid, "steps": [{"id": "build", "title": "Build", "status": "running", "extra": True}]},
+                   {**valid, "steps": [{"id": "build", "title": "", "status": "running"}]},
+                   {**valid, "steps": [{"id": "build", "title": "Build", "status": "imaginary"}]}]
+        before = self.snapshot()
+        for value in invalid:
+            with self.subTest(value=str(value)[:100]):
+                path.write_text(json.dumps(value))
+                self.cli("update", *self.identity, "--plan-json", str(path), "--note", "Do not partially commit", expected=2)
+                self.assertEqual(self.snapshot(), before)
+                if value is not None:
+                    board = self.board()
+                    next(iter(board["sessions"].values()))["history"].append({"at": dashboard.now(), "kind": "session", "data": {"project_plan": value}})
+                    with self.assertRaises(dashboard.DashboardError):
+                        dashboard.validate_board(board)
+        path.write_text("{malformed")
+        self.cli("update", *self.identity, "--plan-json", str(path), expected=2)
+        self.assertEqual(self.snapshot(), before)
+        path.write_text(json.dumps(valid))
+        self.cli("update", *self.identity, "--plan-json", str(path), "--clear-plan", expected=2)
+        self.assertEqual(self.snapshot(), before)
+
+    def test_plan_file_is_bounded_and_protected_before_state_creation(self):
+        path = self.base / "plan.json"
+        path.write_text(json.dumps(self.plan()))
+        args = dashboard.parser().parse_args(["--state-dir", str(self.state), "update", *self.identity, "--plan-json", str(path)])
+        with mock.patch.object(dashboard, "MAX_FILE_BYTES", 64):
+            self.assertRaisesRegex(dashboard.DashboardError, "oversized", dashboard.run, args)
+        self.assertFalse(self.state.exists())
+        if hasattr(os, "symlink"):
+            alias = self.base / "plan-alias.json"
+            alias.symlink_to(path)
+            args.plan_json = str(alias)
+            self.assertRaisesRegex(dashboard.DashboardError, "symlink", dashboard.run, args)
+            self.assertFalse(self.state.exists())
+
+    def test_empty_steps_and_all_declared_plan_statuses_are_valid(self):
+        self.init()
+        path = self.base / "plan.json"
+        for status in ("active", "blocked", "completed", "cancelled"):
+            plan = {**self.plan(), "steps": [], "current_step": "", "status": status}
+            path.write_text(json.dumps(plan))
+            self.update("--plan-json", str(path))
+            self.assertEqual(self.cli("read")["sessions"][0]["history"][-1]["data"]["project_plan"], plan)
+
     def test_create_resume_preserves_failure_and_initial_history(self):
         initial = self.base / "tasks.json"
         initial.write_text(json.dumps([{"id": "test", "title": "Regression", "status": "queued"}]))

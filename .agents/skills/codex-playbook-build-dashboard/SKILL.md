@@ -85,6 +85,46 @@ For behavioral validation, run `python3 scripts/test_dashboard.py` from this ski
 
 ## Progress discipline
 
+Each project coordinator must explicitly declare the current bounded plan when
+starting a run, then update it when its phase, current step, next action or status
+changes. Use `update --plan-json /absolute/path/to/plan.json` with the same full
+project/run/session identity. Publish a concise authorized plan summary; do not
+copy private documents or invent approval. The dashboard does not discover or
+read a project's PLAN.md. For work with no separate plan file, declare the actual
+task objective and steps and describe its source as the current user request.
+
+The declaration is one JSON object with exactly these fields:
+
+```json
+{
+  "id": "current-build",
+  "title": "Deliver the requested change",
+  "objective": "The user-visible outcome",
+  "source": "PLAN.md: current task",
+  "status": "active",
+  "phase": "Implementation",
+  "current_step": "implement",
+  "next_step": "Run the scoped verification",
+  "steps": [
+    {"id": "implement", "title": "Implement the change", "status": "running"},
+    {"id": "verify", "title": "Verify behavior", "status": "queued"}
+  ]
+}
+```
+
+Plan status is active, blocked, completed or cancelled. Step statuses use the
+ordinary task statuses. IDs are unique within the plan, at most 100 steps, and
+`current_step` is empty or an existing step ID. `source` is inert provenance text,
+not a URL or filename that the board loads. Publish the whole declaration on each
+change; it is not a partial merge. Ordinary task/session updates retain it.
+`update --clear-plan` explicitly withdraws the declaration without deleting history.
+Mark finished plans completed rather than quietly clearing them.
+
+Only declare for this coordinator's session. Concurrent declarations from other
+sessions remain separately attributable; never overwrite another coordinator to
+manufacture one authoritative project plan. Missing declarations are shown as
+Not declared. Plan counts describe declared steps, not elapsed-time progress.
+
 Create the whole bounded task list at the start, including verification and review,
 so remaining-work counts have a denominator. Add newly discovered in-scope work
 explicitly. Counts are tasks, never percent of time or an estimated finish date.
@@ -107,6 +147,13 @@ Use `$codex-playbook-open-dashboard` for an explicit browser-opening request.
 `locate` reports the actual path, browser URL and opening command without creating
 state. The UI prioritizes active projects/tasks, keeps work under project tabs,
 and preserves filters, selected task and light/dark/system theme across refresh.
+
+The default Now view spans all projects and highlights reported active work.
+Small charts show current task-status counts and recorded task updates during the
+last hour; no events is not proof of inactivity. They do not estimate finish time,
+measure productivity or establish live process health. The Current plan section
+shows explicit declarations, their source sessions and age. Neither a task update
+nor browser refresh makes an unchanged declaration fresh.
 
 For an agent task, supply context flags on the task update: `--description`,
 `--model`, `--effort`, `--agent-id`, `--codex-thread-id`, `--agent-url`, `--worktree`,

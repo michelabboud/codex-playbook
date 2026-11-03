@@ -102,4 +102,6 @@ approved phase, and described concretely enough to become a future plan.
 
 - 2026-11-02 — Local installation compatibility: review-section override in personal playbook-local.md:35 has a stale digest after 0.1.21; accepted-prerequisite meaning is preserved. Reconcile deliberately before any requested installation; owner file unchanged. Source: validation-efficiency close-out. Status: resolved by explicitly requested local installation; digest re-anchored without changing the constraint, all three overrides pass.
 
-- 2026-11-03 — User-requested next task after dashboard: diagnose hook failure `unsupported plugin entry type: /home/michel/.codex/plugins/cache/personal/codex-lsp/0.2.0/node_modules/.bin/lsp-tools-mcp`. Read-only diagnosis first; no plugin deletion or reinstall implied. Status: queued after dashboard close-out.
+- 2026-11-03 — LSP hook follow-up completed after explicit fix authorization: replaced npm symlinks with regular runtime files in installed/local plugin packages, preserved originals, verified native trust baseline and live Python diagnostics. Local receipt: `~/.local/state/codex-lsp-repair/20261103T104525Z/verification.json`. No Playbook code change was needed.
+
+- 2026-11-03 — Existing dashboard test typing diagnostics: two Node helper subprocess calls pass `shutil.which("node")` as optional text despite runtime skip guards. Observed by LSP during declared-plan tests; no new plan diagnostic or runtime failure. Defer a narrow type-narrowing cleanup; do not expand this UI task.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.24 — 2026-11-03
+
+Add a default all-project Now view, compact recorded-activity/status charts and a polished, responsive operations layout. Current plans are explicitly declared by each coordinator, with phase, steps, next action, source and declaration age. Concurrent declarations remain attributable; missing plans are not inferred.
+
+Validated plan snapshots and explicit withdrawal live in v1 session history, preserving older publisher compatibility. No live-process inference, estimated completion time, automatic plan-file reading or new service/dependency.
+
 ## 0.1.23 — 2026-11-03
 
 Redesign the shared board as a compact project console: active projects and tasks first, a task/agent inspector, bounded history, preserved navigation, and light/dark/system themes without gradients or remote assets. Optional validated agent context lives in task-history events while the strict v1 task schema remains compatible with older publishers. Missing or outdated worker context is never inferred from the coordinator.

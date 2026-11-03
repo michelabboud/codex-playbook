@@ -24,3 +24,5 @@
 - [0017 — Bounded execution and visible progress](0017-bounded-execution-and-visible-progress.md): scoped checks, bounded retries, accountable coordination, task staleness and recorded storage placement.
 
 - [0018 — Project dashboard and explicit agent context](0018-project-dashboard-and-agent-context.md): compact project navigation, backward-compatible agent details and a packaged opener.
+
+- [0019 — All-project activity and declared plans](0019-all-project-activity-and-declared-plans.md): modern Now view, honest small charts and explicit session-owned project plan declarations.

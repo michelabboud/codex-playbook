@@ -29,6 +29,8 @@ TASK_STATUS = {"queued", "running", "testing", "review", "blocked", "failed", "d
 SESSION_STATUS = {"active", "completed", "handoff", "stopped", "failed"}
 GATES = {"pending", "passed", "failed", "unavailable", "not_required"}
 RELEASE = {"not_requested", "pending", "published", "rejected"}
+PLAN_STATUS = {"active", "blocked", "completed", "cancelled"}
+MAX_PLAN_STEPS = 100
 CONTEXT_FIELDS = {"description", "model", "effort", "agent_id", "agent_url", "codex_thread_id", "worktree", "command", "last_progress", "next_checkpoint", "blocker", "decision"}
 # Browser-facing context requires seconds and an explicit zone; general v1
 # record timestamps retain their existing ISO parser for older producers.
@@ -141,6 +143,30 @@ def agent_context(value):
     return value
 
 
+def validate_project_plan(value):
+    """Validate an explicit full declaration; source is inert provenance text."""
+    exact_fields(value, {"id", "title", "objective", "source", "status", "phase", "current_step", "next_step", "steps"}, "project plan")
+    identifier(value["id"], "plan ID")
+    text(value["title"], "plan title", False)
+    for name in ("objective", "source", "phase", "next_step", "current_step"):
+        text(value[name], "plan " + name)
+    enum(value["status"], PLAN_STATUS, "plan status")
+    if not isinstance(value["steps"], list) or len(value["steps"]) > MAX_PLAN_STEPS:
+        raise DashboardError(f"Plan steps must be a list with at most {MAX_PLAN_STEPS} entries")
+    step_ids = set()
+    for step in value["steps"]:
+        exact_fields(step, {"id", "title", "status"}, "plan step")
+        identifier(step["id"], "plan step ID")
+        text(step["title"], "plan step title", False)
+        enum(step["status"], TASK_STATUS, "plan step status")
+        if step["id"] in step_ids:
+            raise DashboardError("Duplicate plan step ID")
+        step_ids.add(step["id"])
+    if value["current_step"] and value["current_step"] not in step_ids:
+        raise DashboardError("Plan current_step must name a declared step or be empty")
+    return value
+
+
 def key_for(project, run, session):
     return hashlib.sha256(json.dumps([project, run, session], ensure_ascii=True).encode()).hexdigest()
 
@@ -184,6 +210,8 @@ def validate_board(board):
                 raise DashboardError("Invalid history data")
             if event["kind"] == "task" and "agent_context" in event["data"]:
                 agent_context(event["data"]["agent_context"])
+            if event["kind"] == "session" and event["data"].get("project_plan") is not None:
+                validate_project_plan(event["data"]["project_plan"])
 
 
 def safe_path(path, directory=False, missing=False):
@@ -521,7 +549,12 @@ def run(args):
         identity = session_identity(args)
     initial = load_initial_tasks(args.tasks) if args.command == "init" else None
     supplied_context = None
+    supplied_plan = None
+    plan_declared = False
     if args.command == "update":
+        plan_declared = args.plan_json is not None or args.clear_plan
+        if args.plan_json is not None:
+            supplied_plan = validate_project_plan(json.loads(read_file(Path(args.plan_json).expanduser())))
         supplied_context = {name: getattr(args, "context_command" if name == "command" else name) for name in CONTEXT_FIELDS if getattr(args, "context_command" if name == "command" else name) is not None}
         if supplied_context:
             if not args.task:
@@ -562,7 +595,11 @@ def run(args):
                 for name in {"title", "note"} & changes.keys():
                     text(changes[name], name, name == "note")
                 session.update(changes)
-                session["history"].append({"at": at, "kind": "session", "data": changes.copy()})
+            if changes or plan_declared:
+                session_event = changes.copy()
+                if plan_declared:
+                    session_event["project_plan"] = supplied_plan
+                session["history"].append({"at": at, "kind": "session", "data": session_event})
             task_fields = ("task_title", "status", "owner", "detail", "evidence")
             if not args.task and (args.add or any(getattr(args, name) is not None for name in task_fields)):
                 raise DashboardError("Task fields require --task")
@@ -588,7 +625,7 @@ def run(args):
                 if supplied_context:
                     task_event["agent_context"] = supplied_context
                 session["history"].append({"at": at, "kind": "task", "data": task_event})
-            if not changes and not args.task:
+            if not changes and not args.task and not plan_declared:
                 raise DashboardError("No update supplied")
             session["updated"] = at
             board["updated"] = at
@@ -649,6 +686,9 @@ def parser():
     update.add_argument("--build", choices=sorted(GATES))
     update.add_argument("--review", choices=sorted(GATES))
     update.add_argument("--release", choices=sorted(RELEASE))
+    plan_flags = update.add_mutually_exclusive_group()
+    plan_flags.add_argument("--plan-json", help="Explicit JSON file containing the complete declared project plan")
+    plan_flags.add_argument("--clear-plan", action="store_true", help="Explicitly clear this session's declared plan")
     for name in sorted(CONTEXT_FIELDS):
         update.add_argument("--" + name.replace("_", "-"), dest="context_command" if name == "command" else name,
                             help="Reported task context (requires --task)" + ("; ISO timestamp with timezone" if name in {"last_progress", "next_checkpoint"} else ""))

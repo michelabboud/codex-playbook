@@ -229,3 +229,14 @@ context is stored in the latest task history event and rendered only when that
 snapshot matches current task fields. Older publishers can preserve the history
 and update without context; the inspector then reports the association unavailable.
 No transcript service or remote resource is used. See ADR0018.
+
+
+## All-project activity and declared plans
+
+ADR0019 adds a cross-project Now view with current-status counts and recorded
+task-event charts. Plans are complete explicit declarations stored under
+project_plan in ordinary session history, leaving the exact v1 schemas unchanged.
+Each session owns its declaration; concurrent declarations retain provenance.
+The newest declaration or explicit null wins only within that session. Ordinary
+updates preserve the plan without refreshing its declaration age. No plan file
+is discovered, read or fetched by the renderer; plan sources are inert text.

@@ -638,6 +638,389 @@ h1 {
 
 }
 
+/* Now view: a compact overview above the bounded operations workspace. */
+:root {
+  --bg:#f2f4f7;
+  --subtle:#f7f8fa;
+  --line:#dce2eb;
+  --blue:#315ed0;
+  --selected:#edf2fc
+}
+
+:root[data-theme=dark] {
+  --bg:#11151c;
+  --panel:#191f29;
+  --subtle:#222b39;
+  --line:#343e4d;
+  --blue:#9ab7ff;
+  --selected:#24344f
+}
+
+.topbar {
+  padding-top:18px
+}
+.brand-mark {
+  border-radius:10px
+}
+.brand h1 {
+  font-size:23px;
+  letter-spacing:-.8px
+}
+.brand .muted {
+  font-size:11px
+}
+.projects {
+  padding-bottom:6px;
+  border-bottom:0
+}
+.project-tab {
+  font-size:12px;
+  padding:8px 12px
+}
+.project-tab[aria-selected=true] {
+  border-color:var(--line)
+}
+.overview {
+  gap:10px
+}
+.overview p {
+  font-size:11px
+}
+.attention {
+  border:0;
+  border-radius:7px;
+  font-size:11px;
+  padding:8px 12px
+}
+.signals {
+  flex-shrink:0;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--panel);
+  overflow:hidden
+}
+.signals>summary {
+  padding:10px 12px;
+  font-size:12px;
+  color:var(--muted)
+}
+.signals[open]>summary {
+  margin:0;
+  padding-bottom:0
+}
+.signal-grid {
+  display:grid;
+  grid-template-columns:minmax(220px,1.1fr) minmax(210px,1fr) minmax(230px,1.1fr);
+  gap:20px;
+  padding:12px 16px
+}
+.metrics {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  align-items:center;
+  gap:10px
+}
+.metric strong {
+  display:block;
+  font-size:25px;
+  font-weight:650;
+  letter-spacing:-1px;
+  line-height:1.3
+}
+.metric span {
+  display:block;
+  font-size:10px;
+  color:var(--muted);
+  white-space:nowrap
+}
+.metric:first-child strong {
+  color:var(--blue)
+}
+.chart h3 {
+  font-size:10px;
+  letter-spacing:.04em
+}
+.chart-label {
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-size:10px;
+  color:var(--muted);
+  margin-bottom:5px
+}
+.activity-bars {
+  height:48px;
+  display:flex;
+  gap:8px;
+  align-items:end
+}
+.activity-column {
+  display:flex;
+  flex:1;
+  flex-direction:column;
+  justify-content:end;
+  align-items:center;
+  min-width:0;
+  height:100%
+}
+.activity-column i {
+  width:100%;
+  max-width:32px;
+  background:var(--blue);
+  opacity:.75;
+  border-radius:3px 3px 0 0;
+  min-height:1px
+}
+.activity-column span {
+  font-size:9px;
+  color:var(--muted);
+  line-height:1.5;
+  white-space:nowrap
+}
+.distribution-bar {
+  height:6px;
+  display:flex;
+  gap:2px;
+  margin:8px 0;
+  border-radius:3px;
+  overflow:hidden
+}
+.distribution-bar span {
+  min-width:2px;
+  background:var(--muted)
+}
+.distribution-bar .running,.distribution-bar .testing,.distribution-bar .review {
+  background:var(--blue)
+}
+.distribution-bar .done {
+  background:var(--good)
+}
+.distribution-bar .blocked {
+  background:var(--warn)
+}
+.distribution-bar .failed {
+  background:var(--bad)
+}
+.status-counts {
+  display:flex;
+  flex-wrap:wrap;
+  gap:2px 9px;
+  font-size:10px;
+  color:var(--muted)
+}
+.status-counts span {
+  white-space:nowrap
+}
+.project-label {
+  font-size:10px;
+  letter-spacing:.03em;
+  color:var(--blue);
+  margin-bottom:5px;
+  overflow-wrap:anywhere
+}
+.queue,.detail-column {
+  border-radius:11px
+}
+.task-row {
+  border-radius:8px;
+  padding:12px 10px
+}
+.task-row[aria-pressed=true] {
+  border-color:var(--line);
+  box-shadow:inset 3px 0 var(--blue)
+}
+.task-top .badge {
+  font-size:9px
+}
+.detail-column {
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  min-height:0;
+  background:var(--panel);
+  border:1px solid var(--line);
+  overflow:hidden
+}
+.detail-column .inspector {
+  border:0;
+  border-radius:0;
+  flex:1
+}
+.inspector-nav {
+  display:flex;
+  gap:5px;
+  border-bottom:1px solid var(--line);
+  padding:7px 12px;
+  flex-shrink:0
+}
+.inspector-nav button {
+  border-color:transparent;
+  background:transparent;
+  font-size:12px;
+  color:var(--muted)
+}
+.inspector-nav button[aria-selected=true] {
+  background:var(--selected);
+  color:var(--blue);
+  font-weight:650
+}
+.plan-card {
+  padding:20px 24px;
+  border-bottom:1px solid var(--line)
+}
+.plan-card h2 {
+  font-size:19px;
+  margin:7px 0 10px
+}
+.plan-card .origin {
+  font-size:10px;
+  color:var(--muted);
+  overflow-wrap:anywhere;
+  margin:8px 0
+}
+.plan-card .fields {
+  margin-top:15px
+}
+.plan-steps {
+  list-style:none;
+  margin:16px 0 0;
+  padding:0;
+  border-top:1px solid var(--line)
+}
+.plan-step {
+  display:flex;
+  align-items:start;
+  justify-content:space-between;
+  gap:10px;
+  padding:9px 0;
+  border-bottom:1px solid var(--line);
+  font-size:12px
+}
+.plan-step[aria-current=step] {
+  color:var(--blue);
+  font-weight:650
+}
+.plan-step .step-name {
+  min-width:0;
+  overflow-wrap:anywhere
+}
+.plan-step .badges {
+  display:flex;
+  gap:5px
+}
+.plan-intro {
+  padding:18px 24px;
+  background:var(--subtle);
+  border-bottom:1px solid var(--line);
+  font-size:12px;
+  color:var(--muted)
+}
+.plan-unavailable {
+  font-size:13px;
+  color:var(--muted)
+}
+.full-text+.fields {
+  margin-top:12px
+}
+.action-row {
+  margin-bottom:10px
+}
+
+@media(min-width:621px) {
+  .signals>summary {
+  display:none
+}
+.signal-grid {
+  display:grid!important
+}
+
+}
+
+@media(max-width:1000px) {
+  .signal-grid {
+  grid-template-columns:1fr 1fr;
+  gap:14px
+}
+.signal-grid .metrics-block {
+  grid-column:1/-1
+}
+.metric strong {
+  font-size:21px
+}
+.metrics {
+  max-width:400px
+}
+.signals {
+  max-height:190px;
+  overflow:auto
+}
+
+}
+
+@media(max-width:620px) {
+  .brand h1 {
+  font-size:18px;
+  letter-spacing:-.4px
+}
+.topbar {
+  padding-top:11px
+}
+.signals {
+  max-height:260px;
+  overflow:auto
+}
+.signal-grid {
+  grid-template-columns:1fr;
+  gap:15px;
+  padding:12px
+}
+.signal-grid .metrics-block {
+  grid-column:auto
+}
+.signals>summary {
+  padding:7px 11px
+}
+.signals[open]>summary {
+  padding-bottom:0
+}
+.overview p {
+  font-size:10px
+}
+.attention {
+  max-height:62px;
+  overflow:auto;
+  padding:6px 9px;
+  font-size:10px
+}
+.workspace[data-view=tasks] .detail-column {
+  display:none
+}
+.workspace[data-view=details] .detail-column {
+  display:flex;
+  width:100%
+}
+.workspace[data-view=details] .detail-column .inspector:not([hidden]) {
+  display:block
+}
+.inspector-nav {
+  padding:5px 9px
+}
+.inspector-nav button {
+  padding:6px 8px
+}
+.plan-card,.plan-intro {
+  padding:16px
+}
+.plan-card h2 {
+  font-size:18px
+}
+.project-tab {
+  font-size:11px;
+  padding:7px 10px
+}
+
+}
+
 </style>
 </head>
 <body>
@@ -646,7 +1029,7 @@ h1 {
 <div class="brand">
 <div class="brand-mark" aria-hidden="true">C</div>
 <div>
-<h1>Operations</h1>
+<h1>Work in motion</h1>
 <p class="muted" style="font-size:11px">Codex · shared local task board</p>
 </div>
 </div>
@@ -666,6 +1049,31 @@ h1 {
 </header>
 <nav id="project-tabs" class="projects" role="tablist" aria-label="Projects">
 </nav>
+<details id="signals" class="signals" open>
+<summary>Snapshot counts &amp; recorded updates</summary>
+<div class="signal-grid">
+<section class="metrics-block"><div class="chart-label"><span id="metrics-scope">Active-session task snapshots</span></div><div id="metrics" class="metrics" aria-label="Current task counts"></div></section>
+<section class="chart" aria-label="Recorded task updates">
+<div class="chart-label">
+<span>Recorded task updates</span>
+<span>Last 60 minutes</span>
+</div>
+<div id="activity-bars" class="activity-bars">
+</div>
+</section>
+<section class="chart" aria-label="Task status distribution">
+<div class="chart-label">
+<span>All stored task snapshots</span>
+<span id="distribution-total">
+</span>
+</div>
+<div id="distribution-bar" class="distribution-bar" aria-hidden="true">
+</div>
+<div id="status-counts" class="status-counts">
+</div>
+</section>
+</div>
+</details>
 <div class="overview">
 <p id="summary" aria-live="polite">
 </p>
@@ -709,7 +1117,15 @@ h1 {
 <div id="task-list" class="task-list">
 </div>
 </section>
-<section id="inspector" class="inspector" aria-label="Task and agent details">
+<section class="detail-column">
+<nav class="inspector-nav" role="tablist" aria-label="Inspector view">
+<button id="inspector-tab-details" type="button" role="tab" aria-selected="true" aria-controls="inspector">Task &amp; session</button>
+<button id="inspector-tab-plans" type="button" role="tab" aria-selected="false" aria-controls="plans" tabindex="-1">Current plans</button>
+</nav>
+<section id="inspector" class="inspector" role="tabpanel" aria-labelledby="inspector-tab-details">
+</section>
+<section id="plans" class="inspector" role="tabpanel" aria-labelledby="inspector-tab-plans" hidden>
+</section>
 </section>
 </div>
 <footer class="foot">
@@ -831,7 +1247,7 @@ function projectEntries(items) {
     groups.get(session.project).push(session)
   }
   return [...groups].map(([project,records])=>( {
-    project,sessions:records,active:records.filter(s=>s.status==='active').length,counts:taskCounts(records.flatMap(s=>Object.values(s.tasks)))
+    project,sessions:records,active:records.filter(s=>s.status==='active').length,counts:taskCounts(records.filter(s=>s.status==='active').flatMap(s=>Object.values(s.tasks)))
   }
   )).sort((a,b)=>Number(b.active>0||b.counts.active>0)-Number(a.active>0||a.counts.active>0)||b.counts.active-a.counts.active||a.project.localeCompare(b.project))
 }
@@ -852,13 +1268,55 @@ function filterRecords(records,status,query,current=Date.now()) {
   return records.filter(( {
     session,task
   }
-  )=>(status==='all'||status==='active'&&activeTask(task)||status==='attention'&&(['blocked','failed'].includes(task.status)||isStale(task.updated,activeTask(task),current))||task.status===status)&&(!query||[task.title,task.detail,task.owner,session.run,session.session].some(value=>value.toLowerCase().includes(query))))
+  )=>(status==='all'||status==='active'&&activeTask(task)||status==='attention'&&(['blocked','failed'].includes(task.status)||isStale(task.updated,activeTask(task),current))||task.status===status)&&(!query||[task.title,task.detail,task.owner,session.project,session.run,session.session].some(value=>value.toLowerCase().includes(query))))
 }
 // A taskless session still owns gates, notes, history and coordinator identity.
 function sessionOnlyRecords(items) {
   return items.filter(session=>Object.keys(session.tasks).length===0).map(session=>({
     session,task:null,key:JSON.stringify([session.project,session.run,session.session,null])
   }));
+}
+// Declarations are complete snapshots. An explicit clear or invalid newest
+// declaration never falls back to an older plan.
+function validPlan(value) {
+  const keys=['id','title','objective','source','status','phase','current_step','next_step','steps'];
+  const text=value=>typeof value==='string'&&Array.from(value).length<=4000&&!/[\x00-\x08\x0b-\x1f]/.test(value);
+  const id=value=>typeof value==='string'&&value.trim()===value&&/^[A-Za-z0-9][A-Za-z0-9_.-]{0,95}$/.test(value);
+  const statuses=['queued','running','testing','review','blocked','failed','done','cancelled'];
+  if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).length!==keys.length||!keys.every(key=>Object.prototype.hasOwnProperty.call(value,key)))return false;
+  if(!keys.filter(key=>key!=='steps').every(key=>text(value[key]))||!id(value.id)||!value.title.trim()||!['active','blocked','completed','cancelled'].includes(value.status))return false;
+  if(!Array.isArray(value.steps)||value.steps.length>100)return false;
+  const ids=new Set();
+  for(const step of value.steps) {
+    if(!step||typeof step!=='object'||Array.isArray(step)||Object.keys(step).length!==3||!['id','title','status'].every(key=>Object.prototype.hasOwnProperty.call(step,key))||!id(step.id)||!text(step.title)||!step.title.trim()||!statuses.includes(step.status)||ids.has(step.id))return false;
+    ids.add(step.id);
+  }
+  return value.current_step===''||ids.has(value.current_step);
+}
+function newestPlan(session) {
+  let declaration=null;
+  for(const event of session.history)if(event.kind==='session'&&event.data&&Object.prototype.hasOwnProperty.call(event.data,'project_plan'))declaration=event;
+  if(!declaration)return {plan:null,at:null,state:'absent'};
+  if(declaration.data.project_plan===null)return {plan:null,at:declaration.at,state:'cleared'};
+  return validPlan(declaration.data.project_plan)?{plan:declaration.data.project_plan,at:declaration.at,state:'declared'}:{plan:null,at:declaration.at,state:'invalid'};
+}
+function nowRecords(records,current=Date.now()) {
+  const priority=({task})=>activeTask(task)?(isStale(task.updated,true,current)?2:0):['blocked','failed'].includes(task.status)?1:3;
+  return records.filter(record=>record.session.status==='active'&&!['done','cancelled'].includes(record.task.status)).sort((a,b)=>priority(a)-priority(b));
+}
+function activityBins(timestamps,current=Date.now()) {
+  const windowMilliseconds=60*60*1000,binMilliseconds=10*60*1000;
+  const counts=Array(6).fill(0),start=current-windowMilliseconds;
+  for(const value of timestamps) {
+    const at=typeof value==='number'?value:Date.parse(value);
+    if(Number.isFinite(at)&&at>=start&&at<=current)counts[Math.min(5,Math.floor((at-start)/binMilliseconds))]++;
+  }
+  return counts;
+}
+function statusDistribution(items) {
+  const counts={queued:0,running:0,testing:0,review:0,blocked:0,failed:0,done:0,cancelled:0};
+  for(const session of items)for(const task of Object.values(session.tasks))counts[task.status]++;
+  return counts;
 }
 function node(tag,content,cls) {
   const el=document.createElement(tag);
@@ -886,6 +1344,7 @@ function field(parent,title,value,wide=false) {
   group.append(node('dt',title),node('dd',value||'Not reported'));
   parent.append(group)
 }
+const nowProject='@now';
 const storageKey='codex-operations-v1';
 let saved= {
 };
@@ -896,12 +1355,15 @@ try {
 catch {
 }
 const hash=new URLSearchParams(location.hash.slice(1));
-for(const key of ['project','task','run','session','status','search','theme','refresh','view'])if(hash.has(key))saved[key]=hash.get(key);
+for(const key of ['project','task','run','session','status','search','theme','refresh','view','pane'])if(hash.has(key))saved[key]=hash.get(key);
 const preferences= {
-  project:typeof saved.project==='string'?saved.project:'',task:typeof saved.task==='string'?saved.task:'',run:typeof saved.run==='string'?saved.run:'',session:typeof saved.session==='string'?saved.session:'',status:['all','active','attention','queued','done','cancelled'].includes(saved.status)?saved.status:'all',search:typeof saved.search==='string'?saved.search:'',theme:['system','light','dark'].includes(saved.theme)?saved.theme:'system',refresh:saved.refresh!=='off',view:saved.view==='details'?'details':'tasks'
+  project:typeof saved.project==='string'?saved.project:nowProject,task:typeof saved.task==='string'?saved.task:'',run:typeof saved.run==='string'?saved.run:'',session:typeof saved.session==='string'?saved.session:'',status:['all','active','attention','queued','done','cancelled'].includes(saved.status)?saved.status:'all',search:typeof saved.search==='string'?saved.search:'',theme:['system','light','dark'].includes(saved.theme)?saved.theme:'system',refresh:saved.refresh!=='off',view:saved.view==='details'?'details':'tasks',pane:saved.pane==='plans'?'plans':'details'
 };
 const projects=projectEntries(sessions),contexts=new Map(sessions.map(s=>[s,indexContext(s)]));
-if(!projects.some(p=>p.project===preferences.project))preferences.project=projects[0]?.project||'';
+if(preferences.project!==nowProject&&!projects.some(p=>p.project===preferences.project))preferences.project=nowProject;
+const tabProjects=[{project:nowProject,counts:taskCounts(sessions.filter(s=>s.status==='active').flatMap(s=>Object.values(s.tasks)))},...projects];
+const planDeclarations=new Map(sessions.map(session=>[session,newestPlan(session)]));
+const activityTimes=new Map(sessions.map(session=>[session,session.history.filter(event=>event.kind==='task').map(event=>Date.parse(event.at))]));
 let visibleRecords=[],historyPage=0,historyTask='';
 const historyPageSize=10;
 function persist() {
@@ -932,35 +1394,94 @@ function showView(view) {
 function projectTabs() {
   const root=document.getElementById('project-tabs');
   root.replaceChildren();
-  for(const [i,project] of projects.entries()) {
+  for(const [i,project] of tabProjects.entries()) {
     const button=node('button',undefined,'project-tab');
-    button.type='button';
-    button.id='project-'+i;
-    button.role='tab';
+    button.type='button';button.id='project-'+i;button.role='tab';
     button.setAttribute('aria-controls','workspace');
     button.setAttribute('aria-selected',String(project.project===preferences.project));
     button.tabIndex=project.project===preferences.project?0:-1;
-    button.title=project.project;
-    button.append(node('span',project.project.split(/[\\/]/).pop()||project.project),node('span',String(project.counts.active),'tab-count'));
-    if(project.counts.blockedFailed) {
-      const dot=node('span',undefined,'dot');
-      dot.title=project.counts.blockedFailed+' blocked/failed tasks';
-      dot.setAttribute('aria-label',dot.title);
-      button.append(dot)
-    }
+    button.title=project.project===nowProject?'Reported active work across all projects':project.project;
+    button.append(node('span',project.project===nowProject?'Now · All projects':project.project.split(/[\\/]/).pop()||project.project),node('span',String(project.counts.active),'tab-count'));
+    if(project.counts.blockedFailed){const dot=node('span',undefined,'dot');dot.title=project.counts.blockedFailed+' blocked/failed tasks';dot.setAttribute('aria-label',dot.title);button.append(dot)}
     button.addEventListener('click',()=>selectProject(project.project));
-    button.addEventListener('keydown',event=> {
+    button.addEventListener('keydown',event=>{
       if(!['ArrowRight','ArrowLeft','Home','End'].includes(event.key))return;
       event.preventDefault();
-      const next=event.key==='Home'?0:event.key==='End'?projects.length-1:(i+(event.key==='ArrowRight'?1:-1)+projects.length)%projects.length;
-      selectProject(projects[next].project);
-      document.getElementById('project-'+next).focus()
-    }
-    );
-    root.append(button)
+      const next=event.key==='Home'?0:event.key==='End'?tabProjects.length-1:(i+(event.key==='ArrowRight'?1:-1)+tabProjects.length)%tabProjects.length;
+      selectProject(tabProjects[next].project);document.getElementById('project-'+next).focus();
+    });
+    root.append(button);
   }
-  const active=projects.findIndex(p=>p.project===preferences.project);
-  if(active>=0)document.getElementById('workspace').setAttribute('aria-labelledby','project-'+active)
+  const active=tabProjects.findIndex(p=>p.project===preferences.project);
+  if(active>=0)document.getElementById('workspace').setAttribute('aria-labelledby','project-'+active);
+}
+function showInspectorPane(pane) {
+  preferences.pane=pane==='plans'?'plans':'details';
+  for(const name of ['details','plans']) {
+    const selected=preferences.pane===name,button=document.getElementById('inspector-tab-'+name);
+    button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1;
+    document.getElementById(name==='details'?'inspector':'plans').hidden=!selected;
+  }
+  persist();
+}
+function renderCharts() {
+  setText(document.getElementById('metrics-scope'),preferences.project===nowProject?'Active-session task snapshots':'Selected-session task snapshots');
+  const metricSessions=preferences.project===nowProject?selectedSessions.filter(session=>session.status==='active'):selectedSessions;
+  const counts=taskCounts(metricSessions.flatMap(session=>Object.values(session.tasks)));
+  const metrics=document.getElementById('metrics');metrics.replaceChildren();
+  for(const [value,title] of [[counts.active,'Active reports'],[counts.queued,'Queued'],[counts.blockedFailed,'Blocked / failed'],[counts.done+'/'+counts.total,'Done / total']]) {
+    const metric=node('div',undefined,'metric');metric.append(node('strong',String(value)),node('span',title));
+    if(title==='Done / total')metric.title='Task counts exclude cancelled tasks; no time estimate.';
+    metrics.append(metric);
+  }
+  const bins=activityBins(selectedSessions.flatMap(session=>activityTimes.get(session))),max=Math.max(1,...bins);
+  const bars=document.getElementById('activity-bars');bars.replaceChildren();
+  bars.setAttribute('role','img');bars.setAttribute('aria-label','Recorded task update counts in ten-minute intervals, oldest first: '+bins.join(', ')+'. Updates are not proof of agent activity.');
+  for(const [i,count] of bins.entries()) {
+    const column=node('div',undefined,'activity-column'),bar=node('i');bar.style.height=Math.round(count/max*28)+'px';
+    column.append(bar,node('span',String(count)),node('span',(60-i*10)+'–'+(50-i*10)+'m'));bars.append(column);
+  }
+  const distribution=statusDistribution(selectedSessions),total=Object.values(distribution).reduce((sum,count)=>sum+count,0);
+  setText(document.getElementById('distribution-total'),total+' tasks');
+  const strip=document.getElementById('distribution-bar'),text=document.getElementById('status-counts');strip.replaceChildren();text.replaceChildren();
+  for(const [status,count] of Object.entries(distribution)) {
+    if(count){const segment=node('span',undefined,status);segment.style.flexGrow=count;strip.append(segment)}
+    text.append(node('span',label(status)+' '+count));
+  }
+}
+function renderPlans() {
+  const root=document.getElementById('plans');
+  for(let i=ages.length-1;i>=0;i--)if(root.contains(ages[i].el))ages.splice(i,1);
+  root.replaceChildren();
+  root.append(node('p','Explicit session declarations. Concurrent plans keep their own origin; source labels are not fetched.','plan-intro'));
+  if(!selectedSessions.length){root.append(node('p','Not declared. No sessions match this view.','empty'));return}
+  const planSessions=[...selectedSessions].sort((a,b)=>Number(b.status==='active')-Number(a.status==='active')||a.project.localeCompare(b.project)||a.run.localeCompare(b.run)||a.session.localeCompare(b.session));
+  for(const session of planSessions) {
+    const declaration=planDeclarations.get(session),plan=declaration.plan,card=node('article',undefined,'plan-card');
+    card.append(node('div',session.project.split(/[\\/]/).pop()||session.project,'project-label'));
+    card.append(node('p',session.project+' · Run '+session.run+' · Session '+session.session,'origin mono'));
+    card.append(node('p',session.status==='active'?'Owner session: active':'Retained declaration · owner session: '+session.status,'origin'));
+    if(declaration.at)card.append(ageNode(declaration.at,false,'Plan declaration'));
+    if(!plan) {
+      card.append(node('h2','Not declared'),node('p',declaration.state==='cleared'?'This session explicitly cleared its declaration.':declaration.state==='invalid'?'The latest declaration is invalid. No earlier plan is substituted.':'This session has not declared a current plan.','plan-unavailable'));
+      root.append(card);continue;
+    }
+    card.append(node('h2',plan.title),node('span','Reported plan status: ','muted'),badge(plan.status));
+    if(plan.objective)card.append(node('p',plan.objective,'full-text description'));
+    const fields=node('dl',undefined,'fields');
+    field(fields,'Plan ID',plan.id);field(fields,'Current phase',plan.phase);field(fields,'Source · text only',plan.source,true);field(fields,'Next action',plan.next_step,true);
+    const done=plan.steps.filter(step=>step.status==='done').length;
+    field(fields,'Declared steps',done+'/'+plan.steps.length+' done · separate from task counts',true);card.append(fields);
+    const steps=node('ol',undefined,'plan-steps');
+    for(const step of plan.steps) {
+      const entry=node('li',undefined,'plan-step'),badges=node('span',undefined,'badges');
+      entry.append(node('span',step.title,'step-name'));
+      if(step.id===plan.current_step){entry.setAttribute('aria-current','step');badges.append(node('span','Current','badge review'))}
+      badges.append(badge(step.status));entry.append(badges);steps.append(entry);
+    }
+    if(!plan.steps.length)steps.append(node('li','No steps declared.','plan-step'));
+    card.append(steps);root.append(card);
+  }
 }
 function selectProject(project) {
   preferences.project=project;
@@ -973,7 +1494,7 @@ function selectProject(project) {
   persist()
 }
 function populateFilters() {
-  const items=sessions.filter(s=>s.project===preferences.project);
+  const items=sessions.filter(s=>preferences.project===nowProject||s.project===preferences.project);
   for(const name of ['run','session']) {
     const select=document.getElementById(name);
     select.replaceChildren();
@@ -1006,13 +1527,13 @@ function copyButton(title,value) {
 }
 function render() {
   ages.length=0;
-  selectedSessions=sessions.filter(s=>s.project===preferences.project&&(!preferences.run||s.run===preferences.run)&&(!preferences.session||s.session===preferences.session));
+  selectedSessions=sessions.filter(s=>(preferences.project===nowProject||s.project===preferences.project)&&(!preferences.run||s.run===preferences.run)&&(!preferences.session||s.session===preferences.session));
   const records=taskRecords(selectedSessions);
-  visibleRecords=filterRecords(records,preferences.status,preferences.search);
+  visibleRecords=filterRecords(preferences.project===nowProject?nowRecords(records):records,preferences.status,preferences.search);
   const root=document.getElementById('task-list');
   root.replaceChildren();
   setText(document.getElementById('task-count'),String(visibleRecords.length));
-  const sessionRecords=sessionOnlyRecords(selectedSessions);
+  const sessionRecords=sessionOnlyRecords(selectedSessions).filter(record=>preferences.project!==nowProject||record.session.status==='active');
   const inspectorRecords=[...visibleRecords,...sessionRecords];
   if(!inspectorRecords.some(r=>r.key===preferences.task))preferences.task=inspectorRecords[0]?.key||'';
   for(const record of visibleRecords) {
@@ -1025,6 +1546,7 @@ function render() {
     button.setAttribute('aria-pressed',String(key===preferences.task));
     const top=node('div',undefined,'task-top');
     top.append(node('span',task.title,'task-name'),badge(task.status));
+    if(preferences.project===nowProject)button.append(node('div',session.project.split(/[\\/]/).pop()+' / '+session.run,'project-label'));
     button.append(top);
     if(task.detail)button.append(node('div',task.detail,'task-excerpt'));
     const meta=node('div',undefined,'task-meta');
@@ -1032,6 +1554,7 @@ function render() {
     button.append(meta);
     button.addEventListener('click',()=> {
       preferences.task=key;
+      preferences.pane='details';
       render();
       persist();
       showView('details');
@@ -1058,6 +1581,7 @@ function render() {
     button.append(top,node('p','Session details · no tasks posted','task-excerpt'),node('p',record.session.run+' / '+record.session.session,'task-meta mono'));
     button.addEventListener('click',()=>{
       preferences.task=record.key;
+      preferences.pane='details';
       render();
       showView('details');
       const heading=document.querySelector('.inspector-head h2');
@@ -1068,6 +1592,8 @@ function render() {
   }
   if(!inspectorRecords.length)root.append(node('div',records.length?'No matching tasks. Change the status, search, run or session filter.':'No tasks have been posted for this project.','empty'));
   renderInspector(inspectorRecords.find(r=>r.key===preferences.task));
+  renderPlans();renderCharts();showInspectorPane(preferences.pane);
+  setText(document.querySelector('.list-heading span'),preferences.project===nowProject?'Active work · across projects':'Task queue · active first');
   updateAges();
   persist()
 }
@@ -1222,9 +1748,9 @@ function updateAges() {
     el.textContent=relativeAge(seconds)+' since this '+kind.toLowerCase()+' posted'+(stale?' · stale; activity is unconfirmed':'');
     el.className='age'+(stale?' badge stale':'')
   }
-  const metrics=snapshotMetrics(selectedSessions,current),summary=document.getElementById('summary'),summaryText=selectedSessions.length+' session'+(selectedSessions.length===1?'':'s')+' · '+countText(metrics)+' · snapshot '+board.revision;
+  const metrics=snapshotMetrics(selectedSessions,current),summary=document.getElementById('summary'),summaryText=selectedSessions.length+' reported sessions · '+metrics.total+' tasks (cancelled excluded)';
   if(summary.textContent!==summaryText)summary.textContent=summaryText;
-  const globalMetrics=snapshotMetrics(typeof sessions==='undefined'?selectedSessions:sessions,current),attention=document.getElementById('attention'),hidden=!(globalMetrics.staleTasks||globalMetrics.staleSessions||globalMetrics.blockedFailed),attentionText=globalMetrics.staleTasks+' stale active task'+(globalMetrics.staleTasks===1?'':'s')+' · '+globalMetrics.staleSessions+' stale active session'+(globalMetrics.staleSessions===1?'':'s')+' · '+globalMetrics.blockedFailed+' blocked/failed across all projects. Stale means no post for at least '+Math.floor(staleSeconds/60)+' minutes. Activity is unconfirmed. Inspect each owner’s native agent status and last output before deciding whether to intervene.';
+  const globalMetrics=snapshotMetrics((typeof sessions==='undefined'?selectedSessions:sessions).filter(session=>session.status==='active'),current),attention=document.getElementById('attention'),hidden=!(globalMetrics.staleTasks||globalMetrics.staleSessions||globalMetrics.blockedFailed),attentionText=globalMetrics.staleTasks+' stale active task'+(globalMetrics.staleTasks===1?'':'s')+' · '+globalMetrics.staleSessions+' stale active session'+(globalMetrics.staleSessions===1?'':'s')+' · '+globalMetrics.blockedFailed+' blocked/failed across projects. Activity is unconfirmed. Inspect native agent status and last output.';
   if(attention.hidden!==hidden)attention.hidden=hidden;
   if(attention.textContent!==attentionText)attention.textContent=attentionText;
   document.getElementById('board-age').textContent=' · '+relativeAge(elapsedSeconds(board.updated,current))+' since the latest post'
@@ -1270,12 +1796,27 @@ document.getElementById('show-tasks').addEventListener('click',()=>showView('tas
 document.getElementById('show-details').addEventListener('click',()=>showView('details'));
 document.getElementById('updated').textContent=new Date(board.updated).toLocaleTimeString();
 document.getElementById('updated').dateTime=board.updated;
+for(const pane of ['details','plans']) {
+  const button=document.getElementById('inspector-tab-'+pane);
+  button.addEventListener('click',()=>{showInspectorPane(pane);showView('details')});
+  button.addEventListener('keydown',event=>{
+    if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+    event.preventDefault();
+    const next=event.key==='Home'?'details':event.key==='End'?'plans':pane==='details'?'plans':'details';
+    showInspectorPane(next);document.getElementById('inspector-tab-'+next).focus();
+  });
+}
+const compact=matchMedia('(max-width:620px)'),signals=document.getElementById('signals');
+signals.open=!compact.matches;
+compact.addEventListener('change',event=>{if(!event.matches)signals.open=true});
+document.getElementById('attention').title='Stale means no task/session post for at least '+Math.floor(staleSeconds/60)+' minutes; it does not prove work stopped.';
 applyTheme();
 showView(preferences.view);
 projectTabs();
 populateFilters();
 render();
 setInterval(updateAges,1000);
+setInterval(renderCharts,60000);
 setInterval(()=> {
   if(refresh.checked) {
     persist();
