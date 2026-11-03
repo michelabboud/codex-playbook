@@ -272,6 +272,46 @@ console.log(JSON.stringify({initial,later,completed,empty,cancelled,
         self.assertTrue(metrics["boundary"])
         self.assertEqual(metrics["future"], 0)
 
+    @unittest.skipUnless(shutil.which("node"), "Browser live-region regression requires an available JavaScript runtime")
+    def test_browser_age_tick_only_announces_changed_live_region_text(self):
+        source = (HELPER.parent.parent / "assets" / "dashboard.html").read_text()
+        helpers = source[source.index("function elapsedSeconds("):source.index("function node(")]
+        updater = source[source.index("function updateAges("):source.index("const refresh=")]
+        script = "const staleSeconds=" + str(dashboard.STALE_SECONDS) + ";\n" + helpers + updater + r"""
+function trackedElement(){let text='';return {writes:0,hidden:false,className:'',
+    get textContent(){return text},set textContent(value){text=value;this.writes++}}}
+const elements={summary:trackedElement(),attention:trackedElement(),'board-age':trackedElement()};
+const document={getElementById:id=>elements[id]};
+const start=Date.parse('2026-11-03T12:00:00Z'),stamp=new Date(start).toISOString();
+let clock=start;Date.now=()=>clock;
+const board={updated:stamp,revision:1};
+const selectedSessions=[{status:'active',updated:stamp,tasks:{build:{status:'running',updated:stamp}}}];
+const age=trackedElement(),ages=[{el:age,value:stamp,active:true,kind:'Task'}];
+function snapshot(){return {summaryWrites:elements.summary.writes,attentionWrites:elements.attention.writes,
+    hidden:elements.attention.hidden,attention:elements.attention.textContent,age:age.textContent}}
+updateAges();const initial=snapshot();
+clock+=1000;updateAges();const unchanged=snapshot();
+clock=start+staleSeconds*1000;updateAges();const threshold=snapshot();
+clock+=1000;updateAges();const staleUnchanged=snapshot();
+console.log(JSON.stringify({initial,unchanged,threshold,staleUnchanged}));
+"""
+        result = subprocess.run([shutil.which("node"), "-e", script],
+                                text=True, capture_output=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        ticks = json.loads(result.stdout)
+        for tick in ticks.values():
+            self.assertEqual(tick["summaryWrites"], 1)
+        self.assertEqual(ticks["initial"]["attentionWrites"], 1)
+        self.assertEqual(ticks["unchanged"]["attentionWrites"], 1)
+        self.assertEqual(ticks["threshold"]["attentionWrites"], 2)
+        self.assertEqual(ticks["staleUnchanged"]["attentionWrites"], 2)
+        self.assertTrue(ticks["unchanged"]["hidden"])
+        self.assertFalse(ticks["threshold"]["hidden"])
+        self.assertIn("1 stale active task", ticks["threshold"]["attention"])
+        self.assertIn("1 stale active session", ticks["threshold"]["attention"])
+        self.assertIn("10 minutes", ticks["threshold"]["age"])
+        self.assertIn("stale", ticks["threshold"]["age"])
+
     def test_build_review_release_and_task_done_are_independent(self):
         self.init()
         self.update("--task", "build", "--add", "--task-title", "Build", "--status", "done", "--build", "passed", "--review", "failed", "--release", "pending")
