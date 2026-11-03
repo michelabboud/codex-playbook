@@ -146,8 +146,8 @@ run_first_install_and_restore_test() {
   [ -n "$backup_dir" ] || fail 'first installation creates a recovery checkpoint'
   assert_contains 'format=2' "$backup_dir/manifest"     'first-install checkpoint uses format 2'
   managed_count=$(grep -c '^managed_skill=' "$backup_dir/manifest")
-  if [ "$managed_count" -eq 22 ]; then
-    pass 'format-2 checkpoint records the 20 active and two retired skill names'
+  if [ "$managed_count" -eq 23 ]; then
+    pass 'format-2 checkpoint records the 21 active and two retired skill names'
   else
     fail 'format-2 checkpoint inventory is incomplete'
   fi

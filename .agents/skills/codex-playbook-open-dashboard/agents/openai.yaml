@@ -1,0 +1,6 @@
+interface:
+  display_name: "Open Task Dashboard"
+  short_description: "Open the shared local project and agent task board"
+  default_prompt: "Use $codex-playbook-open-dashboard to open my shared task dashboard."
+policy:
+  allow_implicit_invocation: true

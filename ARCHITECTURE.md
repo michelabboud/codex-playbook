@@ -68,7 +68,7 @@ to execute an approved action; it cannot add a reason to stop or ask.
 
 Three files are authoritative:
 
-- `config/managed-skills.txt` lists the exact twenty active skill packages. One of them, `codex-playbook-dev-mode`, is an owner command whose `agents/openai.yaml` disables implicit invocation; `config/managed-resources.txt` lists that file beside the roster reference and the dashboard helper, template, tests and invocation metadata.
+- `config/managed-skills.txt` lists the exact twenty-one active skill packages. One of them, `codex-playbook-dev-mode`, is an owner command whose `agents/openai.yaml` disables implicit invocation; `config/managed-resources.txt` lists that file beside the roster reference and the dashboard helper, template, tests and invocation metadata.
   Install, restore, tests, and verification read this file rather than
   duplicating shell lists.
 - `config/managed-resources.txt` lists the repository-relative path of every
@@ -218,3 +218,14 @@ and is not part of installer replacement, rollback or restoration.
 ## Validation and retained artifacts
 
 Rules 2.2 and 3.1 assign scoped task checks and one broad frozen-candidate batch run with independent review of its receipts. Rules 13.1/13.4/13.5 separate durable evidence from working fixtures, preserve isolation and require measured retention accounting. These are procedures within existing deletion authority, with no cleaner or new runtime component. [ADR0016](docs/adr/0016-validation-batching-and-retention.md) records the trade-offs.
+
+## Project dashboard and opener
+
+The opener skill delegates to the publisher's standard-library helper. `locate`
+reports location/availability without creating state; explicit `open` may create
+an empty owned board. Startup discovery is instruction-based, not a daemon/hook.
+The compact browser UI retains the v1 board/task schema. Optional typed agent
+context is stored in the latest task history event and rendered only when that
+snapshot matches current task fields. Older publishers can preserve the history
+and update without context; the inspector then reports the association unavailable.
+No transcript service or remote resource is used. See ADR0018.

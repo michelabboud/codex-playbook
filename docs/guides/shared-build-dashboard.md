@@ -102,3 +102,64 @@ excluded from the denominator. Counts are not an estimate of time remaining.
 The stale summary uses the browser clock, never claims an agent is dead, and
 directs the owner to inspect native status and last output. No external watchdog
 is installed. See [efficient operations](efficient-codex-operations.md).
+
+## Project console and agent details (0.1.23)
+
+Invoke `$codex-playbook-open-dashboard` from Codex. The skill resolves the packaged
+helper and opens the existing board; if none exists, an explicit open creates an
+empty owned board. A startup announcement supplies the actual browser-friendly
+URL and command without launching a window. `locate` is read-only, including on
+an uninitialized machine. On WSL, the helper translates the actual distribution
+path rather than hardcoding one user's URL.
+
+Project tabs order active work first. Within a project, running/testing/review
+work comes first, with blocked/failed and queued work also visible. Completed
+history remains available in bounded navigation. Select a task to inspect its
+full description, ownership, recorded activity, acceptance, evidence and history.
+Theme choices are light, dark and system; navigation persists across refresh.
+
+Publish agent context with task updates, for example:
+
+```sh
+python3 "$DASHBOARD_HELPER" update --project "$PROJECT" --run "$RUN" --session "$SESSION" \
+  --task implement --status running --owner "Implementation worker" \
+  --description "Build and validate the requested behavior" \
+  --model "actual-model-id" --effort "high" \
+  --codex-thread-id "00000000-0000-4000-8000-000000000001" \
+  --last-progress "2026-11-03T08:00:00+00:00" \
+  --next-checkpoint "2026-11-03T08:10:00+00:00"
+```
+
+Replace example values with observed values. Other optional flags are `--agent-id`,
+`--agent-url`, `--worktree`, `--command`, `--blocker` and `--decision`. Never publish
+secrets, raw environment values or token-bearing URLs/commands. Only provide an
+agent URL after confirming that it targets the intended agent in your client.
+
+Context is a complete snapshot attached to that task-history event. Include it
+again when posting subsequent updates; fields are not implicitly carried forward.
+The inspector uses only the newest task event when all current task fields match.
+Ordinary older-publisher updates preserve historical metadata but make the current
+association unavailable. Same task IDs in different sessions remain independent.
+
+The agent panel separates a worker from its coordinator. An explicit HTTPS URL
+can open the agent where supported; a verified UUID can be copied as a resume
+command, while a generic agent ID can only be copied. Missing information is
+reported as unavailable. This is reported task activity, not a streamed agent
+transcript, and nothing in the browser executes shell commands or kills agents.
+
+## Platform behavior
+
+| Environment | Browser launch | Location and opening command |
+|---|---|---|
+| WSL | Windows default browser through `wslpath` and PowerShell | Windows-accessible file URI for the detected distribution; POSIX command in WSL |
+| macOS | `open` | Native file URI and shell-quoted Python command |
+| Native Windows | Default file handler | Native file URI and a PowerShell command with quoted executable/arguments |
+| Linux desktop | `xdg-open`, then `gio` | Native file URI and shell-quoted Python command |
+
+`locate` reports the detected platform, command shell and argument list. Use the
+reported shell rather than copying POSIX syntax into PowerShell. Paths containing
+spaces, Unicode and apostrophes are data, never shell code. A missing launcher or
+WSL conversion is reported; the helper does not invent a working URL or claim a
+window opened. Python 3 is required; Windows may expose it as `py -3` or `python`.
+Native Windows/macOS execution requires those hosts; mocked platform tests do not
+establish native-machine acceptance.

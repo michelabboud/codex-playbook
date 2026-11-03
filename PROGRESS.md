@@ -1,5 +1,8 @@
 # Progress
 
+**0.1.23, 2026-11-03 — project console and packaged opener.**
+Implementation in progress. UI, backend and package lanes have separate ownership; source verification and independent reviews remain pending. Installed replacement remains separate from source publication.
+
 **0.1.22, 2026-11-03 — bounded execution and task-level visibility.**
 Policy and dashboard implementation complete: aggregate verification passed 244/217/789 assertions and25 dashboard tests; focused accessibility repair passed26 dashboard tests and independent re-review. Mechanical/deep gates accepted. Source publication and installed replacement remain distinct. The local review/subagent Overrides match installed 0.1.21 but are stale against this candidate; no local layer or installed rules changed.
 
@@ -86,7 +89,7 @@ local-layer, and 673 installer lifecycle checks with direct exit 0. See
 installation and native macOS acceptance remain unverified and were outside
 this two-playbook publication scope. Older gate notes below are historical.
 
-**Current version:** 0.1.22
+**Current version:** 0.1.23
 
 ## Historical 0.1.6 publication and repair notes
 

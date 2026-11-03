@@ -8,7 +8,7 @@ around that ratio.*
 **Do the right thing, not the lazy or easy thing.**
 
 Codex Playbook is Michel's Claude Code Playbook, faithfully adapted to Codex.
-It preserves the 64 numbered rules, partnership model, review ladder,
+It preserves the 65 numbered rules, partnership model, review ladder,
 verification standard, safety procedures, and writing rules, with documented
 Codex execution-authority differences: ordinary authorized work proceeds
 without additional approval; destructive safeguards remain.
@@ -35,8 +35,8 @@ for model selection, native agent inspection and abandoned-worktree diagnosis.
 **[Open the visual playbook →](https://michelabboud.github.io/codex-playbook/)**
 
 The dependency-free visual map presents the five partnership principles, all
-64 rules, the complete approval matrix, the fifteen rule sections, and the
-split between the always-loaded authority router and twenty on-demand skills.
+65 rules, the complete approval matrix, the fifteen rule sections, and the
+split between the always-loaded authority router and twenty-one on-demand skills.
 It uses no framework, build step, cookies, or analytics.
 
 ## Review without stalling development
@@ -72,6 +72,13 @@ session, see the [capability guide](docs/guides/advanced-task-execution-and-comm
 
 ## Keep build work visible
 
+Use `$codex-playbook-open-dashboard` to open the shared board. Fresh sessions
+announce its actual link and this command once, without automatically opening a
+browser. Project tabs prioritize active work; task details and an agent inspector
+keep the page compact. Choose light, dark or system theme. Reported agent links
+open where supported; otherwise copy a verified thread's resume command.
+
+
 The shared local browser task board shows build work from multiple Codex
 sessions and projects. Sessions post their own task statuses, evidence links,
 acceptance gates and update times. The browser refreshes the saved view every
@@ -93,7 +100,7 @@ Codex Playbook uses that progressive-disclosure model:
 - `AGENTS.md` stays small and always available. It carries the five partnership
   principles, precedence, request classification, the approval table (destructive actions only),
   critical rules 0.1–0.4, and the mandatory skill router.
-- Twenty skills carry the full subject rules and procedures for code, testing,
+- Twenty-one skills carry the full subject rules and procedures for code, testing,
   reviews, documentation, repository structure, workflow, collaboration,
   subagents, operations, destructive actions, quarantine, hygiene, platform commands,
   writing, and self-update.
@@ -132,7 +139,7 @@ upgrade, restore, and Windows guidance is in [`INSTALL.md`](INSTALL.md).
 | Layer | Destination | Purpose |
 |---|---|---|
 | Global authority router | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` | Always-loaded partnership, authority, classification, approval, and trigger routing |
-| Twenty personal skills | `$HOME/.agents/skills/codex-playbook-*/` | Full subject procedures loaded through progressive disclosure |
+| Twenty-one personal skills | `$HOME/.agents/skills/codex-playbook-*/` | Full subject procedures loaded through progressive disclosure |
 | Recovery checkpoint | `${CODEX_HOME:-$HOME/.codex}/backups/` | Verified pre-install state for exact restoration |
 | **Never shipped, never written** | `${CODEX_HOME:-$HOME/.codex}/playbook-local.md` | Your local layer: the one file the scripts only ever read, and only to check it |
 
@@ -188,7 +195,7 @@ and the update source.
 
 ```text
 AGENTS.md                 lean global authority and trigger router
-.agents/skills/           twenty on-demand skills: rule sections and the dev-mode command
+.agents/skills/           twenty-one on-demand skills: rule sections and the dev-mode command
 config/managed-skills.txt authoritative installed-skill inventory
 config/managed-resources.txt  nested files an installation depends on
 config/rule-manifest.tsv  authoritative 65-rule ownership map
@@ -208,7 +215,7 @@ docs/plans/               approved designs and implementation plans
 
 ## Version
 
-Current: **v0.1.22**. `VERSION` is the source of truth; release detail lives in
+Current: **v0.1.23**. `VERSION` is the source of truth; release detail lives in
 [`CHANGELOG.md`](CHANGELOG.md).
 
 ## License

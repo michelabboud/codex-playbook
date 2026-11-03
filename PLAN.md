@@ -1,5 +1,23 @@
 # Plan
 
+## Task — Project dashboard redesign and opener (authorized 2026-11-03)
+
+**Status:** running. Tasks run back to back through checkpoint publication.
+**Mode/threat sketch:** production local dashboard, reported task data and safe
+links only; preserve state/history, avoid script injection, incorrect worker
+identity, unexpected launches and false live-monitoring claims. ADR0018 is the
+design contract. User selected details plus native navigation where supported.
+
+Root owns opener skill/router/package inventories/docs and integration. A scoped
+UI worker owns dashboard HTML and its new UI behavioral tests. A backend worker
+owns dashboard.py and existing test_dashboard.py, with a shared agent_context
+contract. Two independent lanes, no shared-file writers, no worktrees or new
+dependencies. Native agent messages deliver evidence and blockers; ten-minute
+checkpoints and bounded attempts apply. Root integrates, runs the aggregate suite,
+dispatches independent reviews and publishes the checkpoint before proposing any
+protected installed replacement. Retained data budget: under 10 MiB plus existing
+test fixture teardown; no transcript server or cross-project cleanup.
+
 ## Task — Bounded execution and visible progress (authorized 2026-11-03)
 
 **Status:** done 2026-11-03; source verification and independent reviews accepted. Tasks run back to back through checkpoint publication.

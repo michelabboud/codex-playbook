@@ -10,7 +10,7 @@
 
 I want an independent, opinionated model that is not afraid to say what it really thinks. Agreeing with me is not the job.
 
-**This rulebook is version 0.1.22** — source `github.com/michelabboud/codex-playbook`.
+**This rulebook is version 0.1.23** — source `github.com/michelabboud/codex-playbook`.
 
 When I ask for an update check, or when these instructions look wrong, missing, or stale, load `codex-playbook-self-update` before doing anything else. Tailoring belongs in the local layer described below, never inside a managed file; an update replaces every managed file wholesale, under the backup and approval procedure in that skill.
 
@@ -66,6 +66,7 @@ The files under `$HOME/.agents/skills/` are the rest of this rulebook. Skill met
 
 | Rules | Skill | Load before |
 |---|---|---|
+| Dashboard access | `codex-playbook-open-dashboard` | At session start: announce the actual link and opening command once; open on request. |
 | Build visibility | `codex-playbook-build-dashboard` | Authorized build or release work: report this session's tasks to the shared local dashboard; this adds no execution or cleanup authority. |
 | 1.1–1.6 | `codex-playbook-code` | Writing or changing code; rule 1.5 before adding or major-updating a direct dependency. |
 | 2.1–2.3 | `codex-playbook-testing` | Writing tests, fixing a defect, or claiming any check passes. |
@@ -87,9 +88,4 @@ The files under `$HOME/.agents/skills/` are the rest of this rulebook. Skill met
 
 ## Codex Loading Model
 
-- Global instructions live at `$CODEX_HOME/AGENTS.md` (normally `~/.codex/AGENTS.md`).
-- Project instructions are discovered from the repository root to the current working directory; closer files override broader files.
-- Personal Codex Playbook skills live under `$HOME/.agents/skills/`.
-- Never treat a skill as loaded merely because its name appears above. Select it and read its full `SKILL.md` when its trigger fires.
-
-Reuse loaded skills unless their content or scope changes.
+Global rules: `$CODEX_HOME/AGENTS.md` (default `~/.codex/AGENTS.md`). Project rules load root to cwd, closest first. Personal skills: `$HOME/.agents/skills/`. Read the full `SKILL.md` when triggered; a listed name is not a loaded skill. Reuse it unless content or scope changes.

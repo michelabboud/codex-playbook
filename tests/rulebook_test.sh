@@ -111,13 +111,13 @@ fi
 
 managed_count=$(wc -l < config/managed-skills.txt | tr -d ' ')
 managed_unique=$(LC_ALL=C sort -u config/managed-skills.txt | wc -l | tr -d ' ')
-if [ "$managed_count" -eq 20 ] &&
-   [ "$managed_unique" -eq 20 ] &&
+if [ "$managed_count" -eq 21 ] &&
+   [ "$managed_unique" -eq 21 ] &&
    [ "$(LC_ALL=C sort config/managed-skills.txt)" = "$(cat config/managed-skills.txt)" ] &&
    ! grep -Evq '^codex-playbook-[a-z]+(-[a-z]+)*$' config/managed-skills.txt; then
-  pass 'managed skill inventory is sorted, valid, unique, and contains 20 skills'
+  pass 'managed skill inventory is sorted, valid, unique, and contains 21 skills'
 else
-  fail 'managed skill inventory must be sorted, valid, unique, and contain 20 skills'
+  fail 'managed skill inventory must be sorted, valid, unique, and contain 21 skills'
 fi
 
 metadata_chars=0
@@ -148,10 +148,10 @@ do
 done < config/managed-skills.txt
 
 actual_skill_count=$(find .agents/skills -mindepth 2 -maxdepth 2 -name SKILL.md -path '*/codex-playbook-*/*' | wc -l | tr -d ' ')
-if [ "$actual_skill_count" -eq 20 ]; then
-  pass 'the repository contains all and only 20 Codex Playbook skills'
+if [ "$actual_skill_count" -eq 21 ]; then
+  pass 'the repository contains all and only 21 Codex Playbook skills'
 else
-  fail "the repository contains $actual_skill_count Codex Playbook skills; expected 20"
+  fail "the repository contains $actual_skill_count Codex Playbook skills; expected 21"
 fi
 
 if [ "$metadata_chars" -le 8000 ]; then
@@ -496,7 +496,9 @@ if [ -f "$resource_inventory" ] && [ ! -L "$resource_inventory" ] && [ -s "$reso
 .agents/skills/codex-playbook-build-dashboard/assets/dashboard.html
 .agents/skills/codex-playbook-build-dashboard/scripts/dashboard.py
 .agents/skills/codex-playbook-build-dashboard/scripts/test_dashboard.py
+.agents/skills/codex-playbook-build-dashboard/scripts/test_dashboard_ui.py
 .agents/skills/codex-playbook-dev-mode/agents/openai.yaml
+.agents/skills/codex-playbook-open-dashboard/agents/openai.yaml
 .agents/skills/codex-playbook-subagents/references/roster.md
 EOF
   if ! cmp -s "$resource_inventory" "$test_root/expected-resources"; then

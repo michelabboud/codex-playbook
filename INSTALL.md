@@ -15,7 +15,7 @@ replaced.
 | Repository source | Destination |
 |---|---|
 | `AGENTS.md` | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
-| Twenty names from `config/managed-skills.txt` | `$HOME/.agents/skills/<name>/` |
+| Twenty-one names from `config/managed-skills.txt` | `$HOME/.agents/skills/<name>/` |
 | Every nested file listed in `config/managed-resources.txt` | inside its skill's destination directory |
 | Recovery checkpoint | `${CODEX_HOME:-$HOME/.codex}/backups/codex-playbook-preinstall-*` |
 

@@ -116,6 +116,12 @@ if command -v python3 >/dev/null 2>&1; then
   else
     fail "shared build dashboard behavioral tests fail"
   fi
+  if PYTHONDONTWRITEBYTECODE=1 python3 \
+      .agents/skills/codex-playbook-build-dashboard/scripts/test_dashboard_ui.py; then
+    pass "project dashboard UI behavioral tests pass"
+  else
+    fail "project dashboard UI behavioral tests fail"
+  fi
 else
   fail "Python 3.9 or later is required for dashboard behavioral verification"
 fi

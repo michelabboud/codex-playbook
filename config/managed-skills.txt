@@ -7,6 +7,7 @@ codex-playbook-dev-modes
 codex-playbook-documentation
 codex-playbook-environment
 codex-playbook-hygiene
+codex-playbook-open-dashboard
 codex-playbook-platform-linux
 codex-playbook-platform-macos
 codex-playbook-platform-windows

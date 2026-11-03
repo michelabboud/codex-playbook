@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -86,6 +87,194 @@ class DashboardBehavior(unittest.TestCase):
         before = self.snapshot()
         self.cli("update", *self.identity, "--task", "test", "--add", "--task-title", "Replace", expected=2)
         self.assertEqual(self.snapshot(), before)
+
+    def test_context_is_optional_event_snapshot_and_never_changes_v1_task_schema(self):
+        self.init()
+        other = self.identity[:-1] + ["codex-b"]
+        self.init(other)
+        self.update("--task", "test", "--add", "--task-title", "Context task", identity=other)
+        sibling_before = next(s for s in self.cli("read")["sessions"] if s["session"] == "codex-b")
+        context = {"description": "What this task changes", "model": "reported-model", "effort": "high",
+                   "agent_id": "worker-1", "agent_url": "https://example.com/agent/1?q=%27",
+                   "codex_thread_id": "12345678-1234-5678-abcd-123456789abc", "worktree": str(self.project),
+                   "command": "python3 'quoted command.py'", "last_progress": "2026-11-03T12:00:00Z",
+                   "next_checkpoint": "2026-11-03T12:10:00+02:00", "blocker": "", "decision": "Use file-only storage"}
+        flags = [part for name, value in context.items() for part in ("--" + name.replace("_", "-"), value)]
+        self.update("--task", "test", "--add", "--task-title", "Context task", *flags)
+        sessions = {s["session"]: s for s in self.cli("read")["sessions"]}
+        self.assertEqual(sessions["codex-b"], sibling_before)
+        own = sessions["codex-a"]
+        self.assertEqual(set(own["tasks"]["test"]), {"id", "title", "status", "owner", "detail", "evidence", "updated"})
+        self.assertEqual(own["history"][-1]["data"]["agent_context"], context)
+        self.update("--task", "test", "--model", "replacement")
+        own = self.cli("read", "--session", "codex-a")["sessions"][0]
+        self.assertEqual(own["history"][-1]["data"]["agent_context"], {"model": "replacement"})
+        self.update("--task", "test", "--detail", "Ordinary legacy-compatible update")
+        own = self.cli("read", "--session", "codex-a")["sessions"][0]
+        self.assertNotIn("agent_context", own["history"][-1]["data"])
+        self.assertEqual(own["history"][-3]["data"]["agent_context"], context)
+
+    def test_bad_context_and_context_without_task_leave_all_state_unchanged(self):
+        self.init()
+        before = self.snapshot()
+        for flag in dashboard.CONTEXT_FIELDS:
+            self.cli("update", *self.identity, "--" + flag.replace("_", "-"), "value", expected=2)
+        rejected = {"agent-url": ["javascript:alert(1)", "codex://thread/1", "http://example.com/", "https://u:secret@example.com", "https://example.com/a b", "https://example.com\\path", "https://example.com:bad/"],
+                    "codex-thread-id": ["arbitrary-session", "1234567812345678abcd123456789abc", "12345678-1234-5678-ABCD-123456789ABC"],
+                    "last-progress": ["2026-11-03T12:00:00", "just now"],
+                    "next-checkpoint": ["2026-11-03", "in ten minutes"],
+                    "description": ["x" * (dashboard.MAX_TEXT + 1), "bad\x01text"]}
+        for flag, values in rejected.items():
+            for value in values:
+                with self.subTest(flag=flag, value=value[:60]):
+                    self.cli("update", *self.identity, "--task", "bad", "--add", "--task-title", "Bad context", "--" + flag, value, expected=2)
+        self.assertEqual(self.snapshot(), before)
+
+    def test_historic_task_event_extra_keys_preserved_and_optional_context_validated_on_read(self):
+        self.init()
+        self.update("--task", "test", "--add", "--task-title", "Legacy task")
+        board = self.board()
+        session = next(iter(board["sessions"].values()))
+        event = session["history"][-1]
+        event["data"]["historic_extra"] = {"preserve": [1, True, None]}
+        (self.state / "board.json").write_text(json.dumps(board))
+        self.cli("read")
+        self.update("--note", "Preserve unknown historic metadata")
+        self.assertEqual(next(iter(self.board()["sessions"].values()))["history"][1]["data"]["historic_extra"], {"preserve": [1, True, None]})
+        for invalid in (None, [], {}, {"unexpected": "field"}, {"model": 12}, {"agent_url": "javascript:alert(1)"}, {"codex_thread_id": "unknown"}, {"next_checkpoint": "later"}):
+            event["data"]["agent_context"] = invalid
+            (self.state / "board.json").write_text(json.dumps(board))
+            before = self.snapshot()
+            self.cli("read", expected=2)
+            self.cli("update", *self.identity, "--note", "Must refuse corrupted metadata", expected=2)
+            self.assertEqual(self.snapshot(), before)
+
+    def test_context_timestamps_use_the_same_second_precision_grammar_as_the_browser(self):
+        self.init()
+        self.update("--task", "time", "--add", "--task-title", "Reported time")
+        for valid in ("2026-11-03T08:30:00Z", "2026-11-03T08:30:00.123456+02:00", "2024-02-29T23:59:59-23:59"):
+            with self.subTest(valid=valid):
+                self.update("--task", "time", "--last-progress", valid, "--next-checkpoint", valid)
+                own = self.cli("read")["sessions"][0]
+                self.assertEqual(own["history"][-1]["data"]["agent_context"], {"last_progress": valid, "next_checkpoint": valid})
+        before = self.snapshot()
+        for invalid in ("2026-11-03 08:30+0200", "2026-11-03T08:30Z", "2026-11-03T08:30:00+0200", "20261103T083000+0200", "2026-W45-2T08:30:00+02:00", "2026-02-29T08:30:00Z", "2026-11-03T08:30:00+01:60", "2026-11-03T08:30:00+24:00"):
+            for flag in ("--last-progress", "--next-checkpoint"):
+                with self.subTest(invalid=invalid, flag=flag):
+                    self.cli("update", *self.identity, "--task", "time", flag, invalid, expected=2)
+                    self.assertEqual(self.snapshot(), before)
+                board = self.board()
+                next(iter(board["sessions"].values()))["history"][-1]["data"]["agent_context"] = {flag[2:].replace("-", "_"): invalid}
+                with self.assertRaises(dashboard.DashboardError):
+                    dashboard.validate_board(board)
+
+    def test_locate_does_not_create_state_and_quotes_actual_opener(self):
+        self.state = self.base / "state '$ dangerous; $(touch never) état 🦊"
+        located = self.cli("locate")
+        self.assertFalse(self.state.exists())
+        self.assertFalse(located["exists"])
+        self.assertFalse(located["available"])
+        self.assertEqual(located["dashboard"], str(self.state / "tasks.html"))
+        self.assertEqual(shlex.split(located["opener_command"]), [sys.executable, str(HELPER.resolve()), "--state-dir", str(self.state), "open", "--again"])
+        self.assertEqual(located["opener_argv"], shlex.split(located["opener_command"]))
+        self.init()
+        before = {path.name: path.read_bytes() for path in self.state.iterdir()}
+        located = self.cli("locate")
+        self.assertTrue(located["exists"])
+        self.assertTrue(located["available"])
+        self.assertEqual({path.name: path.read_bytes() for path in self.state.iterdir()}, before)
+
+    def test_locate_reports_unowned_or_missing_html_without_mutation(self):
+        self.state.mkdir()
+        page = self.state / "tasks.html"
+        page.write_text("User page")
+        located = self.cli("locate")
+        self.assertTrue(located["exists"])
+        self.assertFalse(located["available"])
+        self.assertEqual(list(self.state.iterdir()), [page])
+        self.assertEqual(page.read_text(), "User page")
+        self.state = self.base / "owned-state"
+        self.init()
+        (self.state / "tasks.html").unlink()
+        located = self.cli("locate")
+        self.assertFalse(located["exists"])
+        self.assertFalse(located["available"])
+        self.assertFalse((self.state / "tasks.html").exists())
+
+    @unittest.skipIf(os.name == "nt", "WSL location conversion fixture")
+    def test_locate_wsl_uses_encoded_windows_browser_url_without_launch(self):
+        self.state = self.base / "space ' # ? % $(danger)"
+        args = dashboard.parser().parse_args(["--state-dir", str(self.state), "locate"])
+        translated = "\\\\wsl.localhost\\Fedora42\\home\\space ' # ? % $(danger) état 🦊\\tasks.html"
+        with mock.patch.object(dashboard, "is_wsl", return_value=True), mock.patch.object(dashboard.shutil, "which", return_value="/mock/wslpath"), mock.patch.object(dashboard.subprocess, "run", return_value=subprocess.CompletedProcess([], 0, translated + "\n", "")) as convert:
+            located = dashboard.run(args)
+        self.assertEqual(located["url"], "file://wsl.localhost/Fedora42/home/space%20%27%20%23%20%3F%20%25%20%24%28danger%29%20%C3%A9tat%20%F0%9F%A6%8A/tasks.html")
+        convert.assert_called_once_with(["wslpath", "-w", str(self.state / "tasks.html")], capture_output=True, text=True, timeout=10, check=False)
+        self.assertFalse(self.state.exists())
+        for result in (subprocess.CompletedProcess([], 1, "", ""), subprocess.CompletedProcess([], 0, "relative\\path", "")):
+            with mock.patch.object(dashboard, "is_wsl", return_value=True), mock.patch.object(dashboard.shutil, "which", return_value="/mock/wslpath"), mock.patch.object(dashboard.subprocess, "run", return_value=result):
+                located = dashboard.run(args)
+                self.assertIsNone(located["url"])
+                self.assertIn("url_reason", located)
+
+    def test_platform_detection_and_native_windows_command_quoting_mocked(self):
+        with mock.patch.object(dashboard.os, "name", "nt"):
+            self.assertEqual(dashboard.platform_kind(), "windows")
+            argv = ["C:\\Program Files\\Python\\python.exe", "C:\\é ' & $(danger)\\dashboard.py", "open"]
+            command, shell = dashboard.opener_command(argv)
+            self.assertEqual(shell, "powershell")
+            self.assertEqual(command, "& 'C:\\Program Files\\Python\\python.exe' 'C:\\é '' & $(danger)\\dashboard.py' 'open'")
+        with mock.patch.object(dashboard.os, "name", "posix"), mock.patch.object(dashboard.sys, "platform", "darwin"):
+            self.assertEqual(dashboard.platform_kind(), "macos")
+        with mock.patch.object(dashboard.os, "name", "posix"), mock.patch.object(dashboard.sys, "platform", "linux"), mock.patch.object(dashboard, "is_wsl", return_value=False):
+            self.assertEqual(dashboard.platform_kind(), "linux")
+        with mock.patch.object(dashboard.os, "name", "posix"), mock.patch.object(dashboard.sys, "platform", "linux"), mock.patch.object(dashboard, "is_wsl", return_value=True):
+            self.assertEqual(dashboard.platform_kind(), "wsl")
+
+    def test_missing_browser_launchers_leave_literal_manual_path(self):
+        path = self.base / "no launcher état ' $(danger).html"
+        with mock.patch.object(dashboard, "is_wsl", return_value=False), mock.patch.object(dashboard.shutil, "which", return_value=None), mock.patch.object(dashboard.subprocess, "run") as launch:
+            with self.assertRaises(dashboard.DashboardError) as failure:
+                dashboard.launch_browser(path)
+            launch.assert_not_called()
+            self.assertIn("Open this file manually: " + str(path), str(failure.exception))
+
+    def test_explicit_open_creates_empty_owned_board_and_retains_failed_launch(self):
+        args = dashboard.parser().parse_args(["--state-dir", str(self.state), "open"])
+        with mock.patch.object(dashboard, "launch_browser", side_effect=dashboard.DashboardError("No display")):
+            self.assertRaises(dashboard.DashboardError, dashboard.run, args)
+        self.assertEqual(self.board()["sessions"], {})
+        self.assertIsNone(self.board()["opened"])
+        dashboard.validate_board(self.board())
+        with mock.patch.object(dashboard, "launch_browser", return_value="mock-launcher") as launch:
+            self.assertTrue(dashboard.run(args)["opened"])
+            self.assertFalse(dashboard.run(args)["opened"])
+            launch.assert_called_once()
+        self.assertEqual(self.board()["sessions"], {})
+
+    def test_empty_open_refuses_unowned_nonempty_directory_without_launch(self):
+        self.state.mkdir()
+        page = self.state / "tasks.html"
+        page.write_text("My existing page")
+        args = dashboard.parser().parse_args(["--state-dir", str(self.state), "open"])
+        with mock.patch.object(dashboard, "launch_browser") as launch:
+            self.assertRaises(dashboard.DashboardError, dashboard.run, args)
+            launch.assert_not_called()
+        self.assertEqual(list(self.state.iterdir()), [page])
+        self.assertEqual(page.read_text(), "My existing page")
+
+    @unittest.skipUnless(hasattr(os, "symlink"), "Requires symlink support")
+    def test_locate_and_empty_open_refuse_symlink_state_without_mutation(self):
+        target = self.base / "owned-by-someone-else"
+        target.mkdir()
+        self.state.symlink_to(target, target_is_directory=True)
+        located = self.cli("locate")
+        self.assertFalse(located["available"])
+        args = dashboard.parser().parse_args(["--state-dir", str(self.state), "open"])
+        with mock.patch.object(dashboard, "launch_browser") as launch:
+            self.assertRaises(dashboard.DashboardError, dashboard.run, args)
+            launch.assert_not_called()
+        self.assertEqual(list(target.iterdir()), [])
 
     def test_invalid_ids_schema_status_and_evidence_do_not_mutate(self):
         self.init()
@@ -178,10 +367,14 @@ class DashboardBehavior(unittest.TestCase):
                 self.assertEqual(json.loads(embedded[1]), expected)
 
     def test_unicode_html_capacity_refusal_preserves_state_and_next_post(self):
-        # UTF-8 registry text fits this limit, but ASCII-escaped HTML expands past it.
+        # Include the actual template size so design growth cannot make even an
+        # empty recovery fail. The repeated Unicode title exceeds the remaining
+        # HTML budget after JSON ASCII escaping; the UTF-8 registry still fits.
+        template_bytes = (HELPER.parent.parent / "assets" / "dashboard.html").stat().st_size
+        html_budget = template_bytes + 8 * 1024
         for existing in (False, True):
             self.state = self.base / f"unicode-state-{existing}"
-            with self.subTest(existing=existing), mock.patch.object(dashboard, "MAX_FILE_BYTES", 32 * 1024):
+            with self.subTest(existing=existing), mock.patch.object(dashboard, "MAX_FILE_BYTES", html_budget):
                 def invoke(*args):
                     parsed = dashboard.parser().parse_args(["--state-dir", str(self.state), *args])
                     return dashboard.run(parsed)
@@ -386,7 +579,12 @@ console.log(JSON.stringify({initial,unchanged,threshold,staleUnchanged}));
         before = (self.state / "board.json").read_bytes()
         (self.state / "tasks.html").unlink()
         self.cli("render")
-        self.assertIn("Every session. One view.", (self.state / "tasks.html").read_text())
+        html = (self.state / "tasks.html").read_text()
+        self.assertIn("<!-- codex-build-task-dashboard-v1 -->", html)
+        embedded = re.search(r'id="board-data">(.*?)</script>', html, re.S)
+        self.assertIsNotNone(embedded)
+        assert embedded is not None
+        self.assertEqual(json.loads(embedded[1]), json.loads(before))
         self.assertEqual((self.state / "board.json").read_bytes(), before)
 
     def test_open_is_shared_once_and_failures_are_not_marked_open(self):

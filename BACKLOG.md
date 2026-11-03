@@ -101,3 +101,5 @@ approved phase, and described concretely enough to become a future plan.
   was.
 
 - 2026-11-02 — Local installation compatibility: review-section override in personal playbook-local.md:35 has a stale digest after 0.1.21; accepted-prerequisite meaning is preserved. Reconcile deliberately before any requested installation; owner file unchanged. Source: validation-efficiency close-out. Status: resolved by explicitly requested local installation; digest re-anchored without changing the constraint, all three overrides pass.
+
+- 2026-11-03 — User-requested next task after dashboard: diagnose hook failure `unsupported plugin entry type: /home/michel/.codex/plugins/cache/personal/codex-lsp/0.2.0/node_modules/.bin/lsp-tools-mcp`. Read-only diagnosis first; no plugin deletion or reinstall implied. Status: queued after dashboard close-out.

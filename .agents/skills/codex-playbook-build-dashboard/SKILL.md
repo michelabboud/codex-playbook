@@ -100,3 +100,31 @@ not failed or safe to delete. Follow rule 7.2's missed-checkpoint response and
 rule 13's artifact checks. This file-only board cannot wake a stopped coordinator,
 inspect native agents or issue unattended operating-system alarms. An external
 watchdog is a separate implementation, not something refresh or these rules supply.
+
+## Project console and agent inspector
+
+Use `$codex-playbook-open-dashboard` for an explicit browser-opening request.
+`locate` reports the actual path, browser URL and opening command without creating
+state. The UI prioritizes active projects/tasks, keeps work under project tabs,
+and preserves filters, selected task and light/dark/system theme across refresh.
+
+For an agent task, supply context flags on the task update: `--description`,
+`--model`, `--effort`, `--agent-id`, `--codex-thread-id`, `--agent-url`, `--worktree`,
+`--command`, `--last-progress`, `--next-checkpoint`, `--blocker`, `--decision`.
+Use canonical UUIDs for Codex thread IDs. Progress/checkpoint timestamps require
+`YYYY-MM-DDTHH:MM:SS`, optional fractional seconds, and `Z` or `±HH:MM` timezone.
+Command is inert display text, never executed by the board.
+Only supply an HTTPS agent URL after verifying it opens the intended agent in
+this client. Do not invent native URI schemes or infer a worker from its parent.
+
+Context is a complete reported snapshot, not a partial merge. It lives in that
+update's task history event; unspecified values are not carried forward. Include
+context again on subsequent updates if it still applies. An older publisher's
+ordinary update preserves history but removes the current association. The UI
+uses only the newest task event with an exact matching task snapshot, never an
+older association. Missing data is shown as not reported. A UUID supports copying
+`codex resume <UUID>`; that is not an automatic client launch or live transcript.
+Agent details and coordinator session identity remain visibly separate.
+
+Run both `scripts/test_dashboard.py` and `scripts/test_dashboard_ui.py` for the
+corresponding behavioral scopes; the repository aggregate already includes both.

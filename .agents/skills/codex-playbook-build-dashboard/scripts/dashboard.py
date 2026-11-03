@@ -6,8 +6,9 @@ import datetime as dt
 import hashlib
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import re
+import shlex
 import shutil
 import stat
 import subprocess
@@ -28,6 +29,10 @@ TASK_STATUS = {"queued", "running", "testing", "review", "blocked", "failed", "d
 SESSION_STATUS = {"active", "completed", "handoff", "stopped", "failed"}
 GATES = {"pending", "passed", "failed", "unavailable", "not_required"}
 RELEASE = {"not_requested", "pending", "published", "rejected"}
+CONTEXT_FIELDS = {"description", "model", "effort", "agent_id", "agent_url", "codex_thread_id", "worktree", "command", "last_progress", "next_checkpoint", "blocker", "decision"}
+# Browser-facing context requires seconds and an explicit zone; general v1
+# record timestamps retain their existing ISO parser for older producers.
+CONTEXT_TIMESTAMP = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)\Z", re.ASCII)
 
 
 class DashboardError(Exception):
@@ -54,7 +59,7 @@ def identifier(value, name):
 
 def timestamp(value):
     try:
-        parsed = dt.datetime.fromisoformat(value)
+        parsed = dt.datetime.fromisoformat(value[:-1] + "+00:00" if isinstance(value, str) and value.endswith("Z") else value)
         if parsed.tzinfo is None:
             raise ValueError("missing timezone")
         return parsed
@@ -107,6 +112,35 @@ def validate_task(task):
     timestamp(task["updated"])
 
 
+def agent_context(value):
+    """Optional event metadata is a complete reported snapshot, never task state."""
+    from urllib.parse import urlsplit
+    if not isinstance(value, dict) or not value or set(value) - CONTEXT_FIELDS:
+        raise DashboardError("Invalid agent context fields")
+    for name, item in value.items():
+        text(item, "agent context " + name)
+        if name in {"last_progress", "next_checkpoint"}:
+            if not CONTEXT_TIMESTAMP.fullmatch(item):
+                raise DashboardError("Agent context timestamp needs YYYY-MM-DDTHH:MM:SS with optional fraction and Z or ±HH:MM")
+            timestamp(item)
+        elif name == "codex_thread_id":
+            try:
+                if str(uuid.UUID(item)) != item:
+                    raise ValueError("noncanonical")
+            except (ValueError, AttributeError):
+                raise DashboardError("Invalid Codex thread ID; use a canonical UUID") from None
+        elif name == "agent_url":
+            try:
+                parsed = urlsplit(item)
+                if (parsed.scheme != "https" or not parsed.hostname or parsed.username is not None
+                        or parsed.password is not None or any(c.isspace() for c in item) or "\\" in item):
+                    raise ValueError("unsafe URL")
+                parsed.port  # Reject malformed port syntax as well.
+            except ValueError:
+                raise DashboardError("Agent URL must be absolute HTTPS without credentials") from None
+    return value
+
+
 def key_for(project, run, session):
     return hashlib.sha256(json.dumps([project, run, session], ensure_ascii=True).encode()).hexdigest()
 
@@ -148,6 +182,8 @@ def validate_board(board):
             enum(event["kind"], {"created", "task", "session"}, "history kind")
             if not isinstance(event["data"], dict):
                 raise DashboardError("Invalid history data")
+            if event["kind"] == "task" and "agent_context" in event["data"]:
+                agent_context(event["data"]["agent_context"])
 
 
 def safe_path(path, directory=False, missing=False):
@@ -333,6 +369,72 @@ class Store:
         return rendered
 
 
+def is_wsl():
+    return os.name != "nt" and bool(os.environ.get("WSL_DISTRO_NAME") or "microsoft" in os.uname().release.lower())
+
+
+def platform_kind():
+    if os.name == "nt":
+        return "windows"
+    if sys.platform == "darwin":
+        return "macos"
+    return "wsl" if is_wsl() else "linux"
+
+
+def opener_command(argv):
+    if os.name == "nt":
+        return "& " + " ".join("'" + item.replace("'", "''") + "'" for item in argv), "powershell"
+    return shlex.join(argv), "posix"
+
+
+def windows_browser_path(path):
+    """Translate a WSL path as data, returning no misleading Linux fallback."""
+    if not shutil.which("wslpath"):
+        return None
+    try:
+        result = subprocess.run(["wslpath", "-w", str(path)], capture_output=True, text=True, timeout=10, check=False)
+        translated = result.stdout.rstrip("\r\n")
+        if result.returncode == 0 and translated and not any(ord(c) < 32 for c in translated) and PureWindowsPath(translated).is_absolute():
+            return translated
+    except (OSError, subprocess.TimeoutExpired):
+        pass
+    return None
+
+
+def locate(root):
+    """Inspect location without claiming ownership, taking a lock or creating files."""
+    helper = Path(__file__).resolve()
+    path = Path(os.path.abspath(root)) / "tasks.html"
+    argv = [sys.executable, str(helper), "--state-dir", str(root), "open", "--again"]
+    command, shell = opener_command(argv)
+    result = {"dashboard": str(path), "url": None, "exists": False, "available": False,
+              "opener_command": command, "opener_command_shell": shell, "opener_argv": argv, "platform": platform_kind()}
+    try:
+        safe_path(root, directory=True, missing=True)
+        safe_path(path, missing=True)
+        result["exists"] = path.is_file()
+        if not root.exists():
+            result["reason"] = "Dashboard has not been initialized; explicit open creates an empty board"
+        else:
+            store = Store(root)
+            store.load()
+            store.check_html()
+            result["available"] = result["exists"]
+            if not result["exists"]:
+                result["reason"] = "Dashboard HTML is missing; explicit open regenerates it"
+    except (DashboardError, OSError, UnicodeError, json.JSONDecodeError):
+        result["reason"] = "Dashboard is unavailable; explicit open reports ownership or state errors"
+    if is_wsl():
+        translated = windows_browser_path(path)
+        if translated:
+            result["url"] = PureWindowsPath(translated).as_uri()
+        else:
+            result["url_reason"] = "Windows browser URL unavailable because WSL path conversion failed"
+    else:
+        result["url"] = path.as_uri()
+    return result
+
+
 def browser_commands(path):
     """Arguments are data; never interpolate paths into shell/PowerShell code."""
     uri = path.as_uri()
@@ -341,15 +443,10 @@ def browser_commands(path):
     commands = []
     if sys.platform == "darwin":
         commands.append((["open", uri], None, None))
-    elif os.environ.get("WSL_DISTRO_NAME") or "microsoft" in os.uname().release.lower():
+    elif is_wsl():
         if shutil.which("wslpath") and shutil.which("powershell.exe"):
-            try:
-                result = subprocess.run(["wslpath", "-w", str(path)], capture_output=True, text=True, timeout=10, check=False)
-                windows_path = result.stdout.rstrip("\r\n")
-            except (OSError, subprocess.TimeoutExpired):
-                result = None
-                windows_path = ""
-            if result is not None and result.returncode == 0 and windows_path and not any(ord(c) < 32 for c in windows_path):
+            windows_path = windows_browser_path(path)
+            if windows_path:
                 env = os.environ.copy()
                 env["CODEX_BUILD_DASHBOARD_PATH"] = windows_path
                 # WSL does not export arbitrary Linux environment variables to Windows.
@@ -415,15 +512,24 @@ def load_initial_tasks(path) -> dict[str, Any]:
 
 def run(args):
     root = state_root(args.state_dir)
+    if args.command == "locate":
+        return locate(root)
     identity = None
     if args.command in {"init", "update"}:
         if args.command == "init" and not args.session:
             args.session = os.environ.get("CODEX_THREAD_ID") or "session-" + uuid.uuid4().hex[:16]
         identity = session_identity(args)
     initial = load_initial_tasks(args.tasks) if args.command == "init" else None
-    store = Store(root, create=args.command == "init")
+    supplied_context = None
+    if args.command == "update":
+        supplied_context = {name: getattr(args, "context_command" if name == "command" else name) for name in CONTEXT_FIELDS if getattr(args, "context_command" if name == "command" else name) is not None}
+        if supplied_context:
+            if not args.task:
+                raise DashboardError("Agent context fields require --task")
+            agent_context(supplied_context)
+    store = Store(root, create=args.command in {"init", "open"})
     with store.locked():
-        board = store.load(create=args.command == "init")
+        board = store.load(create=args.command in {"init", "open"})
         if args.command == "init":
             assert identity is not None and initial is not None
             project, run_id, session_id, key = identity
@@ -478,7 +584,10 @@ def run(args):
                 task["updated"] = at
                 validate_task(task)
                 session["tasks"][task_id] = task
-                session["history"].append({"at": at, "kind": "task", "data": dict(task)})
+                task_event = dict(task)
+                if supplied_context:
+                    task_event["agent_context"] = supplied_context
+                session["history"].append({"at": at, "kind": "task", "data": task_event})
             if not changes and not args.task:
                 raise DashboardError("No update supplied")
             session["updated"] = at
@@ -487,7 +596,10 @@ def run(args):
             store.save(board)
             return {"revision": board["revision"], "session": session}
         if args.command == "open":
-            store.render(board)
+            if not store.board_path.exists():
+                store.save(board)
+            else:
+                store.render(board)
             if board["opened"] and not args.again:
                 return {"opened": False, "reason": "Previously opened; use --again only when the window was closed", "dashboard": str(store.html_path)}
             launcher = launch_browser(store.html_path)
@@ -537,12 +649,16 @@ def parser():
     update.add_argument("--build", choices=sorted(GATES))
     update.add_argument("--review", choices=sorted(GATES))
     update.add_argument("--release", choices=sorted(RELEASE))
+    for name in sorted(CONTEXT_FIELDS):
+        update.add_argument("--" + name.replace("_", "-"), dest="context_command" if name == "command" else name,
+                            help="Reported task context (requires --task)" + ("; ISO timestamp with timezone" if name in {"last_progress", "next_checkpoint"} else ""))
     op = commands.add_parser("open", help="Open the shared board once across sessions")
     op.add_argument("--again", action="store_true", help="Explicitly reopen after a user closed the browser")
     rd = commands.add_parser("read", help="Read durable state and derived staleness")
     for name in ("project", "run", "session"):
         rd.add_argument("--" + name)
     commands.add_parser("render", help="Recover HTML from the authoritative registry")
+    commands.add_parser("locate", help="Report the dashboard path, URL and opener command without creating state")
     return p
 
 

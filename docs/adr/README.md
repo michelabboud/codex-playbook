@@ -22,3 +22,5 @@
 - [0016 — Batch validation and separate retained evidence](0016-validation-batching-and-retention.md): focused task checks, one broad batch run, independent receipt review and explicit artifact retention.
 
 - [0017 — Bounded execution and visible progress](0017-bounded-execution-and-visible-progress.md): scoped checks, bounded retries, accountable coordination, task staleness and recorded storage placement.
+
+- [0018 — Project dashboard and explicit agent context](0018-project-dashboard-and-agent-context.md): compact project navigation, backward-compatible agent details and a packaged opener.

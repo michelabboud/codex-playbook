@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.23 — 2026-11-03
+
+Redesign the shared board as a compact project console: active projects and tasks first, a task/agent inspector, bounded history, preserved navigation, and light/dark/system themes without gradients or remote assets. Optional validated agent context lives in task-history events while the strict v1 task schema remains compatible with older publishers. Missing or outdated worker context is never inferred from the coordinator.
+
+Package `codex-playbook-open-dashboard` as the twenty-first skill. Fresh sessions announce the resolved board link and skill command once; explicit open can create an empty owned board. Read-only locate supports portable WSL URLs. No transcript server, invented native URI, automatic agent launch or cleanup. Prior checkpoint record-formatting errors were reverted on main without rewriting published history.
+
 ## 0.1.22 — 2026-11-03
 
 Bound attempts and missed progress checkpoints; use scoped tests, focused re-review and explicit unresolved-security triage without waiving acceptance gates. Keep one coordinator accountable, start with at most two implementation workers, and reserve stronger planning for difficult decisions rather than every decomposition. Unrelated defects no longer automatically expand the task.
