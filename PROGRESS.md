@@ -1,16 +1,16 @@
 # Progress
 
 **0.1.22, 2026-11-03 — bounded execution and task-level visibility.**
-Policy and dashboard implementation complete: aggregate verification passed 244/217/789 assertions and25 dashboard tests; focused accessibility repair passed26 dashboard tests and independent re-review. Mechanical/deep gates accepted. Source publication and installed replacement remain distinct. The local review/subagent Overrides match installed 0.1.21 but are stale against this candidate; no local layer or installed rules changed.
+Policy and dashboard implementation complete: aggregate verification passed 244/217/789 assertions and 25 dashboard tests; focused accessibility repair passed 26 dashboard tests and independent re-review. Mechanical/deep gates accepted. Source publication and installed replacement remain distinct. The local review/subagent Overrides match installed 0.1.21 but are stale against this candidate; no local layer or installed rules changed.
 
 **0.1.21, 2026-11-02 — efficient validation and explicit retention.**
-Policy source and supporting guide/ADR are implemented; 244 rulebook checks, 217 local-layer assertions, 789 installer assertions and 24 dashboard tests passed across the initial run and focused version-label correction. Independent mechanical/deep reviews accepted successor 8c15e29. Checkpoint 0.1.21 is published; local installation now matches source and all three overrides pass. See docs/reports/2026-11-02-validation-local-install.md. Focused task checks feed one broad integrated batch run, reviewers share verified receipts while retaining independent judgment, and retained artifact bytes/reasons become visible without relaxing deletion safeguards.
+Policy source and supporting guide/ADR are implemented; 244 rulebook checks, 217 local-layer assertions, 789 installer assertions and 24 dashboard tests passed across the initial run and focused version-label correction. Independent mechanical/deep reviews accepted successor 8c 15e 29. Checkpoint 0.1.21 is published; local installation now matches source and all three overrides pass. See docs/reports/2026-11-02-validation-local-install.md. Focused task checks feed one broad integrated batch run, reviewers share verified receipts while retaining independent judgment, and retained artifact bytes/reasons become visible without relaxing deletion safeguards.
 
 **0.1.20, 2026-10-25 — live measurements admit builds without a compile lease.**
 Michel requested removal of the workspace compile-lease requirement from the
 repository and local installation. Rule 9.7, its site summary and regression
 checks now express one admission policy for single-crate and workspace commands.
-Full verification passed (244 rulebook, 217 local-layer, 789 installer assertions, 24 dashboard tests); both independent source reviews accepted. Checkpoint 0.1.20 is published at e15f1c9 and the local router plus all 20 skills match source. The machine notes no longer impose a mandatory compile lease.
+Full verification passed (244 rulebook, 217 local-layer, 789 installer assertions, 24 dashboard tests); both independent source reviews accepted. Checkpoint 0.1.20 is published at e 15f 1c 9 and the local router plus all 20 skills match source. The machine notes no longer impose a mandatory compile lease.
 
 
 **0.1.19, 2026-10-16 — rule 9.7: the number that decides is the one you read now.** Ported from Claude Code Playbook 0.1.30 as completed; corrects the 0.1.18 note — the lane had decided from a reading taken before the owner's pause, not from the heading.
@@ -54,8 +54,8 @@ The packaged candidate passed 193 rulebook checks, 217 local-layer assertions,
 789 installer assertions and 19 initial dashboard tests. Independent reviews
 found template substitution, Unicode capacity and an HTML ownership-guard
 regression; baseline-failing tests and narrow repairs are preserved. The final
-helper has 24 passing tests and is pinned at `1378f4f`; independent mechanical
-and deep focused reviews accept it. Final combined-tree verification passed on f70ca00 with 193 rulebook, 217 local-
+helper has 24 passing tests and is pinned at `1378f 4f`; independent mechanical
+and deep focused reviews accept it. Final combined-tree verification passed on f 70ca 00 with 193 rulebook, 217 local-
 layer, 789 installer and 24 helper checks. Annotated `checkpoint/0.1.13` and main
 were pushed atomically and directly verified at that SHA. The tag stays fixed
 while this main-line publication receipt is committed. Actual Windows Chrome opening
@@ -79,8 +79,8 @@ worker permissions explain the reported edit prompt. See
 **0.1.7, 2026-09-28 — hygiene and the refusal rule, ported from source 0.1.21:** a seventeenth skill, rules 13.1–13.6; two destructive laws in the router; economy mode. ADR 0009.
 
 **Source publication verified, 2026-09-23:** remote `main` and peeled
-`checkpoint/0.1.6` resolve to `a5d41bc`, after Claude's `checkpoint/0.1.16`
-was verified at `97938d0`. The tagged tree passed 56 rulebook, 217
+`checkpoint/0.1.6` resolve to `a 5d 41bc`, after Claude's `checkpoint/0.1.16`
+was verified at `97938d 0`. The tagged tree passed 56 rulebook, 217
 local-layer, and 673 installer lifecycle checks with direct exit 0. See
 `docs/reports/2026-09-23-local-layer-publication-receipt.md`. A live owner
 installation and native macOS acceptance remain unverified and were outside
@@ -94,26 +94,26 @@ this two-playbook publication scope. Older gate notes below are historical.
 
 **Current publication gate:** the candidate is reviewed and remains unpublished
 until its exact final tree passes verification and its remote refs are checked.
-Claude's `checkpoint/0.1.16` is now published at `97938d0`, satisfying the
+Claude's `checkpoint/0.1.16` is now published at `97938d 0`, satisfying the
 source-first dependency. Earlier independent reviews found path-resolution and
 rollback compatibility gaps; those were repaired with red-to-green lifecycle
 tests. The candidate carries
 approved task-continuity, communication/Herdr, hygiene, and GPT-6 guidance.
 The final GPT-6 Sol focused deep and mechanical reviews passed.
 
-The pinned `01c6e9a` re-review found a source-checkout path ambiguity. A
+The pinned `01c 6e 9a` re-review found a source-checkout path ambiguity. A
 newline-bearing checkout could be mistaken for its sibling by shell command
 substitution. Install and restore now validate their own invocation path before
 resolving the checkout root. The repair had red-to-green tests, a full passing
 verification run, and a passing GPT-6 Sol focused re-review.
 
-GPT-6 Sol's deep review of `fd2443f` found a further blocker: an external
+GPT-6 Sol's deep review of `fd 2443f` found a further blocker: an external
 local-file target reached through a symlink inside a replaced skill leaves the
 local layer dangling. A focused repair now checks every path hop, including
 directory symlinks, and has lifecycle regressions; the mechanical pass found
 no blocker. Source publication remained held pending the re-review below.
 
-The fresh GPT-6 Sol deep re-review of `267dfb5` passed with no blocker. The
+The fresh GPT-6 Sol deep re-review of `267dfb 5` passed with no blocker. The
 Claude source edition has now cleared review and published first; this
 candidate remains local pending its own final verification and source push.
 
@@ -173,7 +173,7 @@ mechanism is a sentence in `AGENTS.md` plus a pointer per skill, not anything th
 client enforces; and the scripts were executed under GNU coreutils and `dash`
 only, with BusyBox and BSD userlands assessed rather than run.
 
-**Focused diagnostic, 2026-09-23:** the repair at `358ab65` still failed. A
+**Focused diagnostic, 2026-09-23:** the repair at `358ab 65` still failed. A
 historical checkpoint could leave the local file unread even when its Override
 quote and section digest matched; a BOM could hide an entry; CRLF heading
 counting and overlapping-quote uniqueness disagreed with ADR 0006. Findings

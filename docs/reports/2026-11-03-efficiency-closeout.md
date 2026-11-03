@@ -16,7 +16,7 @@ removed, retained or blocked disposition; deletion safeguards are unchanged.
 
 ## Verification evidence
 
-Implementation candidate `f1eca0f38b8aa05861ee6cf3779246bcc56ff6c5` passed
+Implementation candidate `f 1eca 0f 38b 8aa 05861ee 6cf 3779246bcc 56ff 6c 5` passed
 `./scripts/verify.sh`, exit 0:
 
 ```text
@@ -31,7 +31,7 @@ All Codex Playbook verification checks passed.
 Raw receipts: `~/.local/state/codex-playbook/20261103-efficiency/`.
 `verify-initial.log` preserves the router-size and two stale-assertion failures;
 `rulebook-corrected.log` preserves a remaining 43-byte router overrun;
-`verify-final.log` records the aggregate pass. Final router: 12,269 bytes under
+`verify-final.log` records the aggregate pass. Final router: 12, 269 bytes under
 the 12,288-byte budget. Later focused repair evidence is in the handoff.
 
 The implementation worker directly exercised the rendered dashboard: independent
@@ -72,7 +72,7 @@ candidate. Reconcile them before replacement, preserving their meaning:
    Express the existing restriction as an Add: Top is planning/review-only; hard
    implementation starts Strong and implementation escalation ends at Strong.
    Preserve the owner's dated model/effort bindings.
-3. Local L1 dashboard instruction: point to `~/.agents/skills` instead of its older
+3. Local L 1 dashboard instruction: point to `~/.agents/skills` instead of its older
    `~/.codex/skills` copy. No deletion of that older copy is proposed.
 
 Do not disable the verifier or silently edit the local layer. After explicit
@@ -98,7 +98,7 @@ historical cleanup of hundreds of GiB. This revision makes no measured speed or
 overall-cleanup claim. Final commit/tag/push and repair acceptance are recorded
 in the current handoff.
 
-Repair `52f7cd0` passed26 dashboard tests in5.925s (coordinator receipt); focused
+Repair `52f 7cd 0` passed 26 dashboard tests in 5.925s (coordinator receipt); focused
 deep re-review passed. Earlier policy/checker/installer evidence is reused only
 for unchanged rules, scripts, package inventory and schema; the dashboard behavior
 was rerun on the repaired bytes. No full-suite execution on the repair is claimed.

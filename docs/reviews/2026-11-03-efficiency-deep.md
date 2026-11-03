@@ -1,7 +1,7 @@
 # Deep review — bounded execution and visibility
 
-Target `f1eca0f38b8aa05861ee6cf3779246bcc56ff6c5`, base
-`6e3b5c75db084d24d44eee905b7fa902902b39c7`. Independent GPT-6.1 Sol xhigh,
+Target `f 1eca 0f 38b 8aa 05861ee 6cf 3779246bcc 56ff 6c 5`, base
+`6e 3b 5c 75db 084d 24d 44eee 905b 7fa 902902b 39c 7`. Independent GPT-6.1 Sol xhigh,
 native agent `deep_review`, production mode. Git-object source review and direct
 shared-receipt inspection; no broad tests repeated or source edits.
 
@@ -35,7 +35,7 @@ repair/review will be recorded without discarding this original finding.
 
 ## Focused successor review
 
-PASS on `52f7cd0d64494837b54947347a8dbdcf7708b373`. The same independent
+PASS on `52f 7cd 0d 64494837b 54947347a 8dbdcf 7708b 373`. The same independent
 reviewer verified conditional live-region text/visibility updates and the actual
 updater regression for unchanged ticks and stale transitions. Direct repair receipt
 shows 26 tests passed. No new findings. Actual screen-reader output remains untested.
