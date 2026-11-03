@@ -82,3 +82,21 @@ The JSON registry is authoritative; `render` regenerates HTML if a command was i
 Post concise human-authored summaries and evidence links. Never copy credential values, environment dumps, full command output, raw logs, signed URLs or token-bearing links into the board. The helper does not read logs, discover secrets or upload state. Use only public HTTP(S) URLs or absolute local file URLs without embedded credentials. When viewing from a Windows browser through WSL, local evidence URLs must be Windows-accessible (for example a properly encoded WSL UNC file URL); a Linux `/home/...` file URL will not resolve there. All dynamic dashboard text is rendered as text, not executable markup. Browser launch paths are passed as arguments/data, never shell code.
 
 For behavioral validation, run `python3 scripts/test_dashboard.py` from this skill folder. Tests use isolated temporary state and mock browser launchers; they open no browser windows.
+
+## Progress discipline
+
+Create the whole bounded task list at the start, including verification and review,
+so remaining-work counts have a denominator. Add newly discovered in-scope work
+explicitly. Counts are tasks, never percent of time or an estimated finish date.
+Put lane ID/model, current operation, latest evidence and next checkpoint in the
+owner/detail fields; put build/storage decisions and their reasons in the note.
+Update a task when its evidence or state changes, not to simulate a heartbeat.
+Keep last real progress and inspection time distinct in detail when inspecting an
+unchanged task. A session post must not be used to conceal a stale sibling task.
+
+The browser shows independent task ages, stale active tasks, remaining counts and
+a prominent stale summary using its current clock. Stale means unconfirmed,
+not failed or safe to delete. Follow rule 7.2's missed-checkpoint response and
+rule 13's artifact checks. This file-only board cannot wake a stopped coordinator,
+inspect native agents or issue unattended operating-system alarms. An external
+watchdog is a separate implementation, not something refresh or these rules supply.

@@ -28,7 +28,7 @@ Codex treats the two as separate settings, so the binding records both.
 
 What each tier is trusted with is rule 8.1; which review each tier runs is rule 3.1.
 
-**Escalation ladder:** Fast → Standard → Strong → Top, one tier at a time (rule 8.1) — always to
+**Capability ordering:** Fast → Standard → Strong → Top. Rule 8.1 and the owner binding decide which steps a role may use — always escalate to
 the next *genuinely stronger* configuration. Strong and Top may be two models, or one model at
 two efforts, or — when the roster is small — the same strongest configuration filling both
 roles. Never invent a weaker assignment to populate a row, and never relabel an identical rerun

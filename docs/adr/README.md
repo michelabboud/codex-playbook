@@ -20,3 +20,5 @@
 - [0015 — No build output in memory; heavy work waits](0015-no-build-output-in-memory-and-heavy-work-waits.md): build output never lives on a memory-backed filesystem, a lane removes the private target it created, hygiene runs on a memory floor, and new rule 9.7 reads load as a factor of the cores in three bands.
 
 - [0016 — Batch validation and separate retained evidence](0016-validation-batching-and-retention.md): focused task checks, one broad batch run, independent receipt review and explicit artifact retention.
+
+- [0017 — Bounded execution and visible progress](0017-bounded-execution-and-visible-progress.md): scoped checks, bounded retries, accountable coordination, task staleness and recorded storage placement.

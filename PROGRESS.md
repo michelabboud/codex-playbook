@@ -1,5 +1,8 @@
 # Progress
 
+**0.1.22, 2026-11-03 — bounded execution and task-level visibility.**
+Policy and dashboard implementation complete; integrated verification and independent reviews are pending. Source publication and installed replacement remain distinct. The local review/subagent Overrides match installed 0.1.21 but are stale against this candidate; no local layer or installed rules changed.
+
 **0.1.21, 2026-11-02 — efficient validation and explicit retention.**
 Policy source and supporting guide/ADR are implemented; 244 rulebook checks, 217 local-layer assertions, 789 installer assertions and 24 dashboard tests passed across the initial run and focused version-label correction. Independent mechanical/deep reviews accepted successor 8c15e29. Checkpoint 0.1.21 is published; local installation now matches source and all three overrides pass. See docs/reports/2026-11-02-validation-local-install.md. Focused task checks feed one broad integrated batch run, reviewers share verified receipts while retaining independent judgment, and retained artifact bytes/reasons become visible without relaxing deletion safeguards.
 
@@ -83,7 +86,7 @@ local-layer, and 673 installer lifecycle checks with direct exit 0. See
 installation and native macOS acceptance remain unverified and were outside
 this two-playbook publication scope. Older gate notes below are historical.
 
-**Current version:** 0.1.21
+**Current version:** 0.1.22
 
 ## Historical 0.1.6 publication and repair notes
 

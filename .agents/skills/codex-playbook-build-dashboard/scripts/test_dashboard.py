@@ -227,6 +227,51 @@ class DashboardBehavior(unittest.TestCase):
         self.update("--session-status", "completed")
         self.assertFalse(self.cli("read", "--session", "codex-a")["sessions"][0]["stale"])
 
+    @unittest.skipUnless(shutil.which("node"), "Browser-derived metrics require an available JavaScript runtime")
+    def test_browser_task_counts_and_staleness_follow_task_clock(self):
+        # Execute the actual browser helpers, without duplicating their logic in Python.
+        template = HELPER.parent.parent / "assets" / "dashboard.html"
+        source = template.read_text()
+        helpers = source[source.index("function elapsedSeconds("):source.index("function node(")]
+        current = dt.datetime(2026, 11, 3, 12, tzinfo=dt.timezone.utc)
+        recent = (current - dt.timedelta(seconds=1)).isoformat()
+        old = (current - dt.timedelta(minutes=11)).isoformat()
+        statuses = ["done", "running", "testing", "review", "blocked", "failed", "queued", "cancelled"]
+        session = {"status": "active", "updated": recent,
+                   "tasks": {status: {"status": status, "updated": old} for status in statuses}}
+        script = "const staleSeconds=" + str(dashboard.STALE_SECONDS) + ";\n" + helpers + r"""
+const data=JSON.parse(require('node:fs').readFileSync(0,'utf8'));
+const current=Date.parse(data.current),session=data.session;
+const initial=snapshotMetrics([session],current);
+const later=snapshotMetrics([session],current+600000);
+const completed=snapshotMetrics([{...session,status:'completed'}],current+600000);
+const empty=snapshotMetrics([],current);
+const cancelled=snapshotMetrics([{...session,tasks:{cancelled:session.tasks.cancelled}}],current);
+console.log(JSON.stringify({initial,later,completed,empty,cancelled,
+    before:isStale(new Date(current-599000).toISOString(),true,current),
+    boundary:isStale(new Date(current-600000).toISOString(),true,current),
+    future:elapsedSeconds(new Date(current+60000).toISOString(),current)}));
+"""
+        result = subprocess.run([shutil.which("node"), "-e", script],
+                                input=json.dumps({"session": session, "current": current.isoformat()}),
+                                text=True, capture_output=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        metrics = json.loads(result.stdout)
+        self.assertEqual(metrics["initial"], {"done": 1, "total": 7, "active": 3,
+                         "blockedFailed": 2, "queued": 1, "remaining": 6, "cancelled": 1,
+                         "staleTasks": 3, "staleSessions": 0})
+        self.assertEqual(metrics["later"]["staleSessions"], 1)
+        self.assertEqual(metrics["completed"]["staleSessions"], 0)
+        self.assertEqual(metrics["completed"]["staleTasks"], 3)
+        self.assertEqual(metrics["empty"]["total"], 0)
+        self.assertEqual(metrics["empty"]["remaining"], 0)
+        self.assertEqual(metrics["cancelled"]["total"], 0)
+        self.assertEqual(metrics["cancelled"]["remaining"], 0)
+        self.assertEqual(metrics["cancelled"]["staleTasks"], 0)
+        self.assertFalse(metrics["before"])
+        self.assertTrue(metrics["boundary"])
+        self.assertEqual(metrics["future"], 0)
+
     def test_build_review_release_and_task_done_are_independent(self):
         self.init()
         self.update("--task", "build", "--add", "--task-title", "Build", "--status", "done", "--build", "passed", "--review", "failed", "--release", "pending")

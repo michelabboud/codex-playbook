@@ -21,6 +21,15 @@ collaboration.
 
 Run focused checks per task and broad checks once per coherent batch. Independent reviewers verify the same execution receipts; validation records stay separate from disposable working data. See [validation efficiency and retention](docs/guides/validation-efficiency-and-retention.md) for the check matrix, isolation and retention rules.
 
+## Execution that stays visible
+
+Use bounded attempts and evidence-bearing checkpoints, start with at most two
+implementation workers, and escalate actual difficulty rather than every planning
+step. The dashboard shows independent task ages and remaining-work counts.
+Record storage destinations and artifact disposition; never silently spill to
+another mount. See [efficient Codex operations](docs/guides/efficient-codex-operations.md)
+for model selection, native agent inspection and abandoned-worktree diagnosis.
+
 ## See the whole system
 
 **[Open the visual playbook →](https://michelabboud.github.io/codex-playbook/)**
@@ -199,7 +208,7 @@ docs/plans/               approved designs and implementation plans
 
 ## Version
 
-Current: **v0.1.21**. `VERSION` is the source of truth; release detail lives in
+Current: **v0.1.22**. `VERSION` is the source of truth; release detail lives in
 [`CHANGELOG.md`](CHANGELOG.md).
 
 ## License

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.22 — 2026-11-03
+
+Bound attempts and missed progress checkpoints; use scoped tests, focused re-review and explicit unresolved-security triage without waiving acceptance gates. Keep one coordinator accountable, start with at most two implementation workers, and reserve stronger planning for difficult decisions rather than every decomposition. Unrelated defects no longer automatically expand the task.
+
+The shared dashboard now shows per-task age, stale active tasks and remaining counts independently of session refresh. Storage placement is recorded before creation; another mount (including `/mnt/d`) requires an explicit owner destination instruction. Each large artifact requires a concrete cleanup disposition. No automatic deletion, process killing or external watchdog is introduced.
+
+Changed rules: 2.1–2.2, 3.1–3.2, 7.2/7.4, 8.1, 9.7, 13.4–13.5, 14.4, roster and dashboard guidance. Local review/subagent Overrides require reconciliation before installation. See ADR0017 and the efficient operations guide.
+
 ## 0.1.21 — 2026-11-02
 
 Focused affected-behavior checks per task and one broad frozen-candidate run per coherent batch reduce duplicated validation. Mechanical and deep reviewers independently verify shared execution receipts instead of automatically rebuilding twice; required independent execution and risk/dependency gates remain. Workflow batch vocabulary now matches the existing 5–15-task ceiling.

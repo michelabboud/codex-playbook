@@ -1,5 +1,7 @@
 # Claude Code to Codex rule parity matrix
 
+**Revised 2026-11-03:** Codex-specific bounded attempts and observable checkpoints (7.2), task-scoped checks (2.1–2.2), bounded reviews (3.1), useful-independence agent sizing and proportional planning (8.1), explicit storage placement/disposition (13.4–13.5), and unverified security-concern triage (14.4) supersede the corresponding historical direct-parity descriptions below. Destructive safeguards and required review gates remain. ADR0017 records the decision.
+
 **Revised 2026-09-30 for Codex execution authority** — rows 5.1, 6.1, 7.1, 7.2 and 7.6 now record the destructive-only approval policy in `AGENTS.md`. These are deliberate authority changes from the historical source: plan records and routine version decisions add no approval gate; technical reviews and blockers remain mandatory and are handled by the coordinator. Superseded approval asks in old records cannot override current instructions; explicit user holds and destructive safeguards remain in force.
 
 **Revised 2026-09-28 for source 0.1.21** — rows 13.1–13.6 are new (section 13, Hygiene, `checkpoint/0.1.21` at `570e7ddfd3ca55f6b9b7d07d23824c95f154cd5d`); rules 10.1–10.2 and 3.1/3.4 took that source's refusal, worktree and economy-mode text; 56 numbered rules.

@@ -954,7 +954,7 @@ if [ "$(grep -Fc -- 'A marker you did not write, or cannot show you wrote, is ev
 else
   fail '13.4 a foreign marker is evidence only'
 fi
-if [ "$(grep -Fc -- 'It covers code review only: planning and design stay on the Top tier' .agents/skills/codex-playbook-reviews/SKILL.md)" -eq 1 ]; then
+if [ "$(grep -Fc -- 'It covers code review only; planning assignments remain governed by rule 8.1' .agents/skills/codex-playbook-reviews/SKILL.md)" -eq 1 ]; then
   pass 'economy mode covers code review only'
 else
   fail 'economy mode covers code review only'
@@ -1087,7 +1087,7 @@ need_once .agents/skills/codex-playbook-dev-modes/SKILL.md '**The floor — ever
 need_once .agents/skills/codex-playbook-dev-modes/SKILL.md 'A floor finding is blocking in every mode, a spike included.' "14.3 a floor finding blocks even in a spike"
 need_once .agents/skills/codex-playbook-dev-modes/SKILL.md '**No attack story, no blocker.**' "14.4 no attack story means no blocker"
 need_once .agents/skills/codex-playbook-dev-modes/SKILL.md '**Downgrading takes a reason:**' "14.4 downgrading a finding takes a reason"
-need_once .agents/skills/codex-playbook-dev-modes/SKILL.md 'counts as realistic until someone completes it' "14.4 an incomplete story counts as realistic"
+need_once .agents/skills/codex-playbook-dev-modes/SKILL.md 'record the exact unresolved acceptance question as a blocker' "14.4 unresolved acceptance uncertainty remains blocking"
 need_once .agents/skills/codex-playbook-dev-modes/SKILL.md 'no proof of concept, no deep dive, no fix proposal' "14.4 hardening findings get one line of effort"
 need_once .agents/skills/codex-playbook-dev-modes/SKILL.md '**The security backlog — every finding kept, none ignored.**' "14.5 every security finding is kept"
 need_once .agents/skills/codex-playbook-dev-modes/SKILL.md '**In a public repository an open realistic finding is a map for an attacker:**' "14.5 open realistic findings stay out of a public tree"
@@ -1184,7 +1184,7 @@ need_once "$ENV" 'measures again before each heavy step and pauses when the host
 need_once "$ENV" 'Build admission depends on these live measurements, not a compile lease; the same rule applies to single-crate and workspace-wide commands.' '9.7 live measurements decide admission without a compile lease'
 need_absent 'Where the host has a shared lease for heavy work, take it before building.' 'retired: mandatory shared compile lease'
 need_once "$ENV" '# 9 · Environment & operations — rules 9.1–9.7' 'section 9 header counts to 9.7'
-need_once .agents/skills/codex-playbook-subagents/SKILL.md 'a build or a full test suite measures the host first and starts when it is green (rule 9.7)' "8.1 sends a lane's own heavy steps to rule 9.7"
+need_once .agents/skills/codex-playbook-subagents/SKILL.md "A lane's own commands obey the same admission rules." "8.1 sends a lane's own heavy steps to rule 9.7"
 need_once AGENTS.md '| 9.1–9.7 | `codex-playbook-environment` |' 'the router routes heavy work to the environment skill'
 for platform in linux macos windows; do
   need_once ".agents/skills/codex-playbook-platform-$platform/SKILL.md" '| Is a path memory-backed? |' "platform $platform says how to tell a memory-backed path"

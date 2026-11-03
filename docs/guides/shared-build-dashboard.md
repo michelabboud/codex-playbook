@@ -92,3 +92,13 @@ Run `./scripts/verify.sh` from the repository root. It checks numbered rule
 parity, the exact active skill/resource inventory, dashboard behavior, and the
 isolated installer lifecycle. Installer tests use temporary homes and Codex
 directories; they never install into the user's actual configuration.
+
+## Task-level visibility (0.1.22)
+
+The view includes per-task age and stale running/testing/review tasks, even when
+another task has refreshed the session. Counts distinguish done, active, queued,
+blocked/failed and remaining tasks; cancelled tasks are reported separately and
+excluded from the denominator. Counts are not an estimate of time remaining.
+The stale summary uses the browser clock, never claims an agent is dead, and
+directs the owner to inspect native status and last output. No external watchdog
+is installed. See [efficient operations](efficient-codex-operations.md).

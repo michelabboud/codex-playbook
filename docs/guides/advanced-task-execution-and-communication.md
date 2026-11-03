@@ -1,6 +1,6 @@
 # Advanced task execution and communication in Codex
 
-Checked 2026-09-23. This guide explains available execution transports, not new authority. The approved plan and project records remain the durable ledger; the playbook's approvals, resource checks, ownership, tests, and review gates still apply.
+Historical transport survey checked 2026-09-23; current operating guidance is [efficient Codex operations](efficient-codex-operations.md), checked 2026-11-03. This guide explains available execution transports, not new authority. The approved plan and project records remain the durable ledger; the playbook's approvals, resource checks, ownership, tests, and review gates still apply.
 
 ## Make the plan executable
 

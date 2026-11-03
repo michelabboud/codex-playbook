@@ -45,14 +45,15 @@ behavior.
 
 ## Required checks
 
-Run:
+Run the aggregate suite once; it already invokes the rulebook, local-layer, installer and dashboard suites:
 
 ```bash
-./tests/rulebook_test.sh
-./tests/check_local_test.sh
-./tests/install_test.sh
 ./scripts/verify.sh
 ```
+
+During development, run an individual affected suite for focused feedback. Do not
+run each child suite and then repeat them all through the aggregate command unless
+changed inputs or a failure justify the repeat.
 
 For visual changes, open `docs/index.html` at desktop and mobile widths, verify
 keyboard operation, and confirm `prefers-reduced-motion` removes nonessential

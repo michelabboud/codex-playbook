@@ -1,5 +1,28 @@
 # Plan
 
+## Task — Bounded execution and visible progress (authorized 2026-11-03)
+
+**Status:** running 2026-11-03. Tasks run back to back through checkpoint publication.
+**Mode/threat sketch:** production instruction package. Preserve secret handling,
+deletion safeguards, independent review and truthful acceptance. Risks are stalled
+work hidden by fresh heartbeats, duplicate writers, misleading progress, and loss
+of retained data. No cleanup of other projects or automatic process termination.
+
+One task, no phase release. Astra xhigh supplied a read-only policy design. Root
+owns rule edits, ADR0017, guides, public summaries, versioning and verification.
+Sol high owns only the dashboard helper, HTML and its tests; no shared-file edits.
+Native completion messages return results; no new worktrees or background services.
+After integration, independent mechanical and deep reviews assess one pinned
+candidate and shared check receipts. Root resolves findings, records measured
+limitations, and commits/tags/pushes. Installed replacement is a separate protected
+operation; report local override compatibility before proposing it.
+
+Acceptance: existing repository verification, behavioral dashboard staleness/count
+tests, source review of policy consistency, and a guide to native inspection and
+safe abandoned-worktree classification. Broad cross-project cleanup and empirical
+model benchmarking are not claimed. Estimated new retained data: under 10 MiB;
+test fixtures use existing run-owned temporary paths and their existing teardown.
+
 ## Task — Efficient validation and bounded retention (authorized 2026-11-02)
 
 **Status:** done 2026-11-02; composed verification and independent mechanical/deep review accepted. Tasks run back to back through close-out.

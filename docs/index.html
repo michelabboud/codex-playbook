@@ -118,7 +118,7 @@
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="topbar">
-    <a class="wordmark" href="#top">Codex Playbook / 0.1.21</a>
+    <a class="wordmark" href="#top">Codex Playbook / 0.1.22</a>
     <nav class="toplinks" aria-label="Primary">
       <a href="#mantra">Mantra</a><a href="#authority">Authority</a><a href="#rules">Rules</a><a href="#native">Codex-native</a>
       <a class="install" href="https://github.com/michelabboud/codex-playbook/blob/main/INSTALL.md">Install</a>
@@ -374,7 +374,7 @@
           [
             "7.2",
             "Decide by default",
-            "Avoid stalls, batch real questions, and make ordinary implementation calls."
+            "Bound unsuccessful attempts, require observable checkpoints, show completed/remaining work and intervene on missed progress. Batch real questions and make ordinary implementation calls."
           ],
           [
             "7.3",
@@ -384,7 +384,7 @@
           [
             "7.4",
             "Fix now or defer loudly",
-            "Repair understood local defects; persist and escalate risky or unclear ones."
+            "Repair understood defects within the requested scope; record unrelated findings without automatically adding a new lane."
           ],
           [
             "7.5",
@@ -410,7 +410,7 @@
           [
             "8.1",
             "Delegate clean seams and escalate early",
-            "Coordinate approved plans with scoped subagents for separable work and independent reviews. Use capability tiers, measured concurrency, planner/coordinator separation, and evidence-bearing escalation; keep shared-file work sequential. Check the live communication tools before using agent messages or Herdr. The <a href='https://github.com/michelabboud/codex-playbook/blob/main/docs/guides/advanced-task-execution-and-communication.md'>capability guide</a> covers both; messages are not approvals or completion evidence. Which configuration fills each tier — Top · Strong · Standard · Fast — is the roster reference bundled with the subagents skill; the tier assignments carry no model product identifiers."
+            "Coordinate approved plans with scoped subagents for separable work and independent reviews. Start with at most two implementation workers, size concurrency by independent deliverables, keep one coordinator accountable, use stronger planning for hard decisions, and bound retries; keep shared-file work sequential. Check the live communication tools before using agent messages or Herdr. The <a href='https://github.com/michelabboud/codex-playbook/blob/main/docs/guides/advanced-task-execution-and-communication.md'>capability guide</a> covers both; messages are not approvals or completion evidence. Which configuration fills each tier — Top · Strong · Standard · Fast — is the roster reference bundled with the subagents skill; the tier assignments carry no model product identifiers."
           ]
         ]
       },
@@ -535,12 +535,12 @@
           [
             "13.4",
             "Make things cleanable at creation",
-            "Separate durable evidence from working fixtures at creation. Avoid duplicate immutable inputs while preserving mutation/build isolation. Markers never override protection; no large scratch or builds in RAM."
+            "Record storage placement before creation; no silent spill to another mount such as /mnt/d. Separate evidence from fixtures, avoid duplicate immutable inputs with isolation, and keep builds off RAM."
           ],
           [
             "13.5",
             "Run on schedule and report",
-            "At close-out and capacity triggers, report allocated retained bytes, owners, reasons and next review events. Advisory budgets prompt inspection, never automatic deletion."
+            "Close every large artifact: removed with measured bytes, retained with a specific reference and owner, or blocked by an exact failed check. Stale does not mean dead; advisory budgets never authorize deletion."
           ],
           [
             "13.6",
@@ -571,7 +571,7 @@
           [
             "14.4",
             "No attack story, no blocker",
-            "Who, through what, what they get; only a path open at this mode blocks, and downgrading takes a reason."
+            "Who, through what, what they get. Bound investigation of unverified concerns; confirmed realistic harm and unresolved material acceptance uncertainty block. Downgrading requires evidence."
           ],
           [
             "14.5",
